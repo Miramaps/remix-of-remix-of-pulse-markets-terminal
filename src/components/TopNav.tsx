@@ -2,52 +2,104 @@ import { useState } from 'react';
 import { Search, ChevronDown, Wallet, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { motion } from 'framer-motion';
+import { NavLink } from './NavLink';
 
-interface TopNavProps { onCreateMarket: () => void; }
+interface TopNavProps {
+  onCreateMarket: () => void;
+}
 
 export function TopNav({ onCreateMarket }: TopNavProps) {
   const [chain, setChain] = useState<'SOL' | 'ETH'>('SOL');
+
   const navItems = ['Discover', 'Pulse', 'Trackers', 'Markets', 'Portfolio', 'Rewards'];
 
   return (
-    <header className="sticky top-0 z-50 h-12 border-b border-border bg-panel/90 glass-blur">
-      <div className="flex h-full items-center justify-between px-5 gap-6">
+    <header className="sticky top-0 z-50 bg-canvas/90 backdrop-blur-md border-b border-light">
+      <div className="h-16 px-6 flex items-center justify-between gap-8">
+        {/* Left: Logo */}
+        <motion.div 
+          className="flex items-center gap-3"
+          whileHover={{ scale: 1.01 }}
+        >
+          <div className="w-9 h-9 rounded-xl bg-ink flex items-center justify-center">
+            <span className="text-canvas font-display font-bold text-sm">P</span>
+          </div>
+          <span className="font-display font-semibold text-ink tracking-tight text-lg hidden sm:block">
+            PULSEMARKETS
+          </span>
+        </motion.div>
+
+        {/* Center: Nav Links */}
+        <nav className="hidden lg:flex items-center gap-1">
+          {navItems.map((item) => (
+            <NavLink key={item} href="#">{item}</NavLink>
+          ))}
+        </nav>
+
+        {/* Right: Search + Actions */}
         <div className="flex items-center gap-3">
-          <div className="w-6 h-6 rounded-full bg-accent-beige flex items-center justify-center">
-            <span className="text-background font-semibold text-xs">P</span>
+          {/* Search */}
+          <div className="relative hidden md:block">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-ink" />
+            <Input
+              placeholder="Search markets…"
+              className="pl-11 h-10 w-64 bg-canvas2 border-border-light rounded-full text-sm placeholder:text-muted-ink focus:ring-2 focus:ring-accent-blue/20 focus:border-accent-blue/30"
+            />
           </div>
-          <span className="text-accent-beige font-medium text-sm tracking-tight">PULSEMARKETS</span>
-        </div>
-        <div className="flex-1 flex items-center justify-center gap-8">
-          <nav className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
-              <button key={item} className="px-3 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors">{item}</button>
-            ))}
-          </nav>
-          <div className="relative w-64 hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-            <Input placeholder="Search markets…" className="pl-9 h-8 bg-card border-border text-xs placeholder:text-muted-foreground" />
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
+
+          {/* Chain Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs text-muted-foreground hover:text-foreground">
-                {chain}<ChevronDown className="w-3 h-3" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-9 gap-2 bg-canvas2 border-border-light hover:border-gold hover:bg-canvas2 rounded-xl text-ink"
+              >
+                <span className="font-medium text-sm">{chain}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-muted-ink" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-panel border-border min-w-[100px]">
-              <DropdownMenuItem onClick={() => setChain('SOL')} className="text-xs">Solana</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setChain('ETH')} className="text-xs">Ethereum</DropdownMenuItem>
+            <DropdownMenuContent align="end" className="glass-panel rounded-xl">
+              <DropdownMenuItem onClick={() => setChain('SOL')} className="text-panel">
+                <span className="mr-2">◎</span> Solana
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setChain('ETH')} className="text-panel">
+                <span className="mr-2">Ξ</span> Ethereum
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <div className="h-7 px-2.5 rounded-md bg-card border border-border text-xs font-mono text-muted-foreground flex items-center">0.033</div>
-          <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground">
-            <Wallet className="w-3 h-3" /><span className="hidden sm:inline">Connect</span>
+
+          {/* Balance */}
+          <div className="hidden sm:flex items-center gap-2 px-3 h-9 bg-canvas2 border border-border-light rounded-xl">
+            <div className="w-2 h-2 rounded-full bg-accent-lime animate-pulse" />
+            <span className="text-sm font-medium text-ink">0.033 {chain}</span>
+          </div>
+
+          {/* Connect */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-9 gap-2 bg-canvas2 border-border-light hover:border-gold hover:bg-canvas2 rounded-xl text-ink"
+          >
+            <Wallet className="w-4 h-4" />
+            <span className="hidden sm:inline font-medium">Connect</span>
           </Button>
-          <Button onClick={onCreateMarket} size="sm" className="h-7 gap-1 bg-accent-beige text-background hover:bg-accent-beige/90 text-xs font-medium">
-            <Plus className="w-3 h-3" />Create
+
+          {/* Create */}
+          <Button 
+            onClick={onCreateMarket}
+            size="sm"
+            className="h-9 gap-2 bg-ink text-canvas hover:bg-ink/90 rounded-xl font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Create</span>
           </Button>
         </div>
       </div>

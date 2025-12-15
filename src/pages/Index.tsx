@@ -8,6 +8,7 @@ import { MobileTabs } from '@/components/MobileTabs';
 import { initialMarkets, Market } from '@/lib/mockData';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { AnimatePresence } from 'framer-motion';
 
 const Index = () => {
   const [markets, setMarkets] = useState<Market[]>(initialMarkets);
@@ -48,7 +49,7 @@ const Index = () => {
         });
 
         setPriceFlashes(newFlashes);
-        setTimeout(() => setPriceFlashes({}), 250);
+        setTimeout(() => setPriceFlashes({}), 500);
 
         return updated;
       });
@@ -94,13 +95,13 @@ const Index = () => {
   const resolvedMarkets = markets.filter((m) => m.status === 'resolved');
 
   return (
-    <div className="min-h-screen bg-background noise-overlay">
+    <div className="min-h-screen bg-canvas relative">
       <TopNav onCreateMarket={() => setIsCreateModalOpen(true)} />
 
       {/* Main Content */}
-      <main className="h-[calc(100vh-3rem-4rem)]">
+      <main className="h-[calc(100vh-4rem-5rem)] px-4 py-4">
         {/* Desktop: 3 columns */}
-        <div className="hidden lg:grid lg:grid-cols-3 h-full divide-x divide-border">
+        <div className="hidden lg:grid lg:grid-cols-3 gap-4 h-full max-w-7xl mx-auto">
           <MarketColumn
             title="NEW"
             markets={newMarkets}
@@ -131,48 +132,54 @@ const Index = () => {
         <div className="lg:hidden h-full">
           <MobileTabs labels={['New', 'Ending', 'Resolved']}>
             <ScrollArea className="h-full">
-              <div className="p-3 space-y-2 pb-20">
-                {newMarkets
-                  .filter((m) => !selectedCategory || m.category === selectedCategory)
-                  .map((market) => (
-                    <MarketRow
-                      key={market.id}
-                      market={market}
-                      isSelected={selectedMarket?.id === market.id}
-                      onSelect={setSelectedMarket}
-                      priceFlash={priceFlashes[market.id]}
-                    />
-                  ))}
+              <div className="p-3 space-y-2 pb-24">
+                <AnimatePresence mode="popLayout">
+                  {newMarkets
+                    .filter((m) => !selectedCategory || m.category === selectedCategory)
+                    .map((market) => (
+                      <MarketRow
+                        key={market.id}
+                        market={market}
+                        isSelected={selectedMarket?.id === market.id}
+                        onSelect={setSelectedMarket}
+                        priceFlash={priceFlashes[market.id]}
+                      />
+                    ))}
+                </AnimatePresence>
               </div>
             </ScrollArea>
             <ScrollArea className="h-full">
-              <div className="p-3 space-y-2 pb-20">
-                {endingMarkets
-                  .filter((m) => !selectedCategory || m.category === selectedCategory)
-                  .map((market) => (
-                    <MarketRow
-                      key={market.id}
-                      market={market}
-                      isSelected={selectedMarket?.id === market.id}
-                      onSelect={setSelectedMarket}
-                      priceFlash={priceFlashes[market.id]}
-                    />
-                  ))}
+              <div className="p-3 space-y-2 pb-24">
+                <AnimatePresence mode="popLayout">
+                  {endingMarkets
+                    .filter((m) => !selectedCategory || m.category === selectedCategory)
+                    .map((market) => (
+                      <MarketRow
+                        key={market.id}
+                        market={market}
+                        isSelected={selectedMarket?.id === market.id}
+                        onSelect={setSelectedMarket}
+                        priceFlash={priceFlashes[market.id]}
+                      />
+                    ))}
+                </AnimatePresence>
               </div>
             </ScrollArea>
             <ScrollArea className="h-full">
-              <div className="p-3 space-y-2 pb-20">
-                {resolvedMarkets
-                  .filter((m) => !selectedCategory || m.category === selectedCategory)
-                  .map((market) => (
-                    <MarketRow
-                      key={market.id}
-                      market={market}
-                      isSelected={selectedMarket?.id === market.id}
-                      onSelect={setSelectedMarket}
-                      priceFlash={priceFlashes[market.id]}
-                    />
-                  ))}
+              <div className="p-3 space-y-2 pb-24">
+                <AnimatePresence mode="popLayout">
+                  {resolvedMarkets
+                    .filter((m) => !selectedCategory || m.category === selectedCategory)
+                    .map((market) => (
+                      <MarketRow
+                        key={market.id}
+                        market={market}
+                        isSelected={selectedMarket?.id === market.id}
+                        onSelect={setSelectedMarket}
+                        priceFlash={priceFlashes[market.id]}
+                      />
+                    ))}
+                </AnimatePresence>
               </div>
             </ScrollArea>
           </MobileTabs>

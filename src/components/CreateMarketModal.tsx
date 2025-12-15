@@ -3,9 +3,21 @@ import { Calendar, DollarSign, Link2, FileText, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Market } from '@/lib/mockData';
+import { motion } from 'framer-motion';
 
 interface CreateMarketModalProps {
   open: boolean;
@@ -22,51 +34,139 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!question || !resolveDate) return;
-    onCreate({ question, category, resolvesAt: new Date(resolveDate) });
-    setQuestion(''); setCategory('crypto'); setResolveDate(''); setLiquidity('1000'); setSourceUrl('');
+
+    onCreate({
+      question,
+      category,
+      resolvesAt: new Date(resolveDate),
+      sourceUrl: sourceUrl || undefined,
+    });
+
+    setQuestion('');
+    setCategory('crypto');
+    setResolveDate('');
+    setLiquidity('1000');
+    setSourceUrl('');
     onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-panel border-border max-w-sm">
-        <DialogHeader><DialogTitle className="text-sm font-medium text-foreground">Create Market</DialogTitle></DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground flex items-center gap-1.5"><FileText className="w-3 h-3" />Question</Label>
-            <Input placeholder="Will X happen by Y?" value={question} onChange={(e) => setQuestion(e.target.value)} className="h-8 text-xs bg-card border-border" required />
+      <DialogContent className="glass-panel border-dark max-w-md rounded-2xl">
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl font-semibold text-panel flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-blue to-blue-600 flex items-center justify-center">
+              <span className="text-white font-bold">+</span>
+            </div>
+            Create Market
+          </DialogTitle>
+        </DialogHeader>
+
+        <motion.form
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          onSubmit={handleSubmit}
+          className="space-y-5 mt-4"
+        >
+          <div className="space-y-2">
+            <Label htmlFor="question" className="text-sm text-panel/60 flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Question
+            </Label>
+            <Input
+              id="question"
+              placeholder="Will X happen by Y?"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              className="h-11 bg-panel/10 border-dark text-panel placeholder:text-panel/30 rounded-xl"
+              required
+            />
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground flex items-center gap-1.5"><Tag className="w-3 h-3" />Category</Label>
+
+          <div className="space-y-2">
+            <Label className="text-sm text-panel/60 flex items-center gap-2">
+              <Tag className="w-4 h-4" />
+              Category
+            </Label>
             <Select value={category} onValueChange={(v) => setCategory(v as Market['category'])}>
-              <SelectTrigger className="h-8 text-xs bg-card border-border"><SelectValue /></SelectTrigger>
-              <SelectContent className="bg-panel border-border">
-                <SelectItem value="crypto" className="text-xs">Crypto</SelectItem>
-                <SelectItem value="politics" className="text-xs">Politics</SelectItem>
-                <SelectItem value="sports" className="text-xs">Sports</SelectItem>
-                <SelectItem value="pop" className="text-xs">Pop Culture</SelectItem>
-                <SelectItem value="memes" className="text-xs">Memes</SelectItem>
+              <SelectTrigger className="h-11 bg-panel/10 border-dark text-panel rounded-xl">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="glass-panel border-dark rounded-xl">
+                <SelectItem value="crypto">Crypto</SelectItem>
+                <SelectItem value="politics">Politics</SelectItem>
+                <SelectItem value="sports">Sports</SelectItem>
+                <SelectItem value="pop">Pop Culture</SelectItem>
+                <SelectItem value="memes">Memes</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground flex items-center gap-1.5"><Calendar className="w-3 h-3" />Resolve Date</Label>
-            <Input type="datetime-local" value={resolveDate} onChange={(e) => setResolveDate(e.target.value)} className="h-8 text-xs bg-card border-border" required />
+
+          <div className="space-y-2">
+            <Label htmlFor="resolveDate" className="text-sm text-panel/60 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Resolve Date
+            </Label>
+            <Input
+              id="resolveDate"
+              type="datetime-local"
+              value={resolveDate}
+              onChange={(e) => setResolveDate(e.target.value)}
+              className="h-11 bg-panel/10 border-dark text-panel rounded-xl"
+              required
+            />
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground flex items-center gap-1.5"><DollarSign className="w-3 h-3" />Initial Liquidity</Label>
-            <Input type="number" min="100" step="100" value={liquidity} onChange={(e) => setLiquidity(e.target.value)} className="h-8 text-xs bg-card border-border font-mono" />
+
+          <div className="space-y-2">
+            <Label htmlFor="liquidity" className="text-sm text-panel/60 flex items-center gap-2">
+              <DollarSign className="w-4 h-4" />
+              Initial Liquidity
+            </Label>
+            <Input
+              id="liquidity"
+              type="number"
+              min="100"
+              step="100"
+              value={liquidity}
+              onChange={(e) => setLiquidity(e.target.value)}
+              className="h-11 bg-panel/10 border-dark text-panel font-mono rounded-xl"
+            />
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-[11px] text-muted-foreground flex items-center gap-1.5"><Link2 className="w-3 h-3" />Source URL</Label>
-            <Input type="url" placeholder="https://…" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} className="h-8 text-xs bg-card border-border" />
+
+          <div className="space-y-2">
+            <Label htmlFor="sourceUrl" className="text-sm text-panel/60 flex items-center gap-2">
+              <Link2 className="w-4 h-4" />
+              Source URL (optional)
+            </Label>
+            <Input
+              id="sourceUrl"
+              type="url"
+              placeholder="https://…"
+              value={sourceUrl}
+              onChange={(e) => setSourceUrl(e.target.value)}
+              className="h-11 bg-panel/10 border-dark text-panel placeholder:text-panel/30 rounded-xl"
+            />
           </div>
-          <div className="flex gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1 h-8 text-xs bg-card border-border">Cancel</Button>
-            <Button type="submit" className="flex-1 h-8 bg-accent-beige text-background hover:bg-accent-beige/90 text-xs font-medium">Create</Button>
+
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1 h-11 bg-panel/10 border-dark text-panel hover:bg-panel/20 rounded-xl"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1 h-11 bg-gradient-to-r from-accent-blue to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-accent-blue"
+            >
+              Create Market
+            </Button>
           </div>
-        </form>
+        </motion.form>
       </DialogContent>
     </Dialog>
   );
