@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Activity, Users, Clock, Sparkles, Landmark, Trophy, Music, Laugh } from 'lucide-react';
+import { Activity, Users, Clock } from 'lucide-react';
 import { Market, formatVolume, formatTimeLeft, formatTimeAgo } from '@/lib/mockData';
 import { useToast } from '@/hooks/use-toast';
 
@@ -11,20 +11,28 @@ interface MarketRowProps {
   showProgress?: boolean;
 }
 
-const categoryConfig: Record<Market['category'], { icon: typeof Sparkles }> = {
-  crypto: { icon: Sparkles },
-  politics: { icon: Landmark },
-  sports: { icon: Trophy },
-  pop: { icon: Music },
-  memes: { icon: Laugh },
+// Generate a deterministic placeholder image URL based on market id
+const getMarketImage = (market: Market): string => {
+  const hash = market.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const imageId = (hash % 100) + 1;
+  
+  // Use different image categories based on market category
+  const categoryImages: Record<Market['category'], string> = {
+    crypto: `https://api.dicebear.com/7.x/shapes/svg?seed=${market.id}&backgroundColor=1a1a2e,16213e,0f3460`,
+    politics: `https://api.dicebear.com/7.x/shapes/svg?seed=${market.id}&backgroundColor=2d132c,801336,c72c41`,
+    sports: `https://api.dicebear.com/7.x/shapes/svg?seed=${market.id}&backgroundColor=1b4332,2d6a4f,40916c`,
+    pop: `https://api.dicebear.com/7.x/shapes/svg?seed=${market.id}&backgroundColor=3c096c,5a189a,7b2cbf`,
+    memes: `https://api.dicebear.com/7.x/shapes/svg?seed=${market.id}&backgroundColor=ff6d00,ff8500,ff9100`,
+  };
+  
+  return categoryImages[market.category];
 };
 
 export function MarketRow({ market, isSelected, onSelect, priceFlash, showProgress }: MarketRowProps) {
   const [flashYes, setFlashYes] = useState(false);
   const [flashNo, setFlashNo] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const { toast } = useToast();
-
-  const { icon: CategoryIcon } = categoryConfig[market.category];
 
   useEffect(() => {
     if (priceFlash) {
@@ -59,10 +67,14 @@ export function MarketRow({ market, isSelected, onSelect, priceFlash, showProgre
     100 - ((market.resolvesAt.getTime() - Date.now()) / (48 * 60 * 60 * 1000)) * 100
   )) : 0;
 
+  const imageUrl = getMarketImage(market);
+
   return (
     <div
       onClick={onSelect}
-      className={`relative group px-3 py-2.5 cursor-pointer transition-all duration-150 ${
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`relative group px-4 py-3 cursor-pointer transition-all duration-200 ${
         isSelected 
           ? 'bg-row-hover' 
           : 'hover:bg-row-hover'
@@ -71,31 +83,41 @@ export function MarketRow({ market, isSelected, onSelect, priceFlash, showProgre
       {/* Accent bar */}
       <div className={`row-accent-bar ${isSelected ? 'active' : 'group-hover:hover'}`} />
 
-      <div className="flex items-center gap-3">
-        {/* Category icon */}
-        <div className="shrink-0">
-          <CategoryIcon className="w-5 h-5 text-light-muted" />
+      <div className="flex items-center gap-4">
+        {/* Thumbnail Image */}
+        <div 
+          className={`shrink-0 transition-transform duration-200 ${
+            isHovered ? 'scale-110' : 'scale-100'
+          }`}
+        >
+          <div className="w-12 h-12 rounded-lg overflow-hidden bg-row border border-stroke">
+            <img 
+              src={imageUrl} 
+              alt={market.question}
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Question */}
-          <p className="text-sm font-medium text-light leading-tight line-clamp-1 mb-1">
+          <p className="text-[15px] font-medium text-light leading-snug line-clamp-1 mb-1.5">
             {market.question}
           </p>
 
           {/* Meta */}
-          <div className="flex items-center gap-3 text-[11px] text-light-muted">
-            <span className="flex items-center gap-1">
-              <Activity className="w-3 h-3" />
+          <div className="flex items-center gap-4 text-xs text-light-muted">
+            <span className="flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5" />
               {formatVolume(market.volume)}
             </span>
-            <span className="flex items-center gap-1">
-              <Users className="w-3 h-3" />
+            <span className="flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5" />
               {market.traders}
             </span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" />
               {market.status === 'resolved' 
                 ? 'Ended' 
                 : market.status === 'ending' 
@@ -117,7 +139,7 @@ export function MarketRow({ market, isSelected, onSelect, priceFlash, showProgre
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleYes}
-            className={`h-9 px-3 rounded-[10px] text-[13px] font-medium btn-yes min-w-[80px] tabular-nums ${
+            className={`h-9 px-3.5 rounded-[10px] text-[13px] font-medium btn-yes min-w-[85px] tabular-nums ${
               flashYes ? 'price-flash' : ''
             }`}
           >
@@ -125,7 +147,7 @@ export function MarketRow({ market, isSelected, onSelect, priceFlash, showProgre
           </button>
           <button
             onClick={handleNo}
-            className={`h-9 px-3 rounded-[10px] text-[13px] font-medium btn-no min-w-[80px] tabular-nums ${
+            className={`h-9 px-3.5 rounded-[10px] text-[13px] font-medium btn-no min-w-[85px] tabular-nums ${
               flashNo ? 'price-flash' : ''
             }`}
           >
