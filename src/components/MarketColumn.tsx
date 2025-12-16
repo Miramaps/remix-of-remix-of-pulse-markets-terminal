@@ -22,6 +22,7 @@ interface MarketColumnProps {
   priceFlashes: Record<string, boolean>;
   selectedCategory: string | null;
   showProgress?: boolean;
+  onToggleWatchlist?: (marketId: string) => void;
 }
 
 type SortOption = 'newest' | 'oldest' | 'volume' | 'ending' | 'traders' | 'yes-high' | 'no-high';
@@ -82,12 +83,14 @@ export function MarketColumn({
   priceFlashes,
   selectedCategory,
   showProgress,
+  onToggleWatchlist,
 }: MarketColumnProps) {
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortOption>('newest');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isDisplayOpen, setIsDisplayOpen] = useState(false);
-  const [fastBuyAmount, setFastBuyAmount] = useState('');
+  const [fastBuyAmount, setFastBuyAmount] = useState('')
+  const [isFastBuyFocused, setIsFastBuyFocused] = useState(false);
   const [minVolumeInput, setMinVolumeInput] = useState('');
   const [maxVolumeInput, setMaxVolumeInput] = useState('');
   const [minTimeInput, setMinTimeInput] = useState('');
@@ -105,7 +108,7 @@ export function MarketColumn({
     buttonVisibility: 'both',
     showSearchBar: true,
     imageShape: 'square',
-    buttonShape: 'square',
+    buttonShape: 'circle',
   });
 
   const activeFilterCount = useMemo(() => {
@@ -123,7 +126,7 @@ export function MarketColumn({
     if (displaySettings.buttonVisibility !== 'both') count++;
     if (!displaySettings.showSearchBar) count++;
     if (displaySettings.imageShape !== 'square') count++;
-    if (displaySettings.buttonShape !== 'square') count++;
+    if (displaySettings.buttonShape !== 'circle') count++;
     return count;
   }, [displaySettings]);
 
@@ -231,7 +234,7 @@ export function MarketColumn({
       buttonVisibility: 'both',
       showSearchBar: true,
       imageShape: 'square',
-      buttonShape: 'square',
+      buttonShape: 'circle',
     });
   };
 
@@ -262,9 +265,9 @@ export function MarketColumn({
   const parsedFastBuyAmount = fastBuyAmount ? parseFloat(fastBuyAmount) : null;
 
   return (
-    <div className="flex flex-col h-full bg-panel2 rounded-xl border border-stroke overflow-hidden terminal-shadow">
+    <div className="flex flex-col h-full bg-panel2 rounded-xl border border-white/10 overflow-hidden terminal-shadow ring-1 ring-white/5">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-stroke bg-panel shrink-0">
+      <div className="px-4 py-3 border-b border-white/10 bg-white/5 shrink-0">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 shrink-0">
             <h2 className="font-display font-semibold text-xs uppercase tracking-wider text-light">
@@ -301,15 +304,57 @@ export function MarketColumn({
 
           <div className="flex-1" />
 
-          <div className="relative w-[50px] shrink-0">
-            <Zap className="absolute left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-light-muted pointer-events-none" />
-            <Input
-              type="number"
-              placeholder=""
-              value={fastBuyAmount}
-              onChange={(e) => setFastBuyAmount(e.target.value)}
-              className="h-6 pl-5 pr-1 bg-row border-stroke text-[10px] text-light placeholder:text-light-muted/50 rounded-md w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
+          <div className="relative shrink-0">
+            <div className="relative w-[50px]">
+              <Zap className="absolute left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-light-muted pointer-events-none" />
+              <Input
+                type="number"
+                placeholder=""
+                value={fastBuyAmount}
+                onChange={(e) => setFastBuyAmount(e.target.value)}
+                onFocus={() => setIsFastBuyFocused(true)}
+                onBlur={() => setIsFastBuyFocused(false)}
+                className="h-6 pl-5 pr-1 bg-row border-stroke text-[10px] text-light placeholder:text-light-muted/50 rounded-md w-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+            </div>
+            {/* Fast Buy Preview Popup */}
+            {isFastBuyFocused && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="bg-panel/95 backdrop-blur-xl border border-stroke/50 rounded-xl p-3 shadow-2xl min-w-[180px]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="w-4 h-4 text-yellow-400" />
+                    <span className="text-xs font-semibold text-light">Fast Buy Amount</span>
+                  </div>
+                  <div className="text-center py-2 px-3 bg-row/50 rounded-lg mb-2">
+                    <span className="text-2xl font-bold text-light tabular-nums">
+                      ${fastBuyAmount || '0'}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-light-muted text-center">
+                    Click YES/NO to instantly buy this amount
+                  </p>
+                  {/* Quick amount buttons */}
+                  <div className="flex gap-1 mt-2">
+                    {[10, 25, 50, 100].map((amt) => (
+                      <button
+                        key={amt}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setFastBuyAmount(amt.toString());
+                        }}
+                        className={`flex-1 py-1 text-[9px] font-medium rounded-md transition-colors ${
+                          fastBuyAmount === amt.toString()
+                            ? 'bg-light text-panel'
+                            : 'bg-row/50 text-light-muted hover:bg-row hover:text-light'
+                        }`}
+                      >
+                        ${amt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Display Button */}
@@ -751,6 +796,7 @@ export function MarketColumn({
                   fastBuyAmount={parsedFastBuyAmount}
                   imageShape={displaySettings.imageShape}
                   buttonShape={displaySettings.buttonShape}
+                  onToggleWatchlist={onToggleWatchlist}
                 />
               </motion.div>
             ))}

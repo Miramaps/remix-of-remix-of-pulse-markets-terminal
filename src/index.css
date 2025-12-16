@@ -17,7 +17,7 @@
     
     /* Terminal Surfaces - More transparent */
     --panel: 220 15% 8% / 0.6;
-    --panel2: 220 15% 10% / 0.4;
+    --panel2: 220 15% 12% / 0.6;
     --row: 220 15% 12% / 0.3;
     --row-hover: 220 15% 18% / 0.5;
     --stroke: 0 0% 100% / 0.12;
@@ -138,8 +138,8 @@
 
   .bg-panel2 {
     background-color: hsl(var(--panel2));
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
 
   .bg-row {
@@ -240,10 +240,10 @@
   /* Terminal shadow - softer */
   .terminal-shadow {
     box-shadow: 
-      0 4px 24px rgba(0, 0, 0, 0.3),
-      0 0 0 1px hsl(0 0% 100% / 0.05);
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      0 0 0 1px hsl(0 0% 100% / 0.08),
+      inset 0 1px 0 hsl(0 0% 100% / 0.05);
   }
-
   /* Price flash animation */
   @keyframes price-flash {
     0%, 100% { opacity: 1; }
@@ -281,8 +281,8 @@
   }
 
   .row-accent-bar.active {
-    background: hsl(var(--accent-blue));
-    box-shadow: 0 0 8px hsl(var(--accent-blue) / 0.5);
+    background: transparent;
+    box-shadow: none;
   }
 
   .row-accent-bar.hover {

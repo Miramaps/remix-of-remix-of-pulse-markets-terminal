@@ -13,6 +13,8 @@ export interface Market {
   liquidity?: number;
   shares: number;
   isWatchlisted?: boolean;
+  priceChange?: number;
+  sentiment?: number; // 0-100 bullish percentage
 }
 
 export const categoryIcons: Record<Market['category'], string> = {
@@ -57,6 +59,8 @@ function generateMarket(index: number, status: Market['status']): Market {
     status,
     shares: Math.floor(Math.random() * 5000) + 50,
     isWatchlisted: Math.random() > 0.8,
+    priceChange: (Math.random() - 0.3) * 40,
+    sentiment: Math.floor(Math.random() * 60) + 20, // 20-80% bullish
   };
 }
 

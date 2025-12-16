@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Activity, Users, Clock } from 'lucide-react';
+import { Activity, Users, Clock, Star, TrendingUp, TrendingDown, Heart } from 'lucide-react';
 import { Market, formatVolume, formatTimeLeft, formatTimeAgo } from '@/lib/mockData';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 type ButtonSize = 'small' | 'medium' | 'large';
 type ButtonVisibility = 'both' | 'yes-only' | 'no-only';
@@ -18,6 +24,7 @@ interface MarketRowProps {
   fastBuyAmount?: number | null;
   imageShape?: ShapeOption;
   buttonShape?: ShapeOption;
+  onToggleWatchlist?: (marketId: string) => void;
 }
 
 // Generate a deterministic placeholder image URL based on market id
@@ -44,6 +51,7 @@ export function MarketRow({
   fastBuyAmount,
   imageShape = 'square',
   buttonShape = 'square',
+  onToggleWatchlist,
 }: MarketRowProps) {
   const [flashYes, setFlashYes] = useState(false);
   const [flashNo, setFlashNo] = useState(false);
@@ -65,7 +73,7 @@ export function MarketRow({
   const handleYes = (e: React.MouseEvent) => {
     e.stopPropagation();
     const amount = fastBuyAmount ? ` $${fastBuyAmount}` : '';
-    toast({
+    toast({ variant: 'yes',
       title: 'Order Placed',
       description: `Bought${amount} YES at ${market.yesPrice.toFixed(2)}`,
     });
@@ -74,10 +82,17 @@ export function MarketRow({
   const handleNo = (e: React.MouseEvent) => {
     e.stopPropagation();
     const amount = fastBuyAmount ? ` $${fastBuyAmount}` : '';
-    toast({
+    toast({ variant: 'no',
       title: 'Order Placed',
       description: `Bought${amount} NO at ${market.noPrice.toFixed(2)}`,
     });
+  };
+
+  const handleWatchlistToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleWatchlist) {
+      onToggleWatchlist(market.id);
+    }
   };
 
   // Calculate progress for ending markets
@@ -86,6 +101,14 @@ export function MarketRow({
   )) : 0;
 
   const imageUrl = getMarketImage(market);
+
+  // Price change
+  const priceChange = market.priceChange ?? 0;
+  const isPositive = priceChange >= 0;
+
+  // Sentiment
+  const sentiment = market.sentiment ?? 50;
+  const isBullish = sentiment >= 50;
 
   // Button size classes
   const buttonSizeClasses = {
@@ -107,8 +130,6 @@ export function MarketRow({
   // Render circular button with progress ring
   const renderCircleButton = (type: 'yes' | 'no', price: number, flash: boolean, onClick: (e: React.MouseEvent) => void) => {
     const percentage = price * 100;
-    const circumference = 2 * Math.PI * 20;
-    const strokeDashoffset = circumference - (percentage / 100) * circumference;
     const isYes = type === 'yes';
     
     const sizes = {
@@ -184,101 +205,165 @@ export function MarketRow({
   const showNo = buttonVisibility === 'both' || buttonVisibility === 'no-only';
 
   return (
-    <div
-      onClick={onSelect}
-      className={`relative group mx-2 my-1 px-3 py-2.5 cursor-pointer transition-all duration-200 rounded-xl ${
-        isSelected 
-          ? 'bg-row-hover' 
-          : 'hover:bg-row-hover'
-      }`}
-    >
-      {/* Accent bar */}
-      <div className={`row-accent-bar rounded-l-xl ${isSelected ? 'active' : 'group-hover:hover'}`} />
+    <TooltipProvider delayDuration={200}>
+      <div
+        onClick={onSelect}
+        className={`relative group mx-2 my-1 px-3 py-2.5 cursor-pointer transition-all duration-200 rounded-xl ${
+          isSelected 
+            ? 'bg-row-hover' 
+            : 'hover:bg-row-hover'
+        }`}
+      >
+        {/* Accent bar */}
+        <div className={`row-accent-bar rounded-l-xl ${isSelected ? 'active' : 'group-hover:hover'}`} />
 
-      <div className="flex items-center gap-3">
-        {/* Thumbnail Image with hover preview */}
-        <div 
-          className="relative shrink-0"
-          onMouseEnter={() => setIsImageHovered(true)}
-          onMouseLeave={() => setIsImageHovered(false)}
-        >
-          {/* Base image */}
-          <div className={`w-10 h-10 ${imageShapeClass} overflow-hidden bg-row/50`}>
-            <img 
-              src={imageUrl} 
-              alt={market.question}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          {/* Enlarged preview on hover - 200x200px */}
+        <div className="flex items-center gap-3">
+          {/* Thumbnail Image with hover preview */}
           <div 
-            className={`absolute z-50 -left-2 -top-2 transition-all duration-300 ease-out origin-top-left pointer-events-none ${
-              isImageHovered 
-                ? 'opacity-100 scale-100' 
-                : 'opacity-0 scale-50'
-            }`}
+            className="relative shrink-0"
+            onMouseEnter={() => setIsImageHovered(true)}
+            onMouseLeave={() => setIsImageHovered(false)}
           >
-            <div className={`w-52 h-52 ${previewShapeClass} overflow-hidden bg-panel border border-stroke/50 shadow-2xl ring-1 ring-white/10`}>
+            {/* Base image */}
+            <div className={`w-10 h-10 ${imageShapeClass} overflow-hidden bg-row/50`}>
               <img 
                 src={imageUrl} 
                 alt={market.question}
                 className="w-full h-full object-cover"
               />
             </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          {/* Question */}
-          <p className="text-sm font-medium text-light leading-snug line-clamp-1 mb-1">
-            {market.question}
-          </p>
-
-          {/* Meta */}
-          <div className="flex items-center gap-3 text-[11px] text-light-muted">
-            <span className="flex items-center gap-1">
-              <Activity className="w-3 h-3" />
-              {formatVolume(market.volume)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Users className="w-3 h-3" />
-              {market.traders}
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {market.status === 'resolved' 
-                ? 'Ended' 
-                : market.status === 'ending' 
-                  ? formatTimeLeft(market.resolvesAt)
-                  : formatTimeAgo(market.createdAt)
-              }
-            </span>
-          </div>
-
-          {/* Progress bar for ending markets */}
-          {showProgress && market.status === 'ending' && (
-            <div className="progress-bar mt-2">
-              <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
+            
+            {/* Enlarged preview on hover - 200x200px */}
+            <div 
+              className={`absolute z-50 -left-2 -top-2 transition-all duration-300 ease-out origin-top-left pointer-events-none ${
+                isImageHovered 
+                  ? 'opacity-100 scale-100' 
+                  : 'opacity-0 scale-50'
+              }`}
+            >
+              <div className={`w-52 h-52 ${previewShapeClass} overflow-hidden bg-panel border border-stroke/50 shadow-2xl ring-1 ring-white/10`}>
+                <img 
+                  src={imageUrl} 
+                  alt={market.question}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* YES/NO Buttons */}
-        <div className={`flex items-center shrink-0 ${buttonShape === 'circle' ? 'gap-2' : 'gap-1.5'}`}>
-          {showYes && (
-            buttonShape === 'circle' 
-              ? renderCircleButton('yes', market.yesPrice, flashYes, handleYes)
-              : renderSquareButton('yes', market.yesPrice, flashYes, handleYes)
-          )}
-          {showNo && (
-            buttonShape === 'circle' 
-              ? renderCircleButton('no', market.noPrice, flashNo, handleNo)
-              : renderSquareButton('no', market.noPrice, flashNo, handleNo)
-          )}
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            {/* Question with Star */}
+            <div className="flex items-center gap-1.5 mb-1">
+              <p className="text-sm font-medium text-light leading-snug line-clamp-1">
+                {market.question}
+              </p>
+              <button
+                onClick={handleWatchlistToggle}
+                className={`shrink-0 p-0.5 rounded transition-all duration-200 hover:scale-110 ${
+                  market.isWatchlisted
+                    ? 'text-yellow-400 hover:text-yellow-300'
+                    : 'text-light-muted/30 hover:text-yellow-400'
+                }`}
+              >
+                <Star className={`w-3.5 h-3.5 ${market.isWatchlisted ? 'fill-yellow-400' : ''}`} />
+              </button>
+            </div>
+
+            {/* Meta */}
+            <div className="flex items-center gap-2 text-[11px] text-light-muted">
+              {/* Price Change Badge */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md font-medium cursor-help ${
+                    isPositive 
+                      ? 'bg-emerald-500/15 text-emerald-400' 
+                      : 'bg-rose-500/15 text-rose-400'
+                  }`}>
+                    {isPositive ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    {isPositive ? '+' : ''}{priceChange.toFixed(2)}%
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-panel border-stroke text-light text-xs">
+                  <p className="font-medium">24h Price Change</p>
+                  <p className="text-light-muted">How much the YES price moved in the last 24 hours</p>
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Sentiment Badge */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md font-medium cursor-help ${
+                    isBullish 
+                      ? 'bg-emerald-500/15 text-emerald-400' 
+                      : 'bg-rose-500/15 text-rose-400'
+                  }`}>
+                    <Heart className="w-3 h-3" />
+                    {sentiment}% {isBullish ? 'Bullish' : 'Bearish'}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-panel border-stroke text-light text-xs">
+                  <p className="font-medium">Community Sentiment</p>
+                  <p className="text-light-muted">Percentage of traders betting YES on this market</p>
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Volume */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex items-center gap-1 cursor-help">
+                    <Activity className="w-3 h-3" />
+                    {formatVolume(market.volume)}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-panel border-stroke text-light text-xs">
+                  <p className="font-medium">Trading Volume</p>
+                  <p className="text-light-muted">Total amount traded on this market</p>
+                </TooltipContent>
+              </Tooltip>
+
+              {/* Traders */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex items-center gap-1 cursor-help">
+                    <Users className="w-3 h-3" />
+                    {market.traders}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-panel border-stroke text-light text-xs">
+                  <p className="font-medium">Active Traders</p>
+                  <p className="text-light-muted">Number of unique traders in this market</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+
+            {/* Progress bar for ending markets */}
+            {showProgress && market.status === 'ending' && (
+              <div className="progress-bar mt-2">
+                <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
+              </div>
+            )}
+          </div>
+
+          {/* YES/NO Buttons */}
+          <div className={`flex items-center shrink-0 ${buttonShape === 'circle' ? 'gap-2' : 'gap-1.5'}`}>
+            {showYes && (
+              buttonShape === 'circle' 
+                ? renderCircleButton('yes', market.yesPrice, flashYes, handleYes)
+                : renderSquareButton('yes', market.yesPrice, flashYes, handleYes)
+            )}
+            {showNo && (
+              buttonShape === 'circle' 
+                ? renderCircleButton('no', market.noPrice, flashNo, handleNo)
+                : renderSquareButton('no', market.noPrice, flashNo, handleNo)
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }

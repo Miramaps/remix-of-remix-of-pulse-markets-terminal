@@ -96,6 +96,13 @@ const Index = () => {
     setTradingMarket(market);
   };
 
+  const handleToggleWatchlist = useCallback((marketId: string) => {
+    setMarkets((prev) =>
+      prev.map((m) =>
+        m.id === marketId ? { ...m, isWatchlisted: !m.isWatchlisted } : m
+      )
+    );
+  }, []);
   const handleCloseTradingPage = () => {
     setTradingMarket(null);
   };
@@ -119,7 +126,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <TopNav onCreateMarket={() => setIsCreateModalOpen(true)} />
+      <TopNav 
+        onCreateMarket={() => setIsCreateModalOpen(true)}
+        watchlistMarkets={markets.filter(m => m.isWatchlisted)}
+        onRemoveFromWatchlist={handleToggleWatchlist}
+        onSelectMarket={handleSelectMarket}
+      />
 
       {/* Main Content - Full Width */}
       <main className="flex-1 px-4 md:px-6 2xl:px-8 py-4 pb-20">
@@ -132,6 +144,7 @@ const Index = () => {
             onSelectMarket={handleSelectMarket}
             priceFlashes={priceFlashes}
             selectedCategory={selectedCategory}
+            onToggleWatchlist={handleToggleWatchlist}
           />
           <MarketColumn
             title="ENDING"
@@ -140,6 +153,7 @@ const Index = () => {
             onSelectMarket={handleSelectMarket}
             priceFlashes={priceFlashes}
             selectedCategory={selectedCategory}
+            onToggleWatchlist={handleToggleWatchlist}
             
           />
           <MarketColumn
@@ -149,6 +163,7 @@ const Index = () => {
             onSelectMarket={handleSelectMarket}
             priceFlashes={priceFlashes}
             selectedCategory={selectedCategory}
+            onToggleWatchlist={handleToggleWatchlist}
           />
         </div>
 
@@ -172,6 +187,7 @@ const Index = () => {
                           isSelected={selectedMarket?.id === market.id}
                           onSelect={() => handleSelectMarket(market)}
                           priceFlash={priceFlashes[market.id]}
+                          onToggleWatchlist={handleToggleWatchlist}
                         />
                       </motion.div>
                     ))}
@@ -195,6 +211,7 @@ const Index = () => {
                           isSelected={selectedMarket?.id === market.id}
                           onSelect={() => handleSelectMarket(market)}
                           priceFlash={priceFlashes[market.id]}
+                          onToggleWatchlist={handleToggleWatchlist}
                           
                         />
                       </motion.div>
@@ -219,6 +236,7 @@ const Index = () => {
                           isSelected={selectedMarket?.id === market.id}
                           onSelect={() => handleSelectMarket(market)}
                           priceFlash={priceFlashes[market.id]}
+                          onToggleWatchlist={handleToggleWatchlist}
                         />
                       </motion.div>
                     ))}
@@ -232,6 +250,7 @@ const Index = () => {
       <BottomBar
         selectedMarket={selectedMarket}
         selectedCategory={selectedCategory}
+            onToggleWatchlist={handleToggleWatchlist}
         onCategorySelect={setSelectedCategory}
         onClearSelection={() => setSelectedMarket(null)}
       />
