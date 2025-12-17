@@ -250,7 +250,6 @@ const Index = () => {
       <BottomBar
         selectedMarket={selectedMarket}
         selectedCategory={selectedCategory}
-            onToggleWatchlist={handleToggleWatchlist}
         onCategorySelect={setSelectedCategory}
         onClearSelection={() => setSelectedMarket(null)}
       />

@@ -41,6 +41,7 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
       category,
       resolvesAt: new Date(resolveDate),
       sourceUrl: sourceUrl || undefined,
+      shares: 0,
     });
 
     setQuestion('');
