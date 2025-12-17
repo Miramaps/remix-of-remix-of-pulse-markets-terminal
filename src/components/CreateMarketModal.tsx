@@ -186,7 +186,7 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
                           onClick={() => setLiquidity(preset)}
                           className={`flex-1 h-9 rounded-md text-xs font-medium transition-all duration-200 ${
                             liquidity === preset
-                              ? 'bg-[hsl(45_70%_50%)] text-[hsl(220_15%_8%)]'
+                              ? 'bg-primary text-primary-foreground'
                               : 'bg-[hsl(0_0%_100%/0.05)] text-[hsl(0_0%_100%/0.6)] border border-[hsl(0_0%_100%/0.1)] hover:bg-[hsl(0_0%_100%/0.1)] hover:text-[hsl(0_0%_96%)]'
                           }`}
                           whileHover={{ scale: 1.02 }}
@@ -217,7 +217,7 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
                   <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <Button
                       type="submit"
-                      className="w-full h-10 bg-[hsl(45_70%_50%)] hover:bg-[hsl(45_70%_45%)] text-[hsl(220_15%_8%)] text-sm font-semibold shadow-lg shadow-[hsl(45_70%_50%/0.25)]"
+                      className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/25"
                     >
                       Create Market
                     </Button>
