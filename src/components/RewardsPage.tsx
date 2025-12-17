@@ -85,8 +85,11 @@ export function RewardsPage() {
               </div>
               <div className="text-xl font-bold text-success">$12</div>
             </div>
-            <Button size="sm" className="bg-success hover:bg-success/90 text-success-foreground">
-              <Gift className="w-4 h-4 mr-1" />
+            <Button 
+              size="sm" 
+              className="bg-gradient-to-r from-success to-emerald-500 hover:from-success/90 hover:to-emerald-500/90 text-success-foreground font-semibold shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all duration-200"
+            >
+              <Gift className="w-4 h-4 mr-1.5" />
               Claim
             </Button>
           </div>
