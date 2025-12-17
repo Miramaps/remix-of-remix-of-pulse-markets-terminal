@@ -101,7 +101,7 @@ export function TopNav({
           <Button 
             onClick={onCreateMarket}
             size="icon"
-            className="w-12 h-12 rounded-full bg-accent hover:bg-accent/90 text-panel shadow-lg"
+            className="w-12 h-12 rounded-full bg-[hsl(180_50%_50%)] hover:bg-[hsl(180_50%_45%)] text-[hsl(220_15%_6%)] shadow-lg"
           >
             <Plus className="w-6 h-6" />
           </Button>
