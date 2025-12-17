@@ -68,7 +68,7 @@ export function PortfolioPage() {
     <main className="flex-1 px-4 md:px-6 2xl:px-8 py-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-5xl mx-auto mb-6">
-        <div className="bg-panel2 border border-stroke rounded-lg p-4">
+        <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
           <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
             <Wallet className="w-4 h-4" />
             <span>Portfolio Value</span>
@@ -78,7 +78,7 @@ export function PortfolioPage() {
           </div>
         </div>
 
-        <div className="bg-panel2 border border-stroke rounded-lg p-4">
+        <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
           <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
             <TrendingUp className="w-4 h-4" />
             <span>Total P&L</span>
@@ -88,7 +88,7 @@ export function PortfolioPage() {
           </div>
         </div>
 
-        <div className="bg-panel2 border border-stroke rounded-lg p-4">
+        <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
           <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
             <Percent className="w-4 h-4" />
             <span>Return</span>
@@ -98,7 +98,7 @@ export function PortfolioPage() {
           </div>
         </div>
 
-        <div className="bg-panel2 border border-stroke rounded-lg p-4">
+        <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
           <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
             <LayoutGrid className="w-4 h-4" />
             <span>Open Positions</span>
@@ -112,26 +112,26 @@ export function PortfolioPage() {
       {/* Tabs and Table */}
       <div className="max-w-5xl mx-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-transparent border-b border-stroke rounded-none w-full justify-start gap-0 h-auto p-0">
+          <TabsList className="bg-transparent border-b border-primary/15 rounded-none w-full justify-start gap-0 h-auto p-0">
             <TabsTrigger 
               value="positions" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent px-4 py-2 text-muted-foreground data-[state=active]:text-foreground"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2 text-muted-foreground data-[state=active]:text-foreground"
             >
               Positions
             </TabsTrigger>
             <TabsTrigger 
               value="history" 
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent px-4 py-2 text-muted-foreground data-[state=active]:text-foreground"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2 text-muted-foreground data-[state=active]:text-foreground"
             >
               Trade History
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="positions" className="mt-4">
-            <div className="bg-panel2 border border-stroke rounded-lg overflow-hidden">
+            <div className="bg-panel2 border border-primary/15 rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-stroke hover:bg-transparent">
+                  <TableRow className="border-primary/15 hover:bg-transparent">
                     <TableHead className="text-muted-foreground font-normal">Market</TableHead>
                     <TableHead className="text-muted-foreground font-normal text-center">Side</TableHead>
                     <TableHead className="text-muted-foreground font-normal text-right">Shares</TableHead>
@@ -142,7 +142,7 @@ export function PortfolioPage() {
                 </TableHeader>
                 <TableBody>
                   {mockPositions.map((position) => (
-                    <TableRow key={position.id} className="border-stroke hover:bg-panel">
+                    <TableRow key={position.id} className="border-primary/15 hover:bg-panel">
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-muted-foreground bg-panel px-2 py-0.5 rounded">
@@ -180,7 +180,7 @@ export function PortfolioPage() {
           </TabsContent>
 
           <TabsContent value="history" className="mt-4">
-            <div className="bg-panel2 border border-stroke rounded-lg p-8 text-center text-muted-foreground">
+            <div className="bg-panel2 border border-primary/15 rounded-lg p-8 text-center text-muted-foreground">
               No trade history yet
             </div>
           </TabsContent>
