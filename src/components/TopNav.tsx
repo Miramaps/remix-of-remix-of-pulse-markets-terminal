@@ -101,25 +101,22 @@ export function TopNav({
         <div className="flex-1 flex justify-center">
           <motion.button
             id="create-market-btn"
+            layoutId="create-market-fab"
             onClick={onCreateMarket}
-            className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/40 flex items-center justify-center relative overflow-visible"
+            className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/40 flex items-center justify-center relative overflow-hidden"
             whileHover={{ 
               scale: 1.15,
               boxShadow: "0 0 50px hsl(210 100% 60% / 0.6)"
             }}
-            whileTap={{ 
-              scale: 0.85,
-            }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 500, 
-              damping: 15 
-            }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 520, damping: 16 }}
           >
+            {/* This icon now morphs into the modal */}
             <motion.div
-              whileHover={{ rotate: 90, scale: 1.2 }}
-              whileTap={{ rotate: 180, scale: 1.5 }}
-              transition={{ type: "spring", stiffness: 400, damping: 12 }}
+              layoutId="create-market-plus"
+              className="flex items-center justify-center"
+              whileHover={{ rotate: 90, scale: 1.15 }}
+              transition={{ type: "spring", stiffness: 420, damping: 14 }}
             >
               <Plus className="w-8 h-8" strokeWidth={2.5} />
             </motion.div>
@@ -128,29 +125,14 @@ export function TopNav({
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-primary/60"
               initial={{ scale: 1, opacity: 0.6 }}
-              animate={{ 
-                scale: [1, 1.8],
-                opacity: [0.6, 0]
-              }}
-              transition={{ 
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeOut"
-              }}
+              animate={{ scale: [1, 1.8], opacity: [0.6, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
             />
             <motion.div
               className="absolute inset-0 rounded-full border border-primary/40"
               initial={{ scale: 1, opacity: 0.4 }}
-              animate={{ 
-                scale: [1, 2.2],
-                opacity: [0.4, 0]
-              }}
-              transition={{ 
-                duration: 1.5,
-                delay: 0.3,
-                repeat: Infinity,
-                ease: "easeOut"
-              }}
+              animate={{ scale: [1, 2.2], opacity: [0.4, 0] }}
+              transition={{ duration: 1.5, delay: 0.3, repeat: Infinity, ease: "easeOut" }}
             />
           </motion.button>
         </div>
