@@ -66,32 +66,31 @@ export function TopNav({
       <div className="h-14 px-4 md:px-6 2xl:px-8 grid grid-cols-[1fr_auto_1fr] items-center">
         
         {/* Left Cluster: Brand + Primary Nav */}
-        <div className="justify-self-start flex items-center gap-4">
-          <button
-            className="text-light font-display font-semibold text-sm tracking-tight"
-            onClick={onDiscover}
-          >
-            PULSEMARKETS
-          </button>
+        <div className="justify-self-start">
+          <div className="flex items-center h-10 px-3 rounded-xl border border-primary/25 bg-row/10">
+            <button
+              className="text-light font-display font-semibold text-sm tracking-tight"
+              onClick={onDiscover}
+            >
+              PULSEMARKETS
+            </button>
 
-          <nav className="flex items-center gap-1">
-            {navItems.map((item) => (
-              <button
-                key={item}
-                onClick={() => handleNavClick(item)}
-                className={`px-2.5 md:px-3 py-1.5 text-sm font-medium transition-colors ${
-                  activeView === item 
-                    ? 'text-light' 
-                    : 'text-light-muted hover:text-light'
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
-
-          {/* Rounded divider after left content */}
-          <div className="w-[2px] h-8 bg-primary/30 rounded-full" />
+            <nav className="flex items-center gap-1 ml-3">
+              {navItems.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => handleNavClick(item)}
+                  className={`px-2.5 md:px-3 py-1.5 text-sm font-medium transition-colors border-b border-transparent ${
+                    activeView === item 
+                      ? 'text-light border-primary/40' 
+                      : 'text-light-muted hover:text-light hover:border-primary/25'
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </nav>
+          </div>
         </div>
 
         {/* Center: + */}
@@ -107,12 +106,11 @@ export function TopNav({
         </div>
 
         {/* Right Cluster */}
-        <div className="justify-self-end flex items-center gap-2">
-          {/* Rounded divider before right content */}
-          <div className="w-[2px] h-8 bg-primary/30 rounded-full" />
-          <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
-            <PopoverTrigger asChild>
-              <Button 
+        <div className="justify-self-end">
+          <div className="flex items-center h-10 px-2 rounded-xl border border-primary/25 bg-row/10 gap-2">
+            <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
+              <PopoverTrigger asChild>
+                <Button
                 variant="ghost" 
                 size="sm" 
                 className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-sm px-2.5 relative"
@@ -257,6 +255,7 @@ export function TopNav({
             <Wallet className="w-4 h-4" />
             <span className="hidden sm:inline">Connect</span>
           </Button>
+          </div>
         </div>
       </div>
     </header>
