@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TopNav } from '@/components/TopNav';
 import { BottomBar } from '@/components/BottomBar';
-import { MarketsView } from '@/components/MarketsView';
+import { MarketColumn } from '@/components/MarketColumn';
 import { CreateMarketModal } from '@/components/CreateMarketModal';
 import { TradingPage } from '@/components/TradingPage';
+import { MobileTabs } from '@/components/MobileTabs';
 import { initialMarkets, Market } from '@/lib/mockData';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { MarketRow } from '@/components/MarketRow';
 import { useToast } from '@/hooks/use-toast';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const Index = () => {
   const [markets, setMarkets] = useState<Market[]>(initialMarkets);
@@ -100,10 +103,13 @@ const Index = () => {
       )
     );
   }, []);
-
   const handleCloseTradingPage = () => {
     setTradingMarket(null);
   };
+
+  const newMarkets = markets.filter((m) => m.status === 'new');
+  const endingMarkets = markets.filter((m) => m.status === 'ending');
+  const resolvedMarkets = markets.filter((m) => m.status === 'resolved');
 
   // If a trading market is selected, show the full-page trading terminal
   if (tradingMarket) {
@@ -119,7 +125,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(220,15%,6%)]">
+    <div className="min-h-screen flex flex-col">
       <TopNav 
         onCreateMarket={() => setIsCreateModalOpen(true)}
         watchlistMarkets={markets.filter(m => m.isWatchlisted)}
@@ -127,12 +133,119 @@ const Index = () => {
         onSelectMarket={handleSelectMarket}
       />
 
-      {/* Markets View */}
-      <MarketsView 
-        markets={markets}
-        onSelectMarket={handleSelectMarket}
-        priceFlashes={priceFlashes}
-      />
+      {/* Main Content - Full Width */}
+      <main className="flex-1 px-4 md:px-6 2xl:px-8 py-4 pb-20">
+        {/* Desktop: 3 columns - with more space at bottom */}
+        <div className="hidden lg:grid lg:grid-cols-3 gap-3 h-[calc(100vh-8.5rem)]">
+          <MarketColumn
+            title="NEW"
+            markets={newMarkets}
+            selectedMarketId={selectedMarket?.id ?? null}
+            onSelectMarket={handleSelectMarket}
+            priceFlashes={priceFlashes}
+            selectedCategory={selectedCategory}
+            onToggleWatchlist={handleToggleWatchlist}
+          />
+          <MarketColumn
+            title="ENDING"
+            markets={endingMarkets}
+            selectedMarketId={selectedMarket?.id ?? null}
+            onSelectMarket={handleSelectMarket}
+            priceFlashes={priceFlashes}
+            selectedCategory={selectedCategory}
+            onToggleWatchlist={handleToggleWatchlist}
+            
+          />
+          <MarketColumn
+            title="RESOLVED"
+            markets={resolvedMarkets}
+            selectedMarketId={selectedMarket?.id ?? null}
+            onSelectMarket={handleSelectMarket}
+            priceFlashes={priceFlashes}
+            selectedCategory={selectedCategory}
+            onToggleWatchlist={handleToggleWatchlist}
+          />
+        </div>
+
+        {/* Mobile: Tabs */}
+        <div className="lg:hidden h-[calc(100vh-8.5rem)]">
+          <MobileTabs labels={['New', 'Ending', 'Resolved']}>
+            <ScrollArea className="h-full">
+              <div className="bg-panel2 rounded-lg border border-stroke">
+                <AnimatePresence mode="popLayout">
+                  {newMarkets
+                    .filter((m) => !selectedCategory || m.category === selectedCategory)
+                    .map((market) => (
+                      <motion.div
+                        key={market.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <MarketRow
+                          market={market}
+                          isSelected={selectedMarket?.id === market.id}
+                          onSelect={() => handleSelectMarket(market)}
+                          priceFlash={priceFlashes[market.id]}
+                          onToggleWatchlist={handleToggleWatchlist}
+                        />
+                      </motion.div>
+                    ))}
+                </AnimatePresence>
+              </div>
+            </ScrollArea>
+            <ScrollArea className="h-full">
+              <div className="bg-panel2 rounded-lg border border-stroke">
+                <AnimatePresence mode="popLayout">
+                  {endingMarkets
+                    .filter((m) => !selectedCategory || m.category === selectedCategory)
+                    .map((market) => (
+                      <motion.div
+                        key={market.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <MarketRow
+                          market={market}
+                          isSelected={selectedMarket?.id === market.id}
+                          onSelect={() => handleSelectMarket(market)}
+                          priceFlash={priceFlashes[market.id]}
+                          onToggleWatchlist={handleToggleWatchlist}
+                          
+                        />
+                      </motion.div>
+                    ))}
+                </AnimatePresence>
+              </div>
+            </ScrollArea>
+            <ScrollArea className="h-full">
+              <div className="bg-panel2 rounded-lg border border-stroke">
+                <AnimatePresence mode="popLayout">
+                  {resolvedMarkets
+                    .filter((m) => !selectedCategory || m.category === selectedCategory)
+                    .map((market) => (
+                      <motion.div
+                        key={market.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        <MarketRow
+                          market={market}
+                          isSelected={selectedMarket?.id === market.id}
+                          onSelect={() => handleSelectMarket(market)}
+                          priceFlash={priceFlashes[market.id]}
+                          onToggleWatchlist={handleToggleWatchlist}
+                        />
+                      </motion.div>
+                    ))}
+                </AnimatePresence>
+              </div>
+            </ScrollArea>
+          </MobileTabs>
+        </div>
+      </main>
 
       <BottomBar
         selectedMarket={selectedMarket}
