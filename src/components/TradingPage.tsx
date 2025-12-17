@@ -183,39 +183,39 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
       <TopNav onCreateMarket={() => {}} onDiscover={onBack} />
 
       {/* Market Header Bar */}
-      <div className="h-11 border-b border-primary/20 bg-primary/5 flex items-center justify-between px-4 shrink-0">
+      <div className="h-11 border-b border-stroke flex items-center justify-between px-4 shrink-0 bg-row/50">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="h-7 px-2 text-light-muted hover:text-light hover:bg-primary/10 rounded-lg gap-1.5 text-xs"
+            className="h-7 px-2 text-light-muted hover:text-light hover:bg-row rounded-lg gap-1.5 text-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Back
           </Button>
           
-          <div className="h-5 w-px bg-primary/20" />
+          <div className="h-5 w-px bg-stroke" />
           
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md overflow-hidden bg-primary/10 ring-1 ring-primary/20">
+            <div className="w-6 h-6 rounded-md overflow-hidden bg-row ring-1 ring-stroke">
               <img src={`https://api.dicebear.com/7.x/shapes/svg?seed=${market.id}`} alt="" className="w-full h-full object-cover" />
             </div>
             <span className="font-medium text-sm truncate max-w-[300px]">{market.question}</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium uppercase">
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-row text-light-muted font-medium uppercase">
               {market.status}
             </span>
           </div>
         </div>
         
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-light-muted hover:text-primary hover:bg-primary/10">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-light-muted hover:text-light hover:bg-row">
             <Star className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-light-muted hover:text-primary hover:bg-primary/10">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-light-muted hover:text-light hover:bg-row">
             <Bell className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-light-muted hover:text-primary hover:bg-primary/10">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-light-muted hover:text-light hover:bg-row">
             <Share2 className="w-3.5 h-3.5" />
           </Button>
         </div>
@@ -223,50 +223,11 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
 
       {/* Main Content */}
       <div className="flex-1 flex min-h-0">
-        {/* Left Sidebar - Quick Actions */}
-        <div className="w-36 border-r border-primary/15 bg-primary/5 p-3 flex flex-col gap-3 shrink-0">
-          <div>
-            <div className="text-[10px] text-light-muted uppercase tracking-wider mb-2 font-medium">Quick Buy</div>
-            <div className="grid grid-cols-4 gap-1">
-              {[0.01, 0.1, 1, 10].map((val) => (
-                <button key={val} onClick={() => setAmount(String(val * 100))} className="py-1.5 text-[10px] font-semibold text-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/25 rounded-md transition-colors border border-emerald-500/20">
-                  {val}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="text-[10px] text-light-muted uppercase tracking-wider mb-2 font-medium">Quick Sell</div>
-            <div className="grid grid-cols-4 gap-1">
-              {['10%', '25%', '50%', '100%'].map((val) => (
-                <button key={val} className="py-1.5 text-[10px] font-semibold text-rose-400 bg-rose-500/15 hover:bg-rose-500/25 rounded-md transition-colors border border-rose-500/20">
-                  {val}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="mt-auto space-y-2 text-[11px]">
-            <div className="flex justify-between">
-              <span className="text-light-muted">Volume</span>
-              <span className="text-light font-medium">{formatVolume(market.volume)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-light-muted">Traders</span>
-              <span className="text-light font-medium">{market.traders}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-light-muted">Ends</span>
-              <span className="text-light font-medium">{formatTimeLeft(market.resolvesAt)}</span>
-            </div>
-          </div>
-        </div>
 
         {/* Center - Chart + Bottom Panels */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Price Header */}
-          <div className="h-10 border-b border-primary/15 bg-primary/5 px-4 flex items-center justify-between shrink-0">
+          <div className="h-10 border-b border-stroke bg-row/50 px-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-4">
               <span className="text-xl font-bold tabular-nums">{lastPrice.toFixed(4)}</span>
               <span className={`flex items-center gap-1 text-xs font-medium ${isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
@@ -275,13 +236,13 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
               </span>
             </div>
             
-            <div className="flex items-center gap-1 bg-primary/10 rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-row rounded-lg p-1">
               {['1m', '5m', '1H', '1D'].map((tf) => (
                 <button
                   key={tf}
                   onClick={() => setTimeframe(tf)}
                   className={`px-2.5 py-1 text-[10px] font-medium rounded-md transition-all ${
-                    timeframe === tf ? 'bg-primary text-primary-foreground' : 'text-light-muted hover:text-light hover:bg-primary/15'
+                    timeframe === tf ? 'bg-primary text-primary-foreground' : 'text-light-muted hover:text-light hover:bg-row/80'
                   }`}
                 >
                   {tf}
@@ -299,9 +260,9 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
           </div>
 
           {/* Bottom Section - Order Book + Recent Trades */}
-          <div className="h-36 border-t border-primary/15 flex shrink-0">
+          <div className="h-36 border-t border-stroke flex shrink-0">
             {/* Order Book */}
-            <div className="flex-1 p-3 border-r border-primary/15">
+            <div className="flex-1 p-3 border-r border-stroke">
               <div className="text-[10px] text-light-muted uppercase tracking-wider mb-2 font-medium">Order Book</div>
               <div className="flex gap-4 h-[calc(100%-20px)]">
                 {/* Bids (Green) */}
@@ -357,12 +318,12 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
           </div>
 
           {/* Positions / Activity Tabs */}
-          <div className="h-32 border-t border-primary/15 bg-primary/5 shrink-0">
-            <div className="flex items-center gap-4 px-4 h-8 border-b border-primary/15">
+          <div className="h-32 border-t border-stroke bg-row/30 shrink-0">
+            <div className="flex items-center gap-4 px-4 h-8 border-b border-stroke">
               <button
                 onClick={() => setBottomTab('positions')}
                 className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
-                  bottomTab === 'positions' ? 'text-primary' : 'text-light-muted hover:text-light'
+                  bottomTab === 'positions' ? 'text-light' : 'text-light-muted hover:text-light'
                 }`}
               >
                 <Wallet className="w-3.5 h-3.5" />
@@ -371,7 +332,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
               <button
                 onClick={() => setBottomTab('activity')}
                 className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
-                  bottomTab === 'activity' ? 'text-primary' : 'text-light-muted hover:text-light'
+                  bottomTab === 'activity' ? 'text-light' : 'text-light-muted hover:text-light'
                 }`}
               >
                 <Users className="w-3.5 h-3.5" />
@@ -409,7 +370,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                   <div className="text-light-muted uppercase tracking-wider text-right">Time</div>
                   {walletActivity.slice(0, 3).map((w) => (
                     <>
-                      <div key={`${w.id}-addr`} className="text-primary font-mono">{w.address}</div>
+                      <div key={`${w.id}-addr`} className="text-light font-mono">{w.address}</div>
                       <div key={`${w.id}-side`} className={`font-medium ${w.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
                         {w.side.toUpperCase()}
                       </div>
@@ -424,15 +385,15 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
         </div>
 
         {/* Right Sidebar - Trading Panel */}
-        <div className="w-60 border-l border-primary/15 bg-primary/5 flex flex-col shrink-0">
+        <div className="w-60 border-l border-stroke bg-row/30 flex flex-col shrink-0">
           {/* YES/NO Toggle */}
-          <div className="p-3 border-b border-primary/15">
+          <div className="p-3 border-b border-stroke">
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => setActiveTab('yes')}
                 className={`py-3 rounded-lg text-center transition-all ${
                   activeTab === 'yes' 
-                    ? 'bg-primary text-primary-foreground ring-2 ring-primary/50' 
+                    ? 'bg-emerald-500 text-white ring-1 ring-emerald-500/50' 
                     : 'bg-row hover:bg-row/80 text-light-muted'
                 }`}
               >
@@ -483,7 +444,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="h-10 bg-row border-primary/20 text-light text-sm font-semibold rounded-lg focus:ring-primary focus:border-primary"
+                className="h-10 bg-row border-stroke text-light text-sm font-semibold rounded-lg"
                 placeholder="0"
               />
               <div className="flex gap-1 mt-2">
@@ -491,7 +452,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                   <button 
                     key={val} 
                     onClick={() => setAmount(String(val))} 
-                    className="flex-1 py-1.5 text-[10px] font-medium text-light-muted bg-row hover:bg-primary/15 hover:text-light rounded-md transition-colors border border-primary/20"
+                    className="flex-1 py-1.5 text-[10px] font-medium text-light-muted bg-row hover:bg-row/80 hover:text-light rounded-md transition-colors border border-stroke"
                   >
                     ${val}
                   </button>
@@ -509,7 +470,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                 <span className="text-light-muted">Shares</span>
                 <span className="text-light font-medium tabular-nums">{shares.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-[11px] pt-2 border-t border-primary/15">
+              <div className="flex justify-between text-[11px] pt-2 border-t border-stroke">
                 <span className="text-light-muted">Return</span>
                 <span className={`font-semibold ${activeTab === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
                   ${potential.toLocaleString()}
@@ -522,7 +483,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
               onClick={handleTrade}
               className={`w-full py-3.5 rounded-lg text-sm font-bold transition-all ${
                 activeTab === 'yes' 
-                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
                   : 'bg-rose-500 hover:bg-rose-600 text-white'
               }`}
             >

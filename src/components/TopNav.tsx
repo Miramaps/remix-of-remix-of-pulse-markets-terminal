@@ -66,7 +66,7 @@ export function TopNav({
       <div className="h-14 grid grid-cols-[1fr_auto_1fr] items-stretch">
         
         {/* Left Cluster - anchored to top-left */}
-        <div className="justify-self-start w-fit bg-primary/8 border-b border-r border-primary/20 rounded-br-2xl flex items-center gap-6 pl-4 md:pl-6 pr-2">
+        <div className="justify-self-start w-fit bg-panel border-b border-r border-stroke rounded-br-2xl flex items-center gap-6 pl-4 md:pl-6 pr-2">
           <button
             className="text-light font-display font-bold text-base tracking-tight"
             onClick={onDiscover}
@@ -85,7 +85,7 @@ export function TopNav({
                     "h-8 px-3.5 rounded-lg text-sm font-medium transition-all duration-200 " +
                     (isActive
                       ? "bg-primary text-primary-foreground"
-                      : "text-light-muted hover:text-light hover:bg-primary/15")
+                      : "text-light-muted hover:text-light hover:bg-row")
                   }
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -109,13 +109,13 @@ export function TopNav({
         </div>
 
         {/* Right Cluster - anchored to top-right */}
-        <div className="justify-self-end w-fit bg-primary/8 border-b border-l border-primary/20 rounded-bl-2xl flex items-center justify-end gap-2 pr-4 md:pr-6 pl-2">
+        <div className="justify-self-end w-fit bg-panel border-b border-l border-stroke rounded-bl-2xl flex items-center justify-end gap-2 pr-4 md:pr-6 pl-2">
           <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost" 
                 size="sm" 
-                className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-primary/15 text-sm px-2.5 relative"
+                className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-sm px-2.5 relative"
               >
                 <Star className={`w-4 h-4 ${watchlistCount > 0 ? 'fill-yellow-400 text-yellow-400' : ''}`} />
                 <span className="hidden sm:inline">Watchlist</span>
