@@ -46,7 +46,7 @@ export function RewardsPage() {
     <main className="flex-1 px-4 md:px-6 2xl:px-8 py-6 overflow-auto">
       {/* Top Stats Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-7xl mx-auto mb-6">
-        <div className="bg-panel2 border border-stroke rounded-lg p-4">
+        <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <Trophy className="w-4 h-4" />
@@ -60,7 +60,7 @@ export function RewardsPage() {
           </div>
         </div>
 
-        <div className="bg-panel2 border border-stroke rounded-lg p-4">
+        <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
           <div className="flex items-center gap-4">
             <div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
@@ -69,14 +69,14 @@ export function RewardsPage() {
               </div>
               <div className="text-xl font-bold text-accent">Silver</div>
             </div>
-            <div className="border-l border-stroke pl-4">
+            <div className="border-l border-primary/15 pl-4">
               <div className="text-muted-foreground text-xs">Multiplier</div>
               <div className="text-foreground font-semibold">1.25x</div>
             </div>
           </div>
         </div>
 
-        <div className="bg-panel2 border border-stroke rounded-lg p-4">
+        <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
@@ -92,7 +92,7 @@ export function RewardsPage() {
           </div>
         </div>
 
-        <div className="bg-panel2 border border-stroke rounded-lg p-4">
+        <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="text-muted-foreground">Tier progress</span>
             <span className="text-muted-foreground text-xs">to Gold</span>
@@ -110,7 +110,7 @@ export function RewardsPage() {
         {/* Left Column - Tiers & Referral */}
         <div className="lg:col-span-3 space-y-4">
           {/* Tiers */}
-          <div className="bg-panel2 border border-stroke rounded-lg p-4">
+          <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Tiers</h3>
               <span className="text-muted-foreground text-sm">2/4</span>
@@ -149,7 +149,7 @@ export function RewardsPage() {
           </div>
 
           {/* Referral */}
-          <div className="bg-panel2 border border-stroke rounded-lg p-4">
+          <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Referral</h3>
               <span className="text-accent text-sm">Forever 10%</span>
@@ -182,7 +182,7 @@ export function RewardsPage() {
 
         {/* Middle Column - Achievements */}
         <div className="lg:col-span-5">
-          <div className="bg-panel2 border border-stroke rounded-lg p-4">
+          <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Achievements</h3>
               <span className="text-muted-foreground text-sm">1/6 unlocked</span>
@@ -224,7 +224,7 @@ export function RewardsPage() {
         {/* Right Column - Daily & Leaderboard */}
         <div className="lg:col-span-4 space-y-4">
           {/* Daily */}
-          <div className="bg-panel2 border border-stroke rounded-lg p-4">
+          <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Daily</h3>
               <div className="flex items-center gap-1 text-muted-foreground text-sm">
@@ -250,7 +250,7 @@ export function RewardsPage() {
           </div>
 
           {/* Leaderboard */}
-          <div className="bg-panel2 border border-stroke rounded-lg p-4">
+          <div className="bg-panel2 border border-primary/15 rounded-lg p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-foreground">Top Traders</h3>
               <span className="text-muted-foreground text-sm">Leaderboard</span>

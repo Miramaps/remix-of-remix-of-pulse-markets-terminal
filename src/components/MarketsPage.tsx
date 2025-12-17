@@ -81,7 +81,7 @@ export function MarketsPage({ markets, onBack, onSelectMarket }: MarketsPageProp
   return (
     <div className="min-h-screen flex flex-col bg-canvas">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-stroke">
+      <div className="px-6 py-4 border-b border-primary/15">
         <div className="flex items-center gap-3">
           <button 
             onClick={onBack}
@@ -101,7 +101,7 @@ export function MarketsPage({ markets, onBack, onSelectMarket }: MarketsPageProp
           {/* Top Gainers & Trending Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Top Gainers */}
-            <div className="bg-panel border border-stroke rounded-xl p-4">
+            <div className="bg-panel border border-primary/15 rounded-xl p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center">
@@ -140,7 +140,7 @@ export function MarketsPage({ markets, onBack, onSelectMarket }: MarketsPageProp
             </div>
 
             {/* Trending */}
-            <div className="bg-panel border border-stroke rounded-xl p-4">
+            <div className="bg-panel border border-primary/15 rounded-xl p-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center">
@@ -189,7 +189,7 @@ export function MarketsPage({ markets, onBack, onSelectMarket }: MarketsPageProp
                 placeholder="Search markets..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9 bg-row border-stroke rounded-lg text-sm text-light placeholder:text-light-muted"
+                className="pl-9 h-9 bg-row border-primary/15 rounded-lg text-sm text-light placeholder:text-light-muted"
               />
             </div>
             
@@ -230,9 +230,9 @@ export function MarketsPage({ markets, onBack, onSelectMarket }: MarketsPageProp
           </div>
 
           {/* Markets Table */}
-          <div className="bg-panel border border-stroke rounded-xl overflow-hidden">
+          <div className="bg-panel border border-primary/15 rounded-xl overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-stroke text-xs font-medium text-light-muted uppercase tracking-wide">
+            <div className="grid grid-cols-12 gap-4 px-4 py-3 border-b border-primary/15 text-xs font-medium text-light-muted uppercase tracking-wide">
               <div className="col-span-5">Market</div>
               <div className="col-span-1 text-right">Volume</div>
               <div className="col-span-1 text-right">Traders</div>
@@ -242,7 +242,7 @@ export function MarketsPage({ markets, onBack, onSelectMarket }: MarketsPageProp
             </div>
 
             {/* Table Rows */}
-            <div className="divide-y divide-stroke/50">
+            <div className="divide-y divide-primary/10">
               {filteredMarkets.map((market) => (
                 <div
                   key={market.id}
@@ -302,7 +302,7 @@ export function MarketsPage({ markets, onBack, onSelectMarket }: MarketsPageProp
       </ScrollArea>
 
       {/* Bottom Bar */}
-      <div className="sticky bottom-0 bg-panel border-t border-stroke px-6 py-3">
+      <div className="sticky bottom-0 bg-panel border-t border-primary/15 px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xs text-light-muted">All</span>
