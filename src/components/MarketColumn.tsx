@@ -265,9 +265,9 @@ export function MarketColumn({
   const parsedFastBuyAmount = fastBuyAmount ? parseFloat(fastBuyAmount) : null;
 
   return (
-    <div className="flex flex-col h-full bg-panel2 rounded-xl border border-white/10 overflow-hidden terminal-shadow ring-1 ring-white/5">
+    <div className="flex flex-col h-full bg-panel2 rounded-xl border border-primary/15 overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-white/10 bg-white/5 shrink-0">
+      <div className="px-4 py-3 border-b border-primary/15 shrink-0">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 shrink-0">
             <h2 className="font-display font-semibold text-xs uppercase tracking-wider text-light">
