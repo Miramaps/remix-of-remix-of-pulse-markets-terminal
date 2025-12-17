@@ -148,6 +148,12 @@ const Index = () => {
           onSelectMarket={handleSelectMarket}
           onCreateMarket={handleOpenCreateModal}
         />
+        <CreateMarketModal
+          open={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreate={handleCreateMarket}
+          buttonPosition={buttonPosition}
+        />
       </AnimatePresence>
     );
   }
