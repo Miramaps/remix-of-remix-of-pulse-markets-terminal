@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Activity, Users, Clock, Star, TrendingUp, TrendingDown, Heart } from 'lucide-react';
+import { Activity, Users, Clock, Star } from 'lucide-react';
 import { Market, formatVolume, formatTimeLeft, formatTimeAgo } from '@/lib/mockData';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -272,46 +272,6 @@ export function MarketRow({
 
             {/* Meta */}
             <div className="flex items-center gap-2 text-[11px] text-light-muted">
-              {/* Price Change Badge */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md font-medium cursor-help ${
-                    isPositive 
-                      ? 'bg-emerald-500/15 text-emerald-400' 
-                      : 'bg-rose-500/15 text-rose-400'
-                  }`}>
-                    {isPositive ? (
-                      <TrendingUp className="w-3 h-3" />
-                    ) : (
-                      <TrendingDown className="w-3 h-3" />
-                    )}
-                    {isPositive ? '+' : ''}{priceChange.toFixed(2)}%
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="bg-panel border-stroke text-light text-xs">
-                  <p className="font-medium">24h Price Change</p>
-                  <p className="text-light-muted">How much the YES price moved in the last 24 hours</p>
-                </TooltipContent>
-              </Tooltip>
-
-              {/* Sentiment Badge */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md font-medium cursor-help ${
-                    isBullish 
-                      ? 'bg-emerald-500/15 text-emerald-400' 
-                      : 'bg-rose-500/15 text-rose-400'
-                  }`}>
-                    <Heart className="w-3 h-3" />
-                    {sentiment}% {isBullish ? 'Bullish' : 'Bearish'}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="bg-panel border-stroke text-light text-xs">
-                  <p className="font-medium">Community Sentiment</p>
-                  <p className="text-light-muted">Percentage of traders betting YES on this market</p>
-                </TooltipContent>
-              </Tooltip>
-
               {/* Volume */}
               <Tooltip>
                 <TooltipTrigger asChild>
