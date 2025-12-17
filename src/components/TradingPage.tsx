@@ -367,54 +367,68 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                 
                 <div className="flex-1 p-3 overflow-auto">
                   {bottomTab === 'positions' ? (
-                    <div className="grid grid-cols-5 gap-4 text-[10px]">
-                      <div className="text-primary/70 uppercase tracking-wider font-medium">Side</div>
-                      <div className="text-primary/70 uppercase tracking-wider font-medium">Shares</div>
-                      <div className="text-primary/70 uppercase tracking-wider font-medium">Avg Price</div>
-                      <div className="text-primary/70 uppercase tracking-wider font-medium">Current</div>
-                      <div className="text-primary/70 uppercase tracking-wider font-medium text-right">P&L</div>
-                      {positions.map((pos) => (
-                        <>
-                          <div key={`${pos.id}-side`} className={`font-medium ${pos.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                            {pos.side.toUpperCase()}
+                    <div className="text-[10px]">
+                      {/* Header */}
+                      <div className="grid grid-cols-5 gap-4 pb-2 border-b border-primary/15 mb-2">
+                        <div className="text-primary/70 uppercase tracking-wider font-medium">Side</div>
+                        <div className="text-primary/70 uppercase tracking-wider font-medium">Shares</div>
+                        <div className="text-primary/70 uppercase tracking-wider font-medium">Avg Price</div>
+                        <div className="text-primary/70 uppercase tracking-wider font-medium">Current</div>
+                        <div className="text-primary/70 uppercase tracking-wider font-medium text-right">P&L</div>
+                      </div>
+                      {/* Rows */}
+                      <div className="divide-y divide-primary/10">
+                        {positions.map((pos) => (
+                          <div key={pos.id} className="grid grid-cols-5 gap-4 py-2">
+                            <div className={`font-semibold px-2 py-0.5 rounded w-fit ${
+                              pos.side === 'yes' 
+                                ? 'text-emerald-400 bg-emerald-500/10' 
+                                : 'text-rose-400 bg-rose-500/10'
+                            }`}>
+                              {pos.side.toUpperCase()}
+                            </div>
+                            <div className="text-light tabular-nums font-medium">{pos.shares}</div>
+                            <div className="text-light tabular-nums">${pos.avgPrice.toFixed(2)}</div>
+                            <div className="text-light tabular-nums">${pos.currentPrice.toFixed(2)}</div>
+                            <div className={`text-right font-semibold tabular-nums ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              {pos.pnl >= 0 ? '+' : ''}${Math.abs(pos.pnl)}
+                            </div>
                           </div>
-                          <div key={`${pos.id}-shares`} className="text-light tabular-nums">{pos.shares}</div>
-                          <div key={`${pos.id}-avg`} className="text-light tabular-nums">${pos.avgPrice.toFixed(2)}</div>
-                          <div key={`${pos.id}-curr`} className="text-light tabular-nums">${pos.currentPrice.toFixed(2)}</div>
-                          <div key={`${pos.id}-pnl`} className={`text-right font-medium tabular-nums ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                            {pos.pnl >= 0 ? '+' : ''}{pos.pnl}
-                          </div>
-                        </>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <div className="flex gap-6 h-full">
                       {/* Live Activity */}
                       <div className="flex-1">
-                        <div className="text-[10px] text-primary/70 uppercase tracking-wider font-medium mb-2 flex items-center gap-1.5">
+                        <div className="text-[10px] text-primary/70 uppercase tracking-wider font-medium mb-3 flex items-center gap-1.5">
                           <Users className="w-3 h-3" />
                           Live Activity
                         </div>
-                        <div className="space-y-1">
+                        <div className="divide-y divide-primary/10">
                           {walletActivity.slice(0, 4).map((w) => (
-                            <div key={w.id} className="flex items-center justify-between text-[10px] py-0.5">
-                              <div className="flex items-center gap-2">
+                            <div key={w.id} className="flex items-center justify-between text-[10px] py-2 first:pt-0">
+                              <div className="flex items-center gap-3">
                                 <a 
                                   href={`https://solscan.io/tx/${w.txHash}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-light font-mono hover:text-primary transition-colors flex items-center gap-1"
+                                  className="text-light font-mono hover:text-primary transition-colors flex items-center gap-1.5 bg-row/50 px-2 py-1 rounded"
                                 >
                                   {w.address}
                                   <ExternalLink className="w-2.5 h-2.5 text-primary/50" />
                                 </a>
-                                <span className={`font-medium ${w.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                <span className={`font-semibold px-2 py-0.5 rounded ${
+                                  w.side === 'yes' 
+                                    ? 'text-emerald-400 bg-emerald-500/10' 
+                                    : 'text-rose-400 bg-rose-500/10'
+                                }`}>
                                   {w.side.toUpperCase()}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-light tabular-nums">${w.amount}</span>
-                                <span className="text-light-muted">{w.time}</span>
+                              <div className="flex items-center gap-4">
+                                <span className="text-light font-medium tabular-nums">${w.amount}</span>
+                                <span className="text-light-muted text-[9px]">{w.time}</span>
                               </div>
                             </div>
                           ))}
@@ -422,19 +436,19 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                       </div>
                       
                       {/* Top Traders */}
-                      <div className="w-64 border-l border-primary/20 pl-4">
-                        <div className="text-[10px] text-primary/70 uppercase tracking-wider font-medium mb-2 flex items-center gap-1.5">
+                      <div className="w-72 border-l border-primary/20 pl-5">
+                        <div className="text-[10px] text-primary/70 uppercase tracking-wider font-medium mb-3 flex items-center gap-1.5">
                           <Trophy className="w-3 h-3" />
                           Top Traders
                         </div>
-                        <div className="space-y-1">
+                        <div className="divide-y divide-primary/10">
                           {topTraders.slice(0, 4).map((t, i) => (
-                            <div key={t.id} className="flex items-center justify-between text-[10px] py-0.5">
+                            <div key={t.id} className="flex items-center justify-between text-[10px] py-2 first:pt-0">
                               <div className="flex items-center gap-2">
-                                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${
-                                  i === 0 ? 'bg-yellow-500/20 text-yellow-400' :
-                                  i === 1 ? 'bg-gray-400/20 text-gray-300' :
-                                  i === 2 ? 'bg-orange-500/20 text-orange-400' :
+                                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                                  i === 0 ? 'bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/30' :
+                                  i === 1 ? 'bg-gray-400/20 text-gray-300 ring-1 ring-gray-400/30' :
+                                  i === 2 ? 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500/30' :
                                   'bg-row text-light-muted'
                                 }`}>
                                   {i + 1}
@@ -448,9 +462,9 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                                   {t.address}
                                 </a>
                               </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-emerald-400 font-medium tabular-nums">+${t.pnl.toLocaleString()}</span>
-                                <span className="text-light-muted">{t.winRate}%</span>
+                              <div className="flex items-center gap-4">
+                                <span className="text-emerald-400 font-semibold tabular-nums">+${t.pnl.toLocaleString()}</span>
+                                <span className="text-light-muted bg-row/50 px-1.5 py-0.5 rounded text-[9px]">{t.winRate}%</span>
                               </div>
                             </div>
                           ))}
