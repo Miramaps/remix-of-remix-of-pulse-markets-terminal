@@ -101,7 +101,7 @@ export function TopNav({
           <button
             id="create-market-btn"
             onClick={onCreateMarket}
-            className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
+            className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_28px_hsl(var(--primary)/0.65)] transition-shadow duration-300"
             aria-label="Create market"
           >
             <Plus className="w-5 h-5" strokeWidth={2.5} />
