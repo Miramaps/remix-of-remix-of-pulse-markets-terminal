@@ -7,11 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Market, formatVolume } from '@/lib/mockData';
 
@@ -110,8 +106,8 @@ export function TopNav({
 
         {/* Right Cluster - anchored to top-right */}
         <div className="justify-self-end w-fit bg-panel border-b border-l border-primary/20 rounded-bl-2xl flex items-center justify-end gap-2 pr-4 md:pr-6 pl-2">
-          <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
-            <PopoverTrigger asChild>
+          <DialogPrimitive.Root open={watchlistOpen} onOpenChange={setWatchlistOpen}>
+            <DialogPrimitive.Trigger asChild>
               <Button
                 variant="ghost" 
                 size="sm" 
@@ -125,106 +121,107 @@ export function TopNav({
                   </span>
                 )}
               </Button>
-            </PopoverTrigger>
-            <PopoverContent 
-              align="end" 
-              className="w-96 p-0 bg-panel border-stroke rounded-xl shadow-2xl overflow-hidden"
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-stroke bg-row/30">
-                <div className="flex items-center gap-2">
-                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                  <span className="text-sm font-semibold text-light">Your Watchlist</span>
-                </div>
-                <span className="text-xs text-light-muted bg-row px-2 py-0.5 rounded-full">
-                  {watchlistCount} {watchlistCount === 1 ? 'market' : 'markets'}
-                </span>
-              </div>
+            </DialogPrimitive.Trigger>
 
-              {watchlistCount === 0 ? (
-                <div className="py-12 px-4 text-center">
-                  <div className="w-16 h-16 rounded-full bg-row/50 flex items-center justify-center mx-auto mb-4">
-                    <Star className="w-8 h-8 text-light-muted/30" />
+            <DialogPrimitive.Portal>
+              <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/55" />
+              <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-[384px] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 p-0 bg-panel border-stroke rounded-xl shadow-2xl overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-stroke bg-row/30">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                    <span className="text-sm font-semibold text-light">Your Watchlist</span>
                   </div>
-                  <p className="text-sm font-medium text-light mb-1">No markets yet</p>
-                  <p className="text-xs text-light-muted">
-                    Click the ⭐ on any market to track it here
-                  </p>
+                  <span className="text-xs text-light-muted bg-row px-2 py-0.5 rounded-full">
+                    {watchlistCount} {watchlistCount === 1 ? 'market' : 'markets'}
+                  </span>
                 </div>
-              ) : (
-                <ScrollArea className="max-h-[400px]">
-                  <div className="divide-y divide-stroke/50">
-                    {watchlistMarkets.map((market) => (
-                      <div
-                        key={market.id}
-                        className="p-3 hover:bg-row/50 cursor-pointer transition-all duration-200"
-                        onClick={() => {
-                          onSelectMarket?.(market);
-                          setWatchlistOpen(false);
-                        }}
-                      >
-                        <div className="flex gap-3">
-                          <div className="shrink-0">
-                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-row/50 ring-1 ring-stroke/50">
-                              <img 
-                                src={getMarketImage(market)} 
-                                alt={market.question}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          </div>
 
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-light line-clamp-2 leading-tight mb-2 hover:text-accent transition-colors">
-                              {market.question}
-                            </p>
-
-                            <div className="flex items-center gap-3 mb-1.5">
-                              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10">
-                                <TrendingUp className="w-3 h-3 text-emerald-400" />
-                                <span className="text-xs font-semibold text-emerald-400 tabular-nums">
-                                  YES {market.yesPrice.toFixed(2)}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-500/10">
-                                <TrendingDown className="w-3 h-3 text-rose-400" />
-                                <span className="text-xs font-semibold text-rose-400 tabular-nums">
-                                  NO {market.noPrice.toFixed(2)}
-                                </span>
+                {watchlistCount === 0 ? (
+                  <div className="py-12 px-4 text-center">
+                    <div className="w-16 h-16 rounded-full bg-row/50 flex items-center justify-center mx-auto mb-4">
+                      <Star className="w-8 h-8 text-light-muted/30" />
+                    </div>
+                    <p className="text-sm font-medium text-light mb-1">No markets yet</p>
+                    <p className="text-xs text-light-muted">
+                      Click the ⭐ on any market to track it here
+                    </p>
+                  </div>
+                ) : (
+                  <ScrollArea className="max-h-[400px]">
+                    <div className="divide-y divide-stroke/50">
+                      {watchlistMarkets.map((market) => (
+                        <div
+                          key={market.id}
+                          className="p-3 hover:bg-row/50 cursor-pointer transition-all duration-200"
+                          onClick={() => {
+                            onSelectMarket?.(market);
+                            setWatchlistOpen(false);
+                          }}
+                        >
+                          <div className="flex gap-3">
+                            <div className="shrink-0">
+                              <div className="w-12 h-12 rounded-lg overflow-hidden bg-row/50 ring-1 ring-stroke/50">
+                                <img 
+                                  src={getMarketImage(market)} 
+                                  alt={market.question}
+                                  className="w-full h-full object-cover"
+                                />
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-3 text-[10px] text-light-muted">
-                              <span className="flex items-center gap-1">
-                                <Activity className="w-3 h-3" />
-                                {formatVolume(market.volume)}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Users className="w-3 h-3" />
-                                {market.traders}
-                              </span>
-                              <span className="capitalize px-1.5 py-0.5 rounded bg-row text-[9px] font-medium">
-                                {market.category}
-                              </span>
-                            </div>
-                          </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-light line-clamp-2 leading-tight mb-2 hover:text-primary transition-colors">
+                                {market.question}
+                              </p>
 
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onRemoveFromWatchlist?.(market.id);
-                            }}
-                            className="shrink-0 self-start p-1.5 rounded-lg hover:bg-row text-yellow-400 hover:text-yellow-300 transition-all duration-200 hover:scale-110"
-                          >
-                            <Star className="w-4 h-4 fill-current" />
-                          </button>
+                              <div className="flex items-center gap-3 mb-1.5">
+                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10">
+                                  <TrendingUp className="w-3 h-3 text-emerald-400" />
+                                  <span className="text-xs font-semibold text-emerald-400 tabular-nums">
+                                    YES {market.yesPrice.toFixed(2)}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-rose-500/10">
+                                  <TrendingDown className="w-3 h-3 text-rose-400" />
+                                  <span className="text-xs font-semibold text-rose-400 tabular-nums">
+                                    NO {market.noPrice.toFixed(2)}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-3 text-[10px] text-light-muted">
+                                <span className="flex items-center gap-1">
+                                  <Activity className="w-3 h-3" />
+                                  {formatVolume(market.volume)}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  {market.traders}
+                                </span>
+                                <span className="capitalize px-1.5 py-0.5 rounded bg-row text-[9px] font-medium">
+                                  {market.category}
+                                </span>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onRemoveFromWatchlist?.(market.id);
+                              }}
+                              className="shrink-0 self-start p-1.5 rounded-lg hover:bg-row text-yellow-400 hover:text-yellow-300 transition-all duration-200 hover:scale-110"
+                            >
+                              <Star className="w-4 h-4 fill-current" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              )}
-            </PopoverContent>
-          </Popover>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                )}
+              </DialogPrimitive.Content>
+            </DialogPrimitive.Portal>
+          </DialogPrimitive.Root>
 
           {/* Chain */}
           <DropdownMenu>
