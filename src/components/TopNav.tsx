@@ -64,10 +64,10 @@ export function TopNav({
 
   return (
     <header className="sticky top-0 z-50 bg-panel shrink-0">
-      <div className="h-14 px-4 md:px-6 2xl:px-8 flex items-center">
+      <div className="h-14 px-4 md:px-6 2xl:px-8 flex items-center justify-between">
         
         {/* Left Section: Logo + Nav Links */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4">
           <div 
             className="flex items-center gap-2.5 cursor-pointer"
             onClick={onDiscover}
@@ -81,11 +81,11 @@ export function TopNav({
           </div>
 
           {/* Blue divider */}
-          <div className="w-px h-8 bg-primary/30" />
+          <div className="w-px h-6 bg-primary/30 hidden lg:block" />
 
           {/* Nav Links */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
+            {navItems.filter(item => item !== 'Rewards').map((item) => (
               <button
                 key={item}
                 onClick={() => handleNavClick(item)}
@@ -101,33 +101,25 @@ export function TopNav({
           </nav>
         </div>
 
-        {/* Blue divider */}
-        <div className="w-px h-8 bg-primary/30 ml-4 hidden lg:block" />
-
         {/* Center: Create Button */}
-        <div className="flex-1 flex justify-center">
-          <motion.button
-            id="create-market-btn"
-            onClick={onCreateMarket}
-            className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center relative"
-            whileHover={{ 
-              scale: 1.1,
-              boxShadow: "0 0 40px hsl(210 100% 50% / 0.5)"
-            }}
-            whileTap={{ scale: 0.92 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-          >
-            <Plus className="w-6 h-6" strokeWidth={2.5} />
-            <motion.div
-              className="absolute inset-0 rounded-full border-2 border-primary/50"
-              animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
-            />
-          </motion.button>
-        </div>
-
-        {/* Blue divider */}
-        <div className="w-px h-8 bg-primary/30 mr-4 hidden lg:block" />
+        <motion.button
+          id="create-market-btn"
+          onClick={onCreateMarket}
+          className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center relative"
+          whileHover={{ 
+            scale: 1.1,
+            boxShadow: "0 0 40px hsl(210 100% 50% / 0.5)"
+          }}
+          whileTap={{ scale: 0.92 }}
+          transition={{ duration: 0.15, ease: 'easeOut' }}
+        >
+          <Plus className="w-6 h-6" strokeWidth={2.5} />
+          <motion.div
+            className="absolute inset-0 rounded-full border-2 border-primary/50"
+            animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
+          />
+        </motion.button>
 
         {/* Right Section: Actions */}
         <div className="flex items-center gap-3">
