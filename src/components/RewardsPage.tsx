@@ -64,10 +64,10 @@ export function RewardsPage() {
           <div className="flex items-center gap-4">
             <div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                <Crown className="w-4 h-4 text-accent" />
+                <Crown className="w-4 h-4 text-light-muted" />
                 <span>Current Tier</span>
               </div>
-              <div className="text-xl font-bold text-accent">Silver</div>
+              <div className="text-xl font-bold text-foreground">Silver</div>
             </div>
             <div className="border-l border-primary/15 pl-4">
               <div className="text-muted-foreground text-xs">Multiplier</div>
