@@ -124,8 +124,8 @@ export function TopNav({
             </DialogPrimitive.Trigger>
 
             <DialogPrimitive.Portal>
-              <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/55" />
-              <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-[384px] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 p-0 bg-panel border-stroke rounded-xl shadow-2xl overflow-hidden">
+              <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
+              <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-[384px] max-w-[calc(100vw-2rem)] max-h-[80vh] -translate-x-1/2 -translate-y-1/2 p-0 bg-panel border border-stroke rounded-xl shadow-2xl flex flex-col overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-stroke bg-row/30">
                   <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
