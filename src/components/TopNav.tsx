@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Search, ChevronDown, Wallet, Plus, Star, TrendingUp, TrendingDown, Activity, Users, Clock } from 'lucide-react';
+import { ChevronDown, Wallet, Plus, Star, TrendingUp, TrendingDown, Activity, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,14 +18,15 @@ import { Market, formatVolume } from '@/lib/mockData';
 interface TopNavProps {
   onCreateMarket: () => void;
   onDiscover?: () => void;
+  onNavigate?: (view: string) => void;
+  activeView?: string;
   watchlistMarkets?: Market[];
   onRemoveFromWatchlist?: (marketId: string) => void;
   onSelectMarket?: (market: Market) => void;
 }
 
-const navItems = ['Discover', 'Pulse', 'Trackers', 'Markets', 'Portfolio', 'Rewards'];
+const navItems = ['Discover', 'Markets', 'Portfolio', 'Rewards'];
 
-// Generate a deterministic placeholder image URL based on market id
 const getMarketImage = (market: Market): string => {
   const categoryImages: Record<Market['category'], string> = {
     crypto: `https://api.dicebear.com/7.x/shapes/svg?seed=${market.id}&backgroundColor=1a1a2e,16213e,0f3460`,
@@ -41,16 +41,19 @@ const getMarketImage = (market: Market): string => {
 export function TopNav({ 
   onCreateMarket, 
   onDiscover, 
+  onNavigate,
+  activeView = 'Discover',
   watchlistMarkets = [],
   onRemoveFromWatchlist,
   onSelectMarket,
 }: TopNavProps) {
   const [chain, setChain] = useState<'SOL' | 'ETH'>('SOL');
-  const [activeNav, setActiveNav] = useState('Discover');
   const [watchlistOpen, setWatchlistOpen] = useState(false);
 
   const handleNavClick = (item: string) => {
-    setActiveNav(item);
+    if (onNavigate) {
+      onNavigate(item);
+    }
     if (item === 'Discover' && onDiscover) {
       onDiscover();
     }
@@ -60,9 +63,9 @@ export function TopNav({
 
   return (
     <header className="sticky top-0 z-50 bg-panel border-b border-stroke shrink-0">
-      <div className="h-12 px-4 md:px-6 2xl:px-8 flex items-center gap-4">
+      <div className="h-14 px-4 md:px-6 2xl:px-8 flex items-center">
         {/* Left: Logo + Nav Links */}
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-6 shrink-0">
           <div 
             className="flex items-center gap-2.5 cursor-pointer"
             onClick={onDiscover}
@@ -75,16 +78,16 @@ export function TopNav({
             </span>
           </div>
 
-          {/* Nav Links - closer to logo */}
-          <nav className="hidden lg:flex items-center gap-0.5 ml-2">
+          {/* Nav Links */}
+          <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => (
               <button
                 key={item}
                 onClick={() => handleNavClick(item)}
-                className={`px-2.5 py-1.5 text-[13px] font-medium transition-colors rounded-md ${
-                  activeNav === item 
-                    ? 'text-light bg-row' 
-                    : 'text-light-muted hover:text-light hover:bg-row/50'
+                className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-md ${
+                  activeView === item 
+                    ? 'text-light' 
+                    : 'text-light-muted hover:text-light'
                 }`}
               >
                 {item}
@@ -93,28 +96,28 @@ export function TopNav({
           </nav>
         </div>
 
-        {/* Center: Search */}
+        {/* Center: Create Button */}
         <div className="flex-1 flex justify-center">
-          <div className="relative hidden md:block w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-muted" />
-            <Input
-              placeholder="Search markets…"
-              className="pl-10 h-9 w-full bg-row border-stroke rounded-lg text-sm text-light placeholder:text-light-muted focus:ring-1 focus:ring-accent-blue/50"
-            />
-          </div>
+          <Button 
+            onClick={onCreateMarket}
+            size="icon"
+            className="w-12 h-12 rounded-full bg-row border border-stroke hover:bg-row-hover text-light shadow-lg"
+          >
+            <Plus className="w-6 h-6" />
+          </Button>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           {/* Watchlist Button with Popover */}
           <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
             <PopoverTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-8 gap-1.5 text-light-muted hover:text-yellow-400 hover:bg-row text-xs px-2.5 relative"
+                className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-sm px-2.5 relative"
               >
-                <Star className={`w-3.5 h-3.5 ${watchlistCount > 0 ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                <Star className={`w-4 h-4 ${watchlistCount > 0 ? 'fill-yellow-400 text-yellow-400' : ''}`} />
                 <span className="hidden sm:inline">Watchlist</span>
                 {watchlistCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-yellow-500 text-[10px] font-bold text-panel">
@@ -127,7 +130,6 @@ export function TopNav({
               align="end" 
               className="w-96 p-0 bg-panel border-stroke rounded-xl shadow-2xl overflow-hidden"
             >
-              {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-stroke bg-row/30">
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -138,7 +140,6 @@ export function TopNav({
                 </span>
               </div>
 
-              {/* Content */}
               {watchlistCount === 0 ? (
                 <div className="py-12 px-4 text-center">
                   <div className="w-16 h-16 rounded-full bg-row/50 flex items-center justify-center mx-auto mb-4">
@@ -162,7 +163,6 @@ export function TopNav({
                         }}
                       >
                         <div className="flex gap-3">
-                          {/* Market Image */}
                           <div className="shrink-0">
                             <div className="w-12 h-12 rounded-lg overflow-hidden bg-row/50 ring-1 ring-stroke/50">
                               <img 
@@ -173,14 +173,11 @@ export function TopNav({
                             </div>
                           </div>
 
-                          {/* Market Info */}
                           <div className="flex-1 min-w-0">
-                            {/* Question */}
                             <p className="text-sm font-medium text-light line-clamp-2 leading-tight mb-2 hover:text-accent transition-colors">
                               {market.question}
                             </p>
 
-                            {/* Prices */}
                             <div className="flex items-center gap-3 mb-1.5">
                               <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/10">
                                 <TrendingUp className="w-3 h-3 text-emerald-400" />
@@ -196,7 +193,6 @@ export function TopNav({
                               </div>
                             </div>
 
-                            {/* Meta */}
                             <div className="flex items-center gap-3 text-[10px] text-light-muted">
                               <span className="flex items-center gap-1">
                                 <Activity className="w-3 h-3" />
@@ -212,7 +208,6 @@ export function TopNav({
                             </div>
                           </div>
 
-                          {/* Remove Button */}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -237,46 +232,30 @@ export function TopNav({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-xs px-2.5"
+                className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-sm px-2.5"
               >
                 {chain}
-                <ChevronDown className="w-3 h-3" />
+                <ChevronDown className="w-3.5 h-3.5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-panel border-stroke rounded-lg min-w-[120px]">
-              <DropdownMenuItem onClick={() => setChain('SOL')} className="text-light text-xs">
+              <DropdownMenuItem onClick={() => setChain('SOL')} className="text-light text-sm">
                 <span className="mr-2 text-light-muted">◎</span> Solana
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setChain('ETH')} className="text-light text-xs">
+              <DropdownMenuItem onClick={() => setChain('ETH')} className="text-light text-sm">
                 <span className="mr-2 text-light-muted">Ξ</span> Ethereum
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Balance */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 h-8 bg-row border border-stroke rounded-lg">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            <span className="text-xs font-medium text-light tabular-nums">0.033</span>
-          </div>
-
           {/* Connect */}
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-xs px-2.5"
+            className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-sm px-3"
           >
-            <Wallet className="w-3.5 h-3.5" />
+            <Wallet className="w-4 h-4" />
             <span className="hidden sm:inline">Connect</span>
-          </Button>
-
-          {/* Create */}
-          <Button 
-            onClick={onCreateMarket}
-            size="sm"
-            className="h-8 gap-1.5 bg-accent text-panel hover:bg-accent/90 rounded-lg text-xs font-medium px-3"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Create</span>
           </Button>
         </div>
       </div>
