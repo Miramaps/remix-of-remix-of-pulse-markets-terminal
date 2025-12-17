@@ -62,11 +62,11 @@ export function TopNav({
   const watchlistCount = watchlistMarkets.length;
 
   return (
-    <header className="sticky top-0 z-50 bg-panel shrink-0">
-      <div className="h-14 px-4 md:px-6 2xl:px-8 grid grid-cols-[1fr_auto_1fr] items-center">
+    <header className="sticky top-0 z-50 shrink-0">
+      <div className="h-14 grid grid-cols-[1fr_auto_1fr] items-stretch">
         
-        {/* Left Cluster: Brand + Primary Nav */}
-        <div className="justify-self-start flex items-center gap-6">
+        {/* Left Cluster - anchored to top-left */}
+        <div className="bg-primary/8 border-b border-r border-primary/20 rounded-br-2xl flex items-center gap-6 pl-4 md:pl-6 pr-6">
           <button
             className="text-light font-display font-bold text-base tracking-tight"
             onClick={onDiscover}
@@ -74,7 +74,7 @@ export function TopNav({
             PULSEMARKETS
           </button>
 
-          <nav className="flex items-center bg-primary/10 rounded-lg p-1 border border-primary/20">
+          <nav className="flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = activeView === item;
               return (
@@ -82,10 +82,10 @@ export function TopNav({
                   key={item}
                   onClick={() => handleNavClick(item)}
                   className={
-                    "h-7 px-3.5 rounded-md text-sm font-medium transition-all duration-200 " +
+                    "h-8 px-3.5 rounded-lg text-sm font-medium transition-all duration-200 " +
                     (isActive
-                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/30"
-                      : "text-light-muted hover:text-light hover:bg-primary/20")
+                      ? "bg-primary text-primary-foreground"
+                      : "text-light-muted hover:text-light hover:bg-primary/15")
                   }
                   aria-current={isActive ? 'page' : undefined}
                 >
@@ -96,8 +96,8 @@ export function TopNav({
           </nav>
         </div>
 
-        {/* Center: + */}
-        <div className="justify-self-center">
+        {/* Center: + button floating */}
+        <div className="flex items-center justify-center px-6">
           <button
             id="create-market-btn"
             onClick={onCreateMarket}
@@ -108,15 +108,14 @@ export function TopNav({
           </button>
         </div>
 
-        {/* Right Cluster */}
-        <div className="justify-self-end flex items-center">
-          <div className="flex items-center bg-primary/10 rounded-lg p-1 border border-primary/20 gap-1">
-            <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
-              <PopoverTrigger asChild>
-                <Button
+        {/* Right Cluster - anchored to top-right */}
+        <div className="bg-primary/8 border-b border-l border-primary/20 rounded-bl-2xl flex items-center justify-end gap-2 pr-4 md:pr-6 pl-6">
+          <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
+            <PopoverTrigger asChild>
+              <Button
                 variant="ghost" 
                 size="sm" 
-                className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-sm px-2.5 relative"
+                className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-primary/15 text-sm px-2.5 relative"
               >
                 <Star className={`w-4 h-4 ${watchlistCount > 0 ? 'fill-yellow-400 text-yellow-400' : ''}`} />
                 <span className="hidden sm:inline">Watchlist</span>
@@ -258,7 +257,6 @@ export function TopNav({
             <Wallet className="w-4 h-4" />
             <span className="hidden sm:inline">Connect</span>
           </Button>
-          </div>
         </div>
       </div>
     </header>
