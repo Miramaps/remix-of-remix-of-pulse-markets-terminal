@@ -63,34 +63,35 @@ export function TopNav({
   const watchlistCount = watchlistMarkets.length;
 
   return (
-    <header className="sticky top-0 z-50 bg-transparent pt-3 px-4 md:px-6 2xl:px-8 shrink-0">
-      <div className="flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-50 bg-panel shrink-0">
+      <div className="h-14 px-4 md:px-6 2xl:px-8 flex items-center">
         
         {/* Left Section: Logo + Nav Links */}
-        <div className="flex items-center gap-3 h-11 px-4 rounded-full bg-[hsl(220_20%_12%)] border border-primary/20 shadow-lg shadow-primary/5">
+        <div className="flex items-center gap-5">
           <div 
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-2.5 cursor-pointer"
             onClick={onDiscover}
           >
-            <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-[10px]">P</span>
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-display font-bold text-xs">P</span>
             </div>
-            <span className="font-display font-semibold text-light tracking-tight text-xs hidden sm:block">
-              PULSE
+            <span className="font-display font-semibold text-light tracking-tight text-sm hidden sm:block">
+              PULSEMARKETS
             </span>
           </div>
 
-          <div className="w-px h-5 bg-primary/20 hidden lg:block" />
+          {/* Blue divider */}
+          <div className="w-px h-8 bg-primary/30" />
 
           {/* Nav Links */}
-          <nav className="hidden lg:flex items-center">
+          <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => (
               <button
                 key={item}
                 onClick={() => handleNavClick(item)}
-                className={`px-2.5 py-1 text-xs font-medium transition-all rounded-full ${
+                className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-md ${
                   activeView === item 
-                    ? 'text-primary-foreground bg-primary' 
+                    ? 'text-light' 
                     : 'text-light-muted hover:text-light'
                 }`}
               >
@@ -100,40 +101,48 @@ export function TopNav({
           </nav>
         </div>
 
-        {/* Center: Create Button - standalone */}
-        <motion.button
-          id="create-market-btn"
-          onClick={onCreateMarket}
-          className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/40 flex items-center justify-center relative"
-          whileHover={{ 
-            scale: 1.1,
-            boxShadow: "0 0 50px hsl(210 100% 50% / 0.5)"
-          }}
-          whileTap={{ scale: 0.92 }}
-          transition={{ duration: 0.15, ease: 'easeOut' }}
-        >
-          <Plus className="w-6 h-6" strokeWidth={2.5} />
-          <motion.div
-            className="absolute inset-0 rounded-full border-2 border-primary/50"
-            animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
-          />
-        </motion.button>
+        {/* Blue divider */}
+        <div className="w-px h-8 bg-primary/30 ml-4 hidden lg:block" />
+
+        {/* Center: Create Button */}
+        <div className="flex-1 flex justify-center">
+          <motion.button
+            id="create-market-btn"
+            onClick={onCreateMarket}
+            className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center relative"
+            whileHover={{ 
+              scale: 1.1,
+              boxShadow: "0 0 40px hsl(210 100% 50% / 0.5)"
+            }}
+            whileTap={{ scale: 0.92 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+          >
+            <Plus className="w-6 h-6" strokeWidth={2.5} />
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-primary/50"
+              animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
+            />
+          </motion.button>
+        </div>
+
+        {/* Blue divider */}
+        <div className="w-px h-8 bg-primary/30 mr-4 hidden lg:block" />
 
         {/* Right Section: Actions */}
-        <div className="flex items-center gap-2 h-11 px-4 rounded-full bg-[hsl(220_20%_12%)] border border-primary/20 shadow-lg shadow-primary/5">
+        <div className="flex items-center gap-3">
           {/* Watchlist Button with Popover */}
           <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
             <PopoverTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-7 gap-1 text-light-muted hover:text-light hover:bg-primary/10 text-xs px-2 relative rounded-full"
+                className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-sm px-2.5 relative"
               >
-                <Star className={`w-3.5 h-3.5 ${watchlistCount > 0 ? 'fill-primary text-primary' : ''}`} />
+                <Star className={`w-4 h-4 ${watchlistCount > 0 ? 'fill-yellow-400 text-yellow-400' : ''}`} />
                 <span className="hidden sm:inline">Watchlist</span>
                 {watchlistCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 px-0.5 flex items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-yellow-500 text-[10px] font-bold text-panel">
                     {watchlistCount > 99 ? '99+' : watchlistCount}
                   </span>
                 )}
@@ -239,18 +248,16 @@ export function TopNav({
             </PopoverContent>
           </Popover>
 
-          <div className="w-px h-5 bg-primary/20" />
-
           {/* Chain */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-7 gap-1 text-light-muted hover:text-light hover:bg-primary/10 text-xs px-2 rounded-full"
+                className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-sm px-2.5"
               >
                 {chain}
-                <ChevronDown className="w-3 h-3" />
+                <ChevronDown className="w-3.5 h-3.5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-panel border-stroke rounded-lg min-w-[120px]">
@@ -267,9 +274,9 @@ export function TopNav({
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-7 gap-1 text-xs px-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+            className="h-8 gap-1.5 text-light-muted hover:text-light hover:bg-row text-sm px-3"
           >
-            <Wallet className="w-3.5 h-3.5" />
+            <Wallet className="w-4 h-4" />
             <span className="hidden sm:inline">Connect</span>
           </Button>
         </div>
