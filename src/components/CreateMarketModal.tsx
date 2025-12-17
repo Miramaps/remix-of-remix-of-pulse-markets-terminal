@@ -175,9 +175,9 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
 
               {/* Modal - bigger width */}
               <motion.div
-                className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.12)] rounded-xl max-w-md w-full mx-4 overflow-hidden relative pointer-events-auto"
+                className="bg-panel backdrop-blur-xl border border-stroke rounded-xl max-w-md w-full mx-4 overflow-hidden relative pointer-events-auto"
                 style={{
-                  boxShadow: '0 0 40px hsl(var(--primary) / 0.2), 0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                  boxShadow: '0 0 40px hsl(var(--primary) / 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.4)',
                 }}
                 initial={{
                   opacity: 0,
@@ -214,7 +214,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
 
                 {/* Content */}
                 <div className="relative">
-                  <DialogHeader className="px-5 py-4 border-b border-[hsl(0_0%_100%/0.1)]">
+                  <DialogHeader className="px-5 py-4 border-b border-stroke">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <motion.div
@@ -222,14 +222,14 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                           animate={{ scale: 1, rotate: 0 }}
                           transition={{ delay: 0.25, duration: 0.2, ease: 'easeOut' }}
                         >
-                          <Settings className="w-4 h-4 text-[hsl(0_0%_100%/0.5)]" />
+                          <Settings className="w-4 h-4 text-light-muted" />
                         </motion.div>
                         <motion.div
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.28, duration: 0.2 }}
                         >
-                          <DialogTitle className="font-semibold text-base text-[hsl(0_0%_96%)]">
+                          <DialogTitle className="font-semibold text-base text-light">
                             Create Market
                           </DialogTitle>
                         </motion.div>
@@ -242,7 +242,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-[hsl(0_0%_100%/0.5)] hover:text-[hsl(0_0%_96%)] hover:bg-[hsl(0_0%_100%/0.1)]"
+                          className="h-7 w-7 text-light-muted hover:text-light hover:bg-row-hover"
                           onClick={onClose}
                         >
                           <X className="w-4 h-4" />
@@ -260,7 +260,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                     >
                       <motion.button
                         type="button"
-                        className="shrink-0 w-20 h-20 rounded-lg border border-dashed border-[hsl(0_0%_100%/0.2)] bg-[hsl(0_0%_100%/0.03)] flex flex-col items-center justify-center gap-1 text-[hsl(0_0%_100%/0.4)] hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all duration-200"
+                        className="shrink-0 w-20 h-20 rounded-lg border border-dashed border-stroke bg-row/30 flex flex-col items-center justify-center gap-1 text-light-muted hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all duration-200"
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                       >
@@ -269,14 +269,14 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                       </motion.button>
 
                       <div className="flex-1 space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
+                        <Label className="text-[10px] uppercase tracking-wider text-light-muted">
                           Question
                         </Label>
                         <Input
                           value={question}
                           onChange={(e) => setQuestion(e.target.value)}
                           placeholder="Will X happen by Y date?"
-                          className="h-11 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] placeholder:text-[hsl(0_0%_100%/0.3)] focus:border-primary focus:ring-1 focus:ring-primary/30"
+                          className="h-11 bg-row/50 border-stroke text-sm text-light placeholder:text-light-muted/50 focus:border-primary focus:ring-1 focus:ring-primary/30"
                           required
                         />
                       </div>
@@ -289,16 +289,16 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.26, duration: 0.2, ease: 'easeOut' }}
                     >
-                      <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
-                        Community URL <span className="text-[hsl(0_0%_100%/0.25)]">(optional)</span>
+                      <Label className="text-[10px] uppercase tracking-wider text-light-muted">
+                        Community URL <span className="text-light-muted/50">(optional)</span>
                       </Label>
                       <div className="relative">
-                        <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(0_0%_100%/0.4)]" />
+                        <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-muted" />
                         <Input
                           value={communityUrl}
                           onChange={(e) => setCommunityUrl(e.target.value)}
                           placeholder="https://x.com/community or Discord, Telegram..."
-                          className="h-11 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] placeholder:text-[hsl(0_0%_100%/0.3)] focus:border-primary focus:ring-1 focus:ring-primary/30 pl-10"
+                          className="h-11 bg-row/50 border-stroke text-sm text-light placeholder:text-light-muted/50 focus:border-primary focus:ring-1 focus:ring-primary/30 pl-10"
                         />
                       </div>
                     </motion.div>
@@ -310,19 +310,19 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                       transition={{ delay: 0.30, duration: 0.2, ease: 'easeOut' }}
                     >
                       <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
+                        <Label className="text-[10px] uppercase tracking-wider text-light-muted">
                           Category
                         </Label>
                         <Select value={category} onValueChange={(v) => setCategory(v as Market['category'])}>
-                          <SelectTrigger className="h-11 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)]">
+                          <SelectTrigger className="h-11 bg-row/50 border-stroke text-sm text-light">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-[hsl(220_15%_12%)] border-[hsl(0_0%_100%/0.15)]">
+                          <SelectContent className="bg-panel backdrop-blur-xl border-stroke">
                             {categories.map((cat) => (
                               <SelectItem
                                 key={cat}
                                 value={cat}
-                                className="text-sm text-[hsl(0_0%_96%)] capitalize hover:bg-[hsl(0_0%_100%/0.1)]"
+                                className="text-sm text-light capitalize hover:bg-row-hover"
                               >
                                 {cat}
                               </SelectItem>
@@ -332,7 +332,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
+                        <Label className="text-[10px] uppercase tracking-wider text-light-muted">
                           Resolve Date
                         </Label>
                         <div className="relative">
@@ -340,10 +340,10 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                             type="date"
                             value={resolveDate}
                             onChange={(e) => setResolveDate(e.target.value)}
-                            className="h-11 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] pr-10"
+                            className="h-11 bg-row/50 border-stroke text-sm text-light pr-10"
                             required
                           />
-                          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(0_0%_100%/0.4)] pointer-events-none" />
+                          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-muted pointer-events-none" />
                         </div>
                       </div>
                     </motion.div>
@@ -354,17 +354,17 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.34, duration: 0.2, ease: 'easeOut' }}
                     >
-                      <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
+                      <Label className="text-[10px] uppercase tracking-wider text-light-muted">
                         Initial Liquidity (USD)
                       </Label>
                       <div className="flex gap-2">
                         <div className="relative w-28">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(0_0%_100%/0.4)] text-sm">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-light-muted text-sm">$</span>
                           <Input
                             type="number"
                             value={liquidity}
                             onChange={(e) => setLiquidity(Number(e.target.value))}
-                            className="h-10 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] pl-7"
+                            className="h-10 bg-row/50 border-stroke text-sm text-light pl-7"
                             min={10}
                           />
                         </div>
@@ -377,7 +377,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                               className={`flex-1 h-10 rounded-md text-xs font-medium transition-all duration-150 ${
                                 liquidity === preset
                                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
-                                  : 'bg-[hsl(0_0%_100%/0.05)] text-[hsl(0_0%_100%/0.6)] border border-[hsl(0_0%_100%/0.1)] hover:bg-[hsl(0_0%_100%/0.1)]'
+                                  : 'bg-row/50 text-light-muted border border-stroke hover:bg-row-hover'
                               }`}
                             >
                               ${preset}
@@ -397,7 +397,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                         type="button"
                         variant="ghost"
                         onClick={onClose}
-                        className="w-full h-11 bg-[hsl(0_0%_100%/0.05)] border border-[hsl(0_0%_100%/0.1)] text-[hsl(0_0%_100%/0.6)] hover:bg-[hsl(0_0%_100%/0.1)] hover:text-[hsl(0_0%_96%)] text-sm"
+                        className="w-full h-11 bg-row/50 border border-stroke text-light-muted hover:bg-row-hover hover:text-light text-sm"
                       >
                         Cancel
                       </Button>
