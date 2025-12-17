@@ -12,7 +12,7 @@ import { initialMarkets, Market } from '@/lib/mockData';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MarketRow } from '@/components/MarketRow';
 import { useToast } from '@/hooks/use-toast';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, LayoutGroup } from 'framer-motion';
 
 const Index = () => {
   const [markets, setMarkets] = useState<Market[]>(initialMarkets);
@@ -136,7 +136,8 @@ const Index = () => {
   // Markets Page View
   if (activeView === 'Markets') {
     return (
-      <div className="min-h-screen flex flex-col">
+      <LayoutGroup>
+        <div className="min-h-screen flex flex-col">
         <TopNav 
           onCreateMarket={() => setIsCreateModalOpen(true)}
           onDiscover={() => setActiveView('Discover')}
@@ -156,14 +157,16 @@ const Index = () => {
           onClose={() => setIsCreateModalOpen(false)}
           onCreate={handleCreateMarket}
         />
-      </div>
+        </div>
+      </LayoutGroup>
     );
   }
 
   // Portfolio Page View
   if (activeView === 'Portfolio') {
     return (
-      <div className="min-h-screen flex flex-col">
+      <LayoutGroup>
+        <div className="min-h-screen flex flex-col">
         <TopNav 
           onCreateMarket={() => setIsCreateModalOpen(true)}
           onDiscover={() => setActiveView('Discover')}
@@ -179,14 +182,16 @@ const Index = () => {
           onClose={() => setIsCreateModalOpen(false)}
           onCreate={handleCreateMarket}
         />
-      </div>
+        </div>
+      </LayoutGroup>
     );
   }
 
   // Rewards Page View
   if (activeView === 'Rewards') {
     return (
-      <div className="min-h-screen flex flex-col">
+      <LayoutGroup>
+        <div className="min-h-screen flex flex-col">
         <TopNav 
           onCreateMarket={() => setIsCreateModalOpen(true)}
           onDiscover={() => setActiveView('Discover')}
@@ -202,13 +207,15 @@ const Index = () => {
           onClose={() => setIsCreateModalOpen(false)}
           onCreate={handleCreateMarket}
         />
-      </div>
+        </div>
+      </LayoutGroup>
     );
   }
 
   // Discover View (default)
   return (
-    <div className="min-h-screen flex flex-col">
+    <LayoutGroup>
+      <div className="min-h-screen flex flex-col">
       <TopNav 
         onCreateMarket={() => setIsCreateModalOpen(true)}
         onDiscover={() => setActiveView('Discover')}
@@ -343,7 +350,8 @@ const Index = () => {
         onClose={() => setIsCreateModalOpen(false)}
         onCreate={handleCreateMarket}
       />
-    </div>
+      </div>
+    </LayoutGroup>
   );
 };
 

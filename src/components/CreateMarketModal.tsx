@@ -6,10 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogOverlay,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -63,84 +61,71 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.22 }}
             />
-            
-            {/* Modal container */}
+
+            {/* Modal container (morphs from the + button) */}
             <div className="fixed inset-0 z-50 flex items-center justify-center">
               <motion.div
-                className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.15)] rounded-xl max-w-sm w-full mx-4 overflow-hidden shadow-2xl shadow-primary/20"
-                initial={{ 
-                  opacity: 0, 
-                  scale: 0.3,
-                  y: -100,
-                  rotateX: 45
-                }}
-                animate={{ 
-                  opacity: 1, 
-                  scale: 1,
-                  y: 0,
-                  rotateX: 0
-                }}
-                exit={{ 
-                  opacity: 0, 
-                  scale: 0.5,
-                  y: 50,
-                  rotateX: -20,
-                  transition: { duration: 0.2 }
-                }}
-                transition={{ 
-                  type: "spring", 
-                  stiffness: 300, 
-                  damping: 20,
-                  mass: 0.8
-                }}
+                layoutId="create-market-fab"
+                className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.15)] rounded-xl max-w-sm w-full mx-4 overflow-hidden shadow-2xl shadow-primary/20 relative"
+                transition={{ type: "spring", stiffness: 260, damping: 22, mass: 0.9 }}
               >
+                {/* Expand flash */}
+                <motion.div
+                  className="absolute inset-0 bg-primary/10"
+                  initial={{ opacity: 0.0 }}
+                  animate={{ opacity: [0.0, 1, 0.0] }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                />
+
                 {/* Glow effect at top */}
                 <motion.div
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-primary rounded-full blur-sm"
                   initial={{ scaleX: 0, opacity: 0 }}
                   animate={{ scaleX: 1, opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
+                  transition={{ delay: 0.15, duration: 0.35 }}
                 />
 
-                {/* Header */}
-                <DialogHeader className="px-4 py-3 border-b border-[hsl(0_0%_100%/0.1)] relative">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                {/* Content wrapper (so overlay flash doesn't affect clicks) */}
+                <div className="relative">
+                  {/* Header */}
+                  <DialogHeader className="px-4 py-3 border-b border-[hsl(0_0%_100%/0.1)] relative">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <motion.div
+                          initial={{ rotate: -180, scale: 0, opacity: 0 }}
+                          animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                          transition={{ delay: 0.12, type: "spring", stiffness: 220 }}
+                        >
+                          <Settings className="w-4 h-4 text-[hsl(0_0%_100%/0.5)]" />
+                        </motion.div>
+                        <motion.div
+                          initial={{ x: -20, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{ delay: 0.14, duration: 0.32 }}
+                        >
+                          <DialogTitle className="font-semibold text-sm text-[hsl(0_0%_96%)]">
+                            Create Market
+                          </DialogTitle>
+                        </motion.div>
+                      </div>
                       <motion.div
-                        initial={{ rotate: -180, scale: 0, opacity: 0 }}
-                        animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                        initial={{ rotate: 90, scale: 0 }}
+                        animate={{ rotate: 0, scale: 1 }}
+                        transition={{ delay: 0.16, type: "spring" }}
                       >
-                        <Settings className="w-4 h-4 text-[hsl(0_0%_100%/0.5)]" />
-                      </motion.div>
-                      <motion.div
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: 0.25, duration: 0.4 }}
-                      >
-                        <DialogTitle className="font-semibold text-sm text-[hsl(0_0%_96%)]">
-                          Create Market
-                        </DialogTitle>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-[hsl(0_0%_100%/0.5)] hover:text-[hsl(0_0%_96%)] hover:bg-[hsl(0_0%_100%/0.1)]"
+                          onClick={onClose}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
                       </motion.div>
                     </div>
-                    <motion.div
-                      initial={{ rotate: 90, scale: 0 }}
-                      animate={{ rotate: 0, scale: 1 }}
-                      transition={{ delay: 0.3, type: "spring" }}
-                    >
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-[hsl(0_0%_100%/0.5)] hover:text-[hsl(0_0%_96%)] hover:bg-[hsl(0_0%_100%/0.1)]"
-                        onClick={onClose}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </motion.div>
-                  </div>
-                </DialogHeader>
+                  </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="p-4 space-y-4">
                   {/* Add Image + Question Row */}
@@ -292,6 +277,7 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
                     </motion.div>
                   </motion.div>
                 </form>
+                </div>
               </motion.div>
             </div>
           </>
