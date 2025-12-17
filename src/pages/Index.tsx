@@ -7,6 +7,7 @@ import { TradingPage } from '@/components/TradingPage';
 import { MobileTabs } from '@/components/MobileTabs';
 import { MarketsPage } from '@/components/MarketsPage';
 import { PortfolioPage } from '@/components/PortfolioPage';
+import { RewardsPage } from '@/components/RewardsPage';
 import { initialMarkets, Market } from '@/lib/mockData';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MarketRow } from '@/components/MarketRow';
@@ -173,6 +174,29 @@ const Index = () => {
           onSelectMarket={handleSelectMarket}
         />
         <PortfolioPage />
+        <CreateMarketModal
+          open={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreate={handleCreateMarket}
+        />
+      </div>
+    );
+  }
+
+  // Rewards Page View
+  if (activeView === 'Rewards') {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <TopNav 
+          onCreateMarket={() => setIsCreateModalOpen(true)}
+          onDiscover={() => setActiveView('Discover')}
+          onNavigate={handleNavigate}
+          activeView={activeView}
+          watchlistMarkets={markets.filter(m => m.isWatchlisted)}
+          onRemoveFromWatchlist={handleToggleWatchlist}
+          onSelectMarket={handleSelectMarket}
+        />
+        <RewardsPage />
         <CreateMarketModal
           open={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
