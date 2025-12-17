@@ -10,9 +10,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
+import { Market } from '@/lib/mockData';
 
 interface Position {
   id: string;
+  marketId: string;
   category: string;
   question: string;
   side: 'YES' | 'NO';
@@ -25,6 +27,7 @@ interface Position {
 
 interface Trade {
   id: string;
+  marketId: string;
   question: string;
   side: 'YES' | 'NO';
   type: 'BUY' | 'SELL';
@@ -34,9 +37,14 @@ interface Trade {
   time: string;
 }
 
+interface PortfolioPageProps {
+  onSelectMarket?: (market: Partial<Market> & { id: string; question: string }) => void;
+}
+
 const mockPositions: Position[] = [
   {
     id: '1',
+    marketId: 'btc-150k',
     category: 'Crypto',
     question: 'Will BTC reach $150k by EOY?',
     side: 'YES',
@@ -48,6 +56,7 @@ const mockPositions: Position[] = [
   },
   {
     id: '2',
+    marketId: 'eth-flip',
     category: 'Crypto',
     question: 'Will ETH flip BTC market cap?',
     side: 'NO',
@@ -59,6 +68,7 @@ const mockPositions: Position[] = [
   },
   {
     id: '3',
+    marketId: 'trump-2024',
     category: 'Politics',
     question: 'Trump wins 2024 election?',
     side: 'YES',
@@ -70,6 +80,7 @@ const mockPositions: Position[] = [
   },
   {
     id: '4',
+    marketId: 'lakers-nba',
     category: 'Sports',
     question: 'Lakers win NBA Championship?',
     side: 'YES',
@@ -82,11 +93,11 @@ const mockPositions: Position[] = [
 ];
 
 const mockTrades: Trade[] = [
-  { id: '1', question: 'Will BTC reach $150k by EOY?', side: 'YES', type: 'BUY', shares: 25, price: 0.40, total: 10.00, time: '2 hours ago' },
-  { id: '2', question: 'Will ETH flip BTC market cap?', side: 'NO', type: 'BUY', shares: 50, price: 0.72, total: 36.00, time: '5 hours ago' },
-  { id: '3', question: 'Trump wins 2024 election?', side: 'YES', type: 'BUY', shares: 25, price: 0.55, total: 13.75, time: '1 day ago' },
-  { id: '4', question: 'Will BTC reach $150k by EOY?', side: 'YES', type: 'BUY', shares: 25, price: 0.44, total: 11.00, time: '2 days ago' },
-  { id: '5', question: 'Lakers win NBA Championship?', side: 'YES', type: 'BUY', shares: 40, price: 0.32, total: 12.80, time: '3 days ago' },
+  { id: '1', marketId: 'btc-150k', question: 'Will BTC reach $150k by EOY?', side: 'YES', type: 'BUY', shares: 25, price: 0.40, total: 10.00, time: '2 hours ago' },
+  { id: '2', marketId: 'eth-flip', question: 'Will ETH flip BTC market cap?', side: 'NO', type: 'BUY', shares: 50, price: 0.72, total: 36.00, time: '5 hours ago' },
+  { id: '3', marketId: 'trump-2024', question: 'Trump wins 2024 election?', side: 'YES', type: 'BUY', shares: 25, price: 0.55, total: 13.75, time: '1 day ago' },
+  { id: '4', marketId: 'btc-150k', question: 'Will BTC reach $150k by EOY?', side: 'YES', type: 'BUY', shares: 25, price: 0.44, total: 11.00, time: '2 days ago' },
+  { id: '5', marketId: 'lakers-nba', question: 'Lakers win NBA Championship?', side: 'YES', type: 'BUY', shares: 40, price: 0.32, total: 12.80, time: '3 days ago' },
 ];
 
 const portfolioStats = {
@@ -104,8 +115,44 @@ const allocation = [
   { category: 'Sports', percent: 20, color: 'bg-emerald-500' },
 ];
 
-export function PortfolioPage() {
+export function PortfolioPage({ onSelectMarket }: PortfolioPageProps) {
   const [activeTab, setActiveTab] = useState('positions');
+
+  const handlePositionClick = (position: Position) => {
+    if (onSelectMarket) {
+      onSelectMarket({
+        id: position.marketId,
+        question: position.question,
+        category: position.category.toLowerCase() as Market['category'],
+        yesPrice: position.currentPrice,
+        noPrice: 1 - position.currentPrice,
+        volume: 50000,
+        traders: 250,
+        shares: position.shares,
+        createdAt: new Date(),
+        resolvesAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        status: 'new',
+      });
+    }
+  };
+
+  const handleTradeClick = (trade: Trade) => {
+    if (onSelectMarket) {
+      onSelectMarket({
+        id: trade.marketId,
+        question: trade.question,
+        category: 'crypto',
+        yesPrice: trade.price,
+        noPrice: 1 - trade.price,
+        volume: 50000,
+        traders: 250,
+        shares: 0,
+        createdAt: new Date(),
+        resolvesAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        status: 'new',
+      });
+    }
+  };
 
   return (
     <main className="flex-1 px-4 md:px-6 2xl:px-8 py-4 overflow-auto">
@@ -221,7 +268,11 @@ export function PortfolioPage() {
                 </TableHeader>
                 <TableBody>
                   {mockPositions.map((position) => (
-                    <TableRow key={position.id} className="border-primary/15 hover:bg-row/50 cursor-pointer">
+                    <TableRow 
+                      key={position.id} 
+                      className="border-primary/15 hover:bg-row/50 cursor-pointer"
+                      onClick={() => handlePositionClick(position)}
+                    >
                       <TableCell className="py-3">
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] text-light-muted bg-row px-1.5 py-0.5 rounded uppercase">
@@ -288,7 +339,11 @@ export function PortfolioPage() {
                 </TableHeader>
                 <TableBody>
                   {mockTrades.map((trade) => (
-                    <TableRow key={trade.id} className="border-primary/15 hover:bg-row/50">
+                    <TableRow 
+                      key={trade.id} 
+                      className="border-primary/15 hover:bg-row/50 cursor-pointer"
+                      onClick={() => handleTradeClick(trade)}
+                    >
                       <TableCell className="py-3">
                         <span className="text-sm text-light line-clamp-1">{trade.question}</span>
                       </TableCell>
