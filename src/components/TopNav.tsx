@@ -66,7 +66,7 @@ export function TopNav({
       <div className="h-14 grid grid-cols-[1fr_auto_1fr] items-stretch">
         
         {/* Left Cluster - anchored to top-left */}
-        <div className="bg-primary/8 border-b border-r border-primary/20 rounded-br-2xl flex items-center gap-6 pl-4 md:pl-6 pr-4">
+        <div className="bg-primary/8 border-b border-r border-primary/20 rounded-br-2xl flex items-center gap-6 pl-4 md:pl-6 pr-2">
           <button
             className="text-light font-display font-bold text-base tracking-tight"
             onClick={onDiscover}
@@ -109,7 +109,7 @@ export function TopNav({
         </div>
 
         {/* Right Cluster - anchored to top-right */}
-        <div className="bg-primary/8 border-b border-l border-primary/20 rounded-bl-2xl flex items-center justify-end gap-2 pr-4 md:pr-6 pl-4">
+        <div className="bg-primary/8 border-b border-l border-primary/20 rounded-bl-2xl flex items-center justify-end gap-2 pr-4 md:pr-6 pl-2">
           <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
             <PopoverTrigger asChild>
               <Button
