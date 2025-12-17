@@ -66,38 +66,34 @@ export function TopNav({
       <div className="h-14 px-4 md:px-6 2xl:px-8 grid grid-cols-[1fr_auto_1fr] items-center">
         
         {/* Left Cluster: Brand + Primary Nav */}
-        <div className="justify-self-start">
-          <div className="flex items-center h-10 rounded-full border border-stroke bg-row/20 pl-3 pr-1">
-            <button
-              className="text-light font-display font-semibold text-sm tracking-tight px-1"
-              onClick={onDiscover}
-            >
-              PULSEMARKETS
-            </button>
+        <div className="justify-self-start flex items-center gap-6">
+          <button
+            className="text-light font-display font-bold text-base tracking-tight"
+            onClick={onDiscover}
+          >
+            PULSEMARKETS
+          </button>
 
-            <div className="mx-3 h-5 w-px rounded-full bg-stroke" aria-hidden="true" />
-
-            <nav className="flex items-center gap-1">
-              {navItems.map((item) => {
-                const isActive = activeView === item;
-                return (
-                  <button
-                    key={item}
-                    onClick={() => handleNavClick(item)}
-                    className={
-                      "h-8 px-3 rounded-full text-sm font-medium transition-colors " +
-                      (isActive
-                        ? "bg-row text-light"
-                        : "text-light-muted hover:text-light hover:bg-row/60")
-                    }
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    {item}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
+          <nav className="flex items-center bg-primary/10 rounded-lg p-1 border border-primary/20">
+            {navItems.map((item) => {
+              const isActive = activeView === item;
+              return (
+                <button
+                  key={item}
+                  onClick={() => handleNavClick(item)}
+                  className={
+                    "h-7 px-3.5 rounded-md text-sm font-medium transition-all duration-200 " +
+                    (isActive
+                      ? "bg-primary text-primary-foreground shadow-sm shadow-primary/30"
+                      : "text-light-muted hover:text-light hover:bg-primary/20")
+                  }
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  {item}
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
         {/* Center: + */}
@@ -113,8 +109,8 @@ export function TopNav({
         </div>
 
         {/* Right Cluster */}
-        <div className="justify-self-end">
-          <div className="flex items-center h-10 rounded-full border border-stroke bg-row/20 px-1 gap-2">
+        <div className="justify-self-end flex items-center">
+          <div className="flex items-center bg-primary/10 rounded-lg p-1 border border-primary/20 gap-1">
             <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
               <PopoverTrigger asChild>
                 <Button
