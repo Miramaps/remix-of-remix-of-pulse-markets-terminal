@@ -84,8 +84,8 @@ export function TopNav({
                   className={
                     "h-8 px-3.5 rounded-lg text-sm font-medium transition-all duration-200 " +
                     (isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-light-muted hover:text-light hover:bg-row")
+                      ? "text-primary"
+                      : "text-light-muted hover:text-light")
                   }
                   aria-current={isActive ? 'page' : undefined}
                 >
