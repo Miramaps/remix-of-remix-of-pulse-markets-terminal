@@ -20,6 +20,16 @@ const Index = () => {
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [tradingMarket, setTradingMarket] = useState<Market | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState<{ x: number; y: number } | undefined>();
+
+  const handleOpenCreateModal = () => {
+    const btn = document.getElementById('create-market-btn');
+    if (btn) {
+      const rect = btn.getBoundingClientRect();
+      setButtonPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    }
+    setIsCreateModalOpen(true);
+  };
   const [priceFlashes, setPriceFlashes] = useState<Record<string, boolean>>({});
   const [activeView, setActiveView] = useState<string>('Discover');
   const { toast } = useToast();
@@ -139,7 +149,7 @@ const Index = () => {
       <LayoutGroup>
         <div className="min-h-screen flex flex-col">
         <TopNav 
-          onCreateMarket={() => setIsCreateModalOpen(true)}
+          onCreateMarket={handleOpenCreateModal}
           onDiscover={() => setActiveView('Discover')}
           onNavigate={handleNavigate}
           activeView={activeView}
@@ -156,6 +166,7 @@ const Index = () => {
           open={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onCreate={handleCreateMarket}
+          buttonPosition={buttonPosition}
         />
         </div>
       </LayoutGroup>
@@ -168,7 +179,7 @@ const Index = () => {
       <LayoutGroup>
         <div className="min-h-screen flex flex-col">
         <TopNav 
-          onCreateMarket={() => setIsCreateModalOpen(true)}
+          onCreateMarket={handleOpenCreateModal}
           onDiscover={() => setActiveView('Discover')}
           onNavigate={handleNavigate}
           activeView={activeView}
@@ -181,6 +192,7 @@ const Index = () => {
           open={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onCreate={handleCreateMarket}
+          buttonPosition={buttonPosition}
         />
         </div>
       </LayoutGroup>
@@ -193,7 +205,7 @@ const Index = () => {
       <LayoutGroup>
         <div className="min-h-screen flex flex-col">
         <TopNav 
-          onCreateMarket={() => setIsCreateModalOpen(true)}
+          onCreateMarket={handleOpenCreateModal}
           onDiscover={() => setActiveView('Discover')}
           onNavigate={handleNavigate}
           activeView={activeView}
@@ -206,6 +218,7 @@ const Index = () => {
           open={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onCreate={handleCreateMarket}
+          buttonPosition={buttonPosition}
         />
         </div>
       </LayoutGroup>
@@ -217,7 +230,7 @@ const Index = () => {
     <LayoutGroup>
       <div className="min-h-screen flex flex-col">
       <TopNav 
-        onCreateMarket={() => setIsCreateModalOpen(true)}
+        onCreateMarket={handleOpenCreateModal}
         onDiscover={() => setActiveView('Discover')}
         onNavigate={handleNavigate}
         activeView={activeView}
@@ -349,6 +362,7 @@ const Index = () => {
         open={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onCreate={handleCreateMarket}
+        buttonPosition={buttonPosition}
       />
       </div>
     </LayoutGroup>
