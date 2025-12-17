@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, TrendingUp, TrendingDown, ChevronUp, ChevronDown, Star, Bell, Share2 } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, ChevronUp, ChevronDown, Star, Bell, Share2, Users, Wallet } from 'lucide-react';
 import { Market, formatVolume, formatTimeLeft } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,7 @@ const generateOrderBook = (yesPrice: number) => {
   const bids: { price: number; size: number }[] = [];
   const asks: { price: number; size: number }[] = [];
   
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 6; i++) {
     bids.push({
       price: Math.max(0.01, yesPrice - 0.01 * (i + 1)),
       size: Math.floor(Math.random() * 8000) + 1000,
@@ -47,7 +47,7 @@ const generateOrderBook = (yesPrice: number) => {
 // Generate recent trades
 const generateRecentTrades = () => {
   const trades = [];
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 8; i++) {
     trades.push({
       id: i,
       side: Math.random() > 0.5 ? 'yes' : 'no',
@@ -57,6 +57,29 @@ const generateRecentTrades = () => {
     });
   }
   return trades;
+};
+
+// Generate mock positions
+const generatePositions = () => {
+  return [
+    { id: 1, side: 'yes', shares: 500, avgPrice: 0.45, currentPrice: 0.52, pnl: 35 },
+    { id: 2, side: 'no', shares: 200, avgPrice: 0.55, currentPrice: 0.48, pnl: -14 },
+  ];
+};
+
+// Generate mock wallet activity
+const generateWalletActivity = () => {
+  const wallets = [];
+  for (let i = 0; i < 6; i++) {
+    wallets.push({
+      id: i,
+      address: `0x${Math.random().toString(16).slice(2, 8)}...${Math.random().toString(16).slice(2, 6)}`,
+      side: Math.random() > 0.5 ? 'yes' : 'no',
+      amount: Math.floor(Math.random() * 5000) + 100,
+      time: `${Math.floor(Math.random() * 60)}s ago`,
+    });
+  }
+  return wallets;
 };
 
 // Chart component
@@ -76,25 +99,23 @@ function PriceChart({ data }: { data: { time: number; price: number }[] }) {
   const isUp = lastPoint.price >= firstPoint.price;
 
   return (
-    <div className="w-full h-full relative bg-[#0a0b0e] rounded-lg p-2">
-      <div className="absolute left-1 top-2 bottom-2 flex flex-col justify-between text-[9px] text-white/30 font-mono">
+    <div className="w-full h-full relative">
+      <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between text-[10px] text-light-muted/50 font-mono pr-2">
         <span>{maxPrice.toFixed(2)}</span>
+        <span>{((maxPrice + minPrice) / 2).toFixed(2)}</span>
         <span>{minPrice.toFixed(2)}</span>
       </div>
       
-      <div className="ml-6 h-full">
+      <div className="ml-8 h-full">
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full">
-          {[0, 50, 100].map(y => (
-            <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="0.3" />
-          ))}
           <defs>
             <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={isUp ? '#22c55e' : '#ef4444'} stopOpacity="0.2" />
+              <stop offset="0%" stopColor={isUp ? '#22c55e' : '#ef4444'} stopOpacity="0.3" />
               <stop offset="100%" stopColor={isUp ? '#22c55e' : '#ef4444'} stopOpacity="0" />
             </linearGradient>
           </defs>
           <polygon points={`0,100 ${points} 100,100`} fill="url(#chartGradient)" />
-          <polyline points={points} fill="none" stroke={isUp ? '#22c55e' : '#ef4444'} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+          <polyline points={points} fill="none" stroke={isUp ? '#22c55e' : '#ef4444'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
     </div>
@@ -109,6 +130,9 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
   const [orderBook, setOrderBook] = useState<{ bids: { price: number; size: number }[]; asks: { price: number; size: number }[] }>({ bids: [], asks: [] });
   const [recentTrades, setRecentTrades] = useState<any[]>([]);
   const [timeframe, setTimeframe] = useState('1H');
+  const [bottomTab, setBottomTab] = useState<'positions' | 'activity'>('positions');
+  const [positions] = useState(generatePositions());
+  const [walletActivity] = useState(generateWalletActivity());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -145,68 +169,67 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
     });
   };
 
+  const maxBidSize = Math.max(...orderBook.bids.map(b => b.size));
+  const maxAskSize = Math.max(...orderBook.asks.map(a => a.size));
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="h-screen flex flex-col bg-[#0d0f12] text-white overflow-hidden"
+      className="h-screen flex flex-col bg-panel text-light overflow-hidden"
     >
-      {/* Top Nav - clicking Discover or logo goes back */}
+      {/* Top Nav */}
       <TopNav onCreateMarket={() => {}} onDiscover={onBack} />
 
       {/* Market Header Bar */}
-      <div className="h-10 border-b border-white/10 bg-[#0a0b0e] flex items-center justify-between px-4 shrink-0">
+      <div className="h-11 border-b border-primary/20 bg-primary/5 flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="h-7 px-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg gap-1.5 text-xs"
+            className="h-7 px-2 text-light-muted hover:text-light hover:bg-primary/10 rounded-lg gap-1.5 text-xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Back
           </Button>
           
-          <div className="h-5 w-px bg-white/10" />
+          <div className="h-5 w-px bg-primary/20" />
           
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md overflow-hidden bg-white/5">
+            <div className="w-6 h-6 rounded-md overflow-hidden bg-primary/10 ring-1 ring-primary/20">
               <img src={`https://api.dicebear.com/7.x/shapes/svg?seed=${market.id}`} alt="" className="w-full h-full object-cover" />
             </div>
-            <span className="font-medium text-xs truncate max-w-[300px]">{market.question}</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-              market.status === 'new' ? 'bg-blue-500/20 text-blue-400' :
-              market.status === 'ending' ? 'bg-yellow-500/20 text-yellow-400' :
-              'bg-green-500/20 text-green-400'
-            }`}>
-              {market.status.toUpperCase()}
+            <span className="font-medium text-sm truncate max-w-[300px]">{market.question}</span>
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary font-medium uppercase">
+              {market.status}
             </span>
           </div>
         </div>
         
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-white hover:bg-white/10">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-light-muted hover:text-primary hover:bg-primary/10">
             <Star className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-white hover:bg-white/10">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-light-muted hover:text-primary hover:bg-primary/10">
             <Bell className="w-3.5 h-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7 text-white/40 hover:text-white hover:bg-white/10">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-light-muted hover:text-primary hover:bg-primary/10">
             <Share2 className="w-3.5 h-3.5" />
           </Button>
         </div>
       </div>
 
-      {/* Main Content - Fixed Height, No Scroll */}
+      {/* Main Content */}
       <div className="flex-1 flex min-h-0">
         {/* Left Sidebar - Quick Actions */}
-        <div className="w-44 border-r border-white/10 bg-[#0a0b0e] p-2 flex flex-col gap-2 shrink-0">
+        <div className="w-36 border-r border-primary/15 bg-primary/5 p-3 flex flex-col gap-3 shrink-0">
           <div>
-            <div className="text-[9px] text-white/40 uppercase tracking-wider mb-1.5">Quick Buy</div>
-            <div className="grid grid-cols-4 gap-0.5">
+            <div className="text-[10px] text-light-muted uppercase tracking-wider mb-2 font-medium">Quick Buy</div>
+            <div className="grid grid-cols-4 gap-1">
               {[0.01, 0.1, 1, 10].map((val) => (
-                <button key={val} onClick={() => setAmount(String(val * 100))} className="py-1.5 text-[10px] font-medium text-green-400 bg-green-500/10 hover:bg-green-500/20 rounded transition-colors">
+                <button key={val} onClick={() => setAmount(String(val * 100))} className="py-1.5 text-[10px] font-semibold text-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/25 rounded-md transition-colors border border-emerald-500/20">
                   {val}
                 </button>
               ))}
@@ -214,51 +237,51 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
           </div>
 
           <div>
-            <div className="text-[9px] text-white/40 uppercase tracking-wider mb-1.5">Quick Sell</div>
-            <div className="grid grid-cols-4 gap-0.5">
+            <div className="text-[10px] text-light-muted uppercase tracking-wider mb-2 font-medium">Quick Sell</div>
+            <div className="grid grid-cols-4 gap-1">
               {['10%', '25%', '50%', '100%'].map((val) => (
-                <button key={val} className="py-1.5 text-[10px] font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 rounded transition-colors">
+                <button key={val} className="py-1.5 text-[10px] font-semibold text-rose-400 bg-rose-500/15 hover:bg-rose-500/25 rounded-md transition-colors border border-rose-500/20">
                   {val}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="mt-auto space-y-1.5 text-[10px]">
-            <div className="flex justify-between text-white/40">
-              <span>Volume</span>
-              <span className="text-white">{formatVolume(market.volume)}</span>
+          <div className="mt-auto space-y-2 text-[11px]">
+            <div className="flex justify-between">
+              <span className="text-light-muted">Volume</span>
+              <span className="text-light font-medium">{formatVolume(market.volume)}</span>
             </div>
-            <div className="flex justify-between text-white/40">
-              <span>Traders</span>
-              <span className="text-white">{market.traders}</span>
+            <div className="flex justify-between">
+              <span className="text-light-muted">Traders</span>
+              <span className="text-light font-medium">{market.traders}</span>
             </div>
-            <div className="flex justify-between text-white/40">
-              <span>Ends</span>
-              <span className="text-white">{formatTimeLeft(market.resolvesAt)}</span>
+            <div className="flex justify-between">
+              <span className="text-light-muted">Ends</span>
+              <span className="text-light font-medium">{formatTimeLeft(market.resolvesAt)}</span>
             </div>
           </div>
         </div>
 
-        {/* Center - Chart & Order Book */}
+        {/* Center - Chart + Bottom Panels */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Price Header */}
-          <div className="h-10 border-b border-white/10 bg-[#0a0b0e] px-3 flex items-center justify-between shrink-0">
+          <div className="h-10 border-b border-primary/15 bg-primary/5 px-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-4">
-              <span className="text-lg font-bold tabular-nums">{lastPrice.toFixed(4)}</span>
-              <span className={`flex items-center gap-1 text-xs ${isUp ? 'text-green-400' : 'text-red-400'}`}>
-                {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              <span className="text-xl font-bold tabular-nums">{lastPrice.toFixed(4)}</span>
+              <span className={`flex items-center gap-1 text-xs font-medium ${isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                 {priceChangePercent >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%
               </span>
             </div>
             
-            <div className="flex items-center gap-0.5 bg-white/5 rounded p-0.5">
+            <div className="flex items-center gap-1 bg-primary/10 rounded-lg p-1">
               {['1m', '5m', '1H', '1D'].map((tf) => (
                 <button
                   key={tf}
                   onClick={() => setTimeframe(tf)}
-                  className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
-                    timeframe === tf ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/60'
+                  className={`px-2.5 py-1 text-[10px] font-medium rounded-md transition-all ${
+                    timeframe === tf ? 'bg-primary text-primary-foreground' : 'text-light-muted hover:text-light hover:bg-primary/15'
                   }`}
                 >
                   {tf}
@@ -267,32 +290,43 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
             </div>
           </div>
 
-          {/* Chart */}
-          <div className="flex-1 p-2 min-h-0">
-            {priceHistory.length > 0 && <PriceChart data={priceHistory} />}
+          {/* Chart Area */}
+          <div className="flex-1 flex min-h-0">
+            {/* Chart */}
+            <div className="flex-1 p-4">
+              {priceHistory.length > 0 && <PriceChart data={priceHistory} />}
+            </div>
           </div>
 
-          {/* Order Book & Trades */}
-          <div className="h-32 border-t border-white/10 bg-[#0a0b0e] flex shrink-0">
+          {/* Bottom Section - Order Book + Recent Trades */}
+          <div className="h-36 border-t border-primary/15 flex shrink-0">
             {/* Order Book */}
-            <div className="flex-1 p-2 border-r border-white/10">
-              <div className="text-[9px] text-white/40 uppercase tracking-wider mb-1">Order Book</div>
-              <div className="grid grid-cols-2 gap-2 h-[calc(100%-16px)]">
-                <div className="space-y-0.5 overflow-hidden">
+            <div className="flex-1 p-3 border-r border-primary/15">
+              <div className="text-[10px] text-light-muted uppercase tracking-wider mb-2 font-medium">Order Book</div>
+              <div className="flex gap-4 h-[calc(100%-20px)]">
+                {/* Bids (Green) */}
+                <div className="flex-1 space-y-0.5">
                   {orderBook.bids.slice(0, 5).map((bid, i) => (
-                    <div key={i} className="relative flex justify-between px-1 py-0.5 text-[9px]">
-                      <div className="absolute inset-0 bg-green-500/10 rounded-sm" style={{ width: `${Math.min(100, (bid.size / 8000) * 100)}%` }} />
-                      <span className="relative text-green-400 tabular-nums">{bid.price.toFixed(2)}</span>
-                      <span className="relative text-white/40 tabular-nums">{(bid.size / 1000).toFixed(1)}k</span>
+                    <div key={i} className="relative flex items-center h-5">
+                      <div 
+                        className="absolute left-0 top-0 bottom-0 bg-emerald-500/20 rounded-sm" 
+                        style={{ width: `${(bid.size / maxBidSize) * 100}%` }} 
+                      />
+                      <span className="relative z-10 text-[10px] text-emerald-400 font-medium tabular-nums w-12">{bid.price.toFixed(2)}</span>
+                      <span className="relative z-10 text-[10px] text-light-muted tabular-nums ml-auto">{(bid.size / 1000).toFixed(1)}k</span>
                     </div>
                   ))}
                 </div>
-                <div className="space-y-0.5 overflow-hidden">
+                {/* Asks (Red) */}
+                <div className="flex-1 space-y-0.5">
                   {orderBook.asks.slice(0, 5).map((ask, i) => (
-                    <div key={i} className="relative flex justify-between px-1 py-0.5 text-[9px]">
-                      <div className="absolute inset-0 right-0 bg-red-500/10 rounded-sm" style={{ width: `${Math.min(100, (ask.size / 8000) * 100)}%`, marginLeft: 'auto' }} />
-                      <span className="relative text-red-400 tabular-nums">{ask.price.toFixed(2)}</span>
-                      <span className="relative text-white/40 tabular-nums">{(ask.size / 1000).toFixed(1)}k</span>
+                    <div key={i} className="relative flex items-center h-5">
+                      <div 
+                        className="absolute right-0 top-0 bottom-0 bg-rose-500/20 rounded-sm" 
+                        style={{ width: `${(ask.size / maxAskSize) * 100}%` }} 
+                      />
+                      <span className="relative z-10 text-[10px] text-rose-400 font-medium tabular-nums w-12">{ask.price.toFixed(2)}</span>
+                      <span className="relative z-10 text-[10px] text-light-muted tabular-nums ml-auto">{(ask.size / 1000).toFixed(1)}k</span>
                     </div>
                   ))}
                 </div>
@@ -300,79 +334,165 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
             </div>
             
             {/* Recent Trades */}
-            <div className="w-48 p-2">
-              <div className="text-[9px] text-white/40 uppercase tracking-wider mb-1">Recent Trades</div>
+            <div className="w-56 p-3">
+              <div className="text-[10px] text-light-muted uppercase tracking-wider mb-2 font-medium">Recent Trades</div>
               <div className="space-y-0.5 overflow-hidden">
                 {recentTrades.slice(0, 5).map((trade) => (
-                  <div key={trade.id} className="flex items-center justify-between text-[9px] py-0.5">
-                    <div className="flex items-center gap-1">
-                      {trade.side === 'yes' ? <ChevronUp className="w-2.5 h-2.5 text-green-400" /> : <ChevronDown className="w-2.5 h-2.5 text-red-400" />}
-                      <span className={trade.side === 'yes' ? 'text-green-400' : 'text-red-400'}>{trade.price.toFixed(2)}</span>
+                  <div key={trade.id} className="flex items-center justify-between h-5">
+                    <div className="flex items-center gap-1.5">
+                      {trade.side === 'yes' ? (
+                        <ChevronUp className="w-3 h-3 text-emerald-400" />
+                      ) : (
+                        <ChevronDown className="w-3 h-3 text-rose-400" />
+                      )}
+                      <span className={`text-[10px] font-medium ${trade.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {trade.price.toFixed(2)}
+                      </span>
                     </div>
-                    <span className="text-white/40 tabular-nums">{trade.size}</span>
+                    <span className="text-[10px] text-light-muted tabular-nums">{trade.size}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
+
+          {/* Positions / Activity Tabs */}
+          <div className="h-32 border-t border-primary/15 bg-primary/5 shrink-0">
+            <div className="flex items-center gap-4 px-4 h-8 border-b border-primary/15">
+              <button
+                onClick={() => setBottomTab('positions')}
+                className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
+                  bottomTab === 'positions' ? 'text-primary' : 'text-light-muted hover:text-light'
+                }`}
+              >
+                <Wallet className="w-3.5 h-3.5" />
+                Your Positions
+              </button>
+              <button
+                onClick={() => setBottomTab('activity')}
+                className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
+                  bottomTab === 'activity' ? 'text-primary' : 'text-light-muted hover:text-light'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" />
+                Live Activity
+              </button>
+            </div>
+            
+            <div className="p-3 overflow-hidden">
+              {bottomTab === 'positions' ? (
+                <div className="grid grid-cols-5 gap-4 text-[10px]">
+                  <div className="text-light-muted uppercase tracking-wider">Side</div>
+                  <div className="text-light-muted uppercase tracking-wider">Shares</div>
+                  <div className="text-light-muted uppercase tracking-wider">Avg Price</div>
+                  <div className="text-light-muted uppercase tracking-wider">Current</div>
+                  <div className="text-light-muted uppercase tracking-wider text-right">P&L</div>
+                  {positions.map((pos) => (
+                    <>
+                      <div key={`${pos.id}-side`} className={`font-medium ${pos.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {pos.side.toUpperCase()}
+                      </div>
+                      <div key={`${pos.id}-shares`} className="text-light tabular-nums">{pos.shares}</div>
+                      <div key={`${pos.id}-avg`} className="text-light tabular-nums">${pos.avgPrice.toFixed(2)}</div>
+                      <div key={`${pos.id}-curr`} className="text-light tabular-nums">${pos.currentPrice.toFixed(2)}</div>
+                      <div key={`${pos.id}-pnl`} className={`text-right font-medium tabular-nums ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {pos.pnl >= 0 ? '+' : ''}{pos.pnl}
+                      </div>
+                    </>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-4 gap-4 text-[10px]">
+                  <div className="text-light-muted uppercase tracking-wider">Wallet</div>
+                  <div className="text-light-muted uppercase tracking-wider">Side</div>
+                  <div className="text-light-muted uppercase tracking-wider">Amount</div>
+                  <div className="text-light-muted uppercase tracking-wider text-right">Time</div>
+                  {walletActivity.slice(0, 3).map((w) => (
+                    <>
+                      <div key={`${w.id}-addr`} className="text-primary font-mono">{w.address}</div>
+                      <div key={`${w.id}-side`} className={`font-medium ${w.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {w.side.toUpperCase()}
+                      </div>
+                      <div key={`${w.id}-amt`} className="text-light tabular-nums">${w.amount}</div>
+                      <div key={`${w.id}-time`} className="text-light-muted text-right">{w.time}</div>
+                    </>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Right Sidebar - Trading Panel */}
-        <div className="w-64 border-l border-white/10 bg-[#0a0b0e] flex flex-col shrink-0">
-          {/* YES/NO Buttons */}
-          <div className="p-2 border-b border-white/10">
-            <div className="grid grid-cols-2 gap-1.5">
+        <div className="w-60 border-l border-primary/15 bg-primary/5 flex flex-col shrink-0">
+          {/* YES/NO Toggle */}
+          <div className="p-3 border-b border-primary/15">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => setActiveTab('yes')}
-                className={`py-2 rounded-lg text-center transition-all ${
-                  activeTab === 'yes' ? 'bg-green-500/20 border border-green-500/40' : 'bg-white/5 hover:bg-white/10'
+                className={`py-3 rounded-lg text-center transition-all ${
+                  activeTab === 'yes' 
+                    ? 'bg-primary text-primary-foreground ring-2 ring-primary/50' 
+                    : 'bg-row hover:bg-row/80 text-light-muted'
                 }`}
               >
-                <div className={`text-base font-bold ${activeTab === 'yes' ? 'text-green-400' : 'text-white/60'}`}>
-                  {market.yesPrice.toFixed(2)}
-                </div>
-                <div className="text-[9px] text-white/40 uppercase">YES</div>
+                <div className="text-lg font-bold tabular-nums">{market.yesPrice.toFixed(2)}</div>
+                <div className="text-[10px] uppercase font-medium opacity-70">YES</div>
               </button>
               <button
                 onClick={() => setActiveTab('no')}
-                className={`py-2 rounded-lg text-center transition-all ${
-                  activeTab === 'no' ? 'bg-red-500/20 border border-red-500/40' : 'bg-white/5 hover:bg-white/10'
+                className={`py-3 rounded-lg text-center transition-all ${
+                  activeTab === 'no' 
+                    ? 'bg-rose-500 text-white ring-2 ring-rose-500/50' 
+                    : 'bg-row hover:bg-row/80 text-light-muted'
                 }`}
               >
-                <div className={`text-base font-bold ${activeTab === 'no' ? 'text-red-400' : 'text-white/60'}`}>
-                  {market.noPrice.toFixed(2)}
-                </div>
-                <div className="text-[9px] text-white/40 uppercase">NO</div>
+                <div className="text-lg font-bold tabular-nums">{market.noPrice.toFixed(2)}</div>
+                <div className="text-[10px] uppercase font-medium opacity-70">NO</div>
               </button>
             </div>
           </div>
 
           {/* Order Type */}
-          <div className="px-2 pt-2">
-            <div className="flex gap-1 bg-white/5 rounded p-0.5">
-              <button onClick={() => setOrderType('market')} className={`flex-1 py-1.5 text-[10px] font-medium rounded transition-colors ${orderType === 'market' ? 'bg-white/10 text-white' : 'text-white/40'}`}>
+          <div className="px-3 pt-3">
+            <div className="flex gap-1 bg-row rounded-lg p-1">
+              <button 
+                onClick={() => setOrderType('market')} 
+                className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-all ${
+                  orderType === 'market' ? 'bg-primary text-primary-foreground' : 'text-light-muted hover:text-light'
+                }`}
+              >
                 Market
               </button>
-              <button onClick={() => setOrderType('limit')} className={`flex-1 py-1.5 text-[10px] font-medium rounded transition-colors ${orderType === 'limit' ? 'bg-white/10 text-white' : 'text-white/40'}`}>
+              <button 
+                onClick={() => setOrderType('limit')} 
+                className={`flex-1 py-1.5 text-[11px] font-medium rounded-md transition-all ${
+                  orderType === 'limit' ? 'bg-primary text-primary-foreground' : 'text-light-muted hover:text-light'
+                }`}
+              >
                 Limit
               </button>
             </div>
           </div>
 
           {/* Amount */}
-          <div className="p-2 space-y-2 flex-1">
+          <div className="p-3 space-y-3 flex-1">
             <div>
-              <label className="text-[9px] text-white/40 uppercase tracking-wider mb-1 block">Amount (USDC)</label>
+              <label className="text-[10px] text-light-muted uppercase tracking-wider mb-1.5 block font-medium">Amount (USDC)</label>
               <Input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="h-9 bg-white/5 border-white/10 text-white text-sm font-medium rounded-lg"
+                className="h-10 bg-row border-primary/20 text-light text-sm font-semibold rounded-lg focus:ring-primary focus:border-primary"
                 placeholder="0"
               />
-              <div className="flex gap-0.5 mt-1">
+              <div className="flex gap-1 mt-2">
                 {[10, 50, 100, 500].map((val) => (
-                  <button key={val} onClick={() => setAmount(String(val))} className="flex-1 py-1 text-[9px] font-medium text-white/50 bg-white/5 hover:bg-white/10 rounded transition-colors">
+                  <button 
+                    key={val} 
+                    onClick={() => setAmount(String(val))} 
+                    className="flex-1 py-1.5 text-[10px] font-medium text-light-muted bg-row hover:bg-primary/15 hover:text-light rounded-md transition-colors border border-primary/20"
+                  >
                     ${val}
                   </button>
                 ))}
@@ -380,18 +500,18 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
             </div>
 
             {/* Summary */}
-            <div className="bg-white/5 rounded-lg p-2 space-y-1.5">
-              <div className="flex justify-between text-[10px]">
-                <span className="text-white/40">Price</span>
-                <span className="text-white tabular-nums">${currentPrice?.toFixed(2)}</span>
+            <div className="bg-row rounded-lg p-3 space-y-2">
+              <div className="flex justify-between text-[11px]">
+                <span className="text-light-muted">Price</span>
+                <span className="text-light font-medium tabular-nums">${currentPrice?.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-[10px]">
-                <span className="text-white/40">Shares</span>
-                <span className="text-white tabular-nums">{shares.toLocaleString()}</span>
+              <div className="flex justify-between text-[11px]">
+                <span className="text-light-muted">Shares</span>
+                <span className="text-light font-medium tabular-nums">{shares.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between text-[10px] pt-1.5 border-t border-white/10">
-                <span className="text-white/40">Return</span>
-                <span className={`font-semibold ${activeTab === 'yes' ? 'text-green-400' : 'text-red-400'}`}>
+              <div className="flex justify-between text-[11px] pt-2 border-t border-primary/15">
+                <span className="text-light-muted">Return</span>
+                <span className={`font-semibold ${activeTab === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
                   ${potential.toLocaleString()}
                 </span>
               </div>
@@ -400,8 +520,10 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
             {/* Buy Button */}
             <button
               onClick={handleTrade}
-              className={`w-full py-3 rounded-lg text-sm font-semibold transition-all ${
-                activeTab === 'yes' ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-red-500 hover:bg-red-600 text-white'
+              className={`w-full py-3.5 rounded-lg text-sm font-bold transition-all ${
+                activeTab === 'yes' 
+                  ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                  : 'bg-rose-500 hover:bg-rose-600 text-white'
               }`}
             >
               Buy {activeTab.toUpperCase()}
