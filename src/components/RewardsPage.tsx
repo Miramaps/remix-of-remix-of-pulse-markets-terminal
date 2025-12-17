@@ -157,7 +157,7 @@ export function RewardsPage() {
             <div className="bg-panel rounded-lg p-3 mb-3">
               <div className="text-xs text-muted-foreground mb-1">Your code</div>
               <div 
-                className="font-mono text-foreground text-center py-2 cursor-pointer hover:text-accent transition-colors flex items-center justify-center gap-2"
+                className="font-mono text-foreground text-center py-2 cursor-pointer hover:text-primary transition-colors flex items-center justify-center gap-2"
                 onClick={handleCopy}
               >
                 PULSE-X7K9M
