@@ -137,7 +137,16 @@ const Index = () => {
         <TradingPage 
           key={tradingMarket.id}
           market={tradingMarket} 
-          onBack={handleCloseTradingPage} 
+          onBack={handleCloseTradingPage}
+          onNavigate={(view) => {
+            setActiveView(view);
+            setTradingMarket(null);
+          }}
+          activeView="Discover"
+          watchlistMarkets={markets.filter(m => m.isWatchlisted)}
+          onRemoveFromWatchlist={handleToggleWatchlist}
+          onSelectMarket={handleSelectMarket}
+          onCreateMarket={handleOpenCreateModal}
         />
       </AnimatePresence>
     );
