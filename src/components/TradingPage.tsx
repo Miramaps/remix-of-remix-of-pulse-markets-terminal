@@ -11,6 +11,12 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 interface TradingPageProps {
   market: Market;
   onBack: () => void;
+  onNavigate?: (view: string) => void;
+  activeView?: string;
+  watchlistMarkets?: Market[];
+  onRemoveFromWatchlist?: (marketId: string) => void;
+  onSelectMarket?: (market: Market) => void;
+  onCreateMarket?: () => void;
 }
 
 // Generate mock price history
@@ -135,7 +141,16 @@ function PriceChart({ data }: { data: { time: number; price: number }[] }) {
   );
 }
 
-export function TradingPage({ market, onBack }: TradingPageProps) {
+export function TradingPage({ 
+  market, 
+  onBack, 
+  onNavigate, 
+  activeView = 'Discover',
+  watchlistMarkets = [],
+  onRemoveFromWatchlist,
+  onSelectMarket,
+  onCreateMarket = () => {}
+}: TradingPageProps) {
   const [activeTab, setActiveTab] = useState<'yes' | 'no'>('yes');
   const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
   const [amount, setAmount] = useState('100');
@@ -195,7 +210,15 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
       className="h-screen flex flex-col bg-panel text-light overflow-hidden"
     >
       {/* Top Nav */}
-      <TopNav onCreateMarket={() => {}} onDiscover={onBack} />
+      <TopNav 
+        onCreateMarket={onCreateMarket} 
+        onDiscover={onBack}
+        onNavigate={onNavigate}
+        activeView={activeView}
+        watchlistMarkets={watchlistMarkets}
+        onRemoveFromWatchlist={onRemoveFromWatchlist}
+        onSelectMarket={onSelectMarket}
+      />
 
       {/* Market Header Bar */}
       <div className="h-11 border-b border-primary/20 flex items-center justify-between px-4 shrink-0 bg-row/50">
