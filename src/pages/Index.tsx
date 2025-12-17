@@ -202,7 +202,7 @@ const Index = () => {
           onRemoveFromWatchlist={handleToggleWatchlist}
           onSelectMarket={handleSelectMarket}
         />
-        <PortfolioPage />
+        <PortfolioPage onSelectMarket={handleSelectMarket} />
         <CreateMarketModal
           open={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
