@@ -23,7 +23,6 @@ interface TopNavProps {
   onSelectMarket?: (market: Market) => void;
 }
 
-const navItems = ['Discover', 'Markets', 'Portfolio', 'Rewards'];
 
 // Generate a deterministic placeholder image URL based on market id
 const getMarketImage = (market: Market): string => {
@@ -57,13 +56,16 @@ export function TopNav({
 
   const watchlistCount = watchlistMarkets.length;
 
+  const leftNavItems = ['Discover', 'Markets'];
+  const rightNavItems = ['Portfolio', 'Rewards'];
+
   return (
     <header className="sticky top-0 z-50 bg-[hsl(220,15%,8%)] border-b border-stroke shrink-0">
       <div className="h-14 px-4 md:px-6 2xl:px-8 flex items-center">
-        {/* Left: Logo + Nav Links */}
-        <div className="flex items-center gap-6 shrink-0">
+        {/* Left Section: Logo + Left Nav */}
+        <div className="flex-1 flex items-center gap-6">
           <div 
-            className="flex items-center gap-2.5 cursor-pointer"
+            className="flex items-center gap-2.5 cursor-pointer shrink-0"
             onClick={onDiscover}
           >
             <div className="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center">
@@ -74,9 +76,9 @@ export function TopNav({
             </span>
           </div>
 
-          {/* Nav Links */}
+          {/* Left Nav Links */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
+            {leftNavItems.map((item) => (
               <button
                 key={item}
                 onClick={() => handleNavClick(item)}
@@ -92,8 +94,8 @@ export function TopNav({
           </nav>
         </div>
 
-        {/* Center: Large + Button */}
-        <div className="flex-1 flex justify-center">
+        {/* Center: Large + Button (Divider) */}
+        <div className="shrink-0 mx-4">
           <button
             onClick={onCreateMarket}
             className="w-12 h-12 rounded-full bg-[hsl(220,15%,18%)] hover:bg-[hsl(220,15%,22%)] border border-stroke flex items-center justify-center transition-all hover:scale-105 shadow-lg"
@@ -101,6 +103,25 @@ export function TopNav({
             <Plus className="w-6 h-6 text-light" />
           </button>
         </div>
+
+        {/* Right Section: Right Nav + Actions */}
+        <div className="flex-1 flex items-center justify-end gap-6">
+          {/* Right Nav Links */}
+          <nav className="hidden lg:flex items-center gap-1">
+            {rightNavItems.map((item) => (
+              <button
+                key={item}
+                onClick={() => handleNavClick(item)}
+                className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-md ${
+                  activeNav === item 
+                    ? 'text-light' 
+                    : 'text-light-muted hover:text-light'
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
 
         {/* Right: Actions */}
         <div className="flex items-center gap-3 shrink-0">
@@ -254,6 +275,7 @@ export function TopNav({
             <Wallet className="w-4 h-4" />
             <span className="hidden sm:inline">Connect</span>
           </Button>
+        </div>
         </div>
       </div>
     </header>
