@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ChevronDown, Wallet, Star, TrendingUp, TrendingDown, Activity, Users } from 'lucide-react';
+import { ChevronDown, Wallet, Plus, Star, TrendingUp, TrendingDown, Activity, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -63,55 +64,61 @@ export function TopNav({
 
   return (
     <header className="sticky top-0 z-50 bg-panel shrink-0 border-b border-primary/20">
-      <div className="h-14 px-4 md:px-6 2xl:px-8 flex items-center justify-between">
+      <div className="h-14 px-4 md:px-6 2xl:px-8 grid grid-cols-[1fr_auto_1fr] items-center">
         
-        {/* Left Section: Logo */}
-        <div className="flex items-center gap-4">
-          <div 
-            className="flex items-center gap-2.5 cursor-pointer"
-            onClick={onDiscover}
-          >
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-xs">P</span>
+        {/* Left Corner: Logo + Nav */}
+        <div className="justify-self-start">
+          <div className="flex items-center h-10 rounded-xl border border-primary/20 bg-row/10 px-2">
+            <div 
+              className="flex items-center gap-2.5 cursor-pointer pr-3"
+              onClick={onDiscover}
+            >
+              <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+                <span className="text-primary-foreground font-display font-bold text-xs">P</span>
+              </div>
+              <span className="font-display font-semibold text-light tracking-tight text-sm hidden sm:block">
+                PULSEMARKETS
+              </span>
             </div>
-            <span className="font-display font-semibold text-light tracking-tight text-sm hidden sm:block">
-              PULSEMARKETS
-            </span>
+
+            <div className="w-px h-6 bg-primary/30 hidden lg:block" />
+
+            <nav className="hidden lg:flex items-center gap-1 pl-2">
+              {navItems.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => handleNavClick(item)}
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-md border-b border-transparent hover:border-primary/30 ${
+                    activeView === item 
+                      ? 'text-light border-primary/40' 
+                      : 'text-light-muted hover:text-light'
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </nav>
           </div>
-
-          {/* Thin bluish divider */}
-          <div className="w-px h-6 bg-primary/30 hidden lg:block" />
-
-          {/* Nav Links */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
-              <button
-                key={item}
-                onClick={() => handleNavClick(item)}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-md border-b border-transparent hover:border-primary/30 ${
-                  activeView === item 
-                    ? 'text-light border-primary/40' 
-                    : 'text-light-muted hover:text-light'
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
         </div>
 
-        {/* Right Section: Actions */}
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
+        {/* Center: + */}
+        <div className="justify-self-center">
+          <motion.button
+            id="create-market-btn"
             onClick={onCreateMarket}
-            className="h-8 text-light-muted hover:text-light hover:bg-row text-sm px-3"
+            className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+            aria-label="Create market"
           >
-            Create
-          </Button>
+            <Plus className="w-6 h-6" strokeWidth={2.5} />
+          </motion.button>
+        </div>
 
-          <div className="w-px h-6 bg-primary/30 hidden lg:block" />
+        {/* Right Corner: Watchlist / Chain / Connect */}
+        <div className="justify-self-end">
+          <div className="flex items-center h-10 rounded-xl border border-primary/20 bg-row/10 px-2 gap-2">
 
           <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
             <PopoverTrigger asChild>
@@ -262,6 +269,7 @@ export function TopNav({
           </Button>
         </div>
       </div>
+    </div>
     </header>
   );
 }
