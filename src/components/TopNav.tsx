@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, Wallet, Plus, Star, TrendingUp, TrendingDown, Activity, Users } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -98,13 +99,45 @@ export function TopNav({
 
         {/* Center: Create Button */}
         <div className="flex-1 flex justify-center">
-          <Button 
+          <motion.button
             onClick={onCreateMarket}
-            size="icon"
-            className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
+            className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center relative overflow-hidden"
+            whileHover={{ 
+              scale: 1.15,
+              boxShadow: "0 0 30px hsl(210 100% 60% / 0.5)"
+            }}
+            whileTap={{ 
+              scale: 0.9,
+              rotate: 90,
+            }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 400, 
+              damping: 15 
+            }}
           >
-            <Plus className="w-6 h-6" />
-          </Button>
+            <motion.div
+              whileHover={{ rotate: 180, scale: 1.2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            >
+              <Plus className="w-6 h-6" />
+            </motion.div>
+            
+            {/* Pulse ring effect */}
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-primary"
+              initial={{ scale: 1, opacity: 0.5 }}
+              animate={{ 
+                scale: [1, 1.5, 1],
+                opacity: [0.5, 0, 0.5]
+              }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+          </motion.button>
         </div>
 
         {/* Right: Actions */}
