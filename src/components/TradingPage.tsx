@@ -143,7 +143,8 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
   const [orderBook, setOrderBook] = useState<{ bids: { price: number; size: number }[]; asks: { price: number; size: number }[] }>({ bids: [], asks: [] });
   const [recentTrades, setRecentTrades] = useState<any[]>([]);
   const [timeframe, setTimeframe] = useState('1H');
-  
+  const [bottomTab, setBottomTab] = useState<'positions' | 'traders' | 'activity'>('positions');
+
   const [positions] = useState(generatePositions());
   const [walletActivity] = useState(generateWalletActivity());
   const [topTraders] = useState(generateTopTraders());
@@ -341,16 +342,43 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
               </div>
             </ResizableHandle>
             
-            {/* Bottom Panel - Positions + Top Traders + Live Activity */}
+            {/* Bottom Panel - Clickable Navbar Tabs */}
             <ResizablePanel defaultSize={35} minSize={20} maxSize={50}>
-              <div className="h-full border-t border-primary/20 bg-row/30 flex">
-                {/* Column 1: Your Positions */}
-                <div className="flex-1 flex flex-col border-r border-primary/20 min-w-0">
-                  <div className="flex items-center gap-2 px-4 h-8 border-b border-primary/20 shrink-0">
-                    <Wallet className="w-3.5 h-3.5 text-primary" />
-                    <span className="text-[11px] font-medium text-primary">Your Positions</span>
-                  </div>
-                  <div className="flex-1 p-3 overflow-auto">
+              <div className="h-full border-t border-primary/20 bg-row/30 flex flex-col">
+                {/* Small navbar */}
+                <div className="flex items-center gap-4 px-4 h-8 border-b border-primary/20 shrink-0">
+                  <button
+                    onClick={() => setBottomTab('positions')}
+                    className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
+                      bottomTab === 'positions' ? 'text-primary' : 'text-light-muted hover:text-light'
+                    }`}
+                  >
+                    <Wallet className="w-3.5 h-3.5" />
+                    Your Positions
+                  </button>
+                  <button
+                    onClick={() => setBottomTab('traders')}
+                    className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
+                      bottomTab === 'traders' ? 'text-primary' : 'text-light-muted hover:text-light'
+                    }`}
+                  >
+                    <Trophy className="w-3.5 h-3.5" />
+                    Top Traders
+                  </button>
+                  <button
+                    onClick={() => setBottomTab('activity')}
+                    className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
+                      bottomTab === 'activity' ? 'text-primary' : 'text-light-muted hover:text-light'
+                    }`}
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    Live Activity
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 p-3 overflow-auto">
+                  {bottomTab === 'positions' && (
                     <div className="text-[10px]">
                       <div className="grid grid-cols-5 gap-4 pb-2 border-b border-primary/15 mb-2">
                         <div className="text-primary/70 uppercase tracking-wider font-medium">Side</div>
@@ -363,8 +391,8 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                         {positions.map((pos) => (
                           <div key={pos.id} className="grid grid-cols-5 gap-4 py-2">
                             <div className={`font-semibold px-2 py-0.5 rounded w-fit ${
-                              pos.side === 'yes' 
-                                ? 'text-emerald-400 bg-emerald-500/10' 
+                              pos.side === 'yes'
+                                ? 'text-emerald-400 bg-emerald-500/10'
                                 : 'text-rose-400 bg-rose-500/10'
                             }`}>
                               {pos.side.toUpperCase()}
@@ -379,16 +407,9 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                         ))}
                       </div>
                     </div>
-                  </div>
-                </div>
+                  )}
 
-                {/* Column 2: Top Traders */}
-                <div className="w-96 flex flex-col border-r border-primary/20">
-                  <div className="flex items-center gap-2 px-4 h-8 border-b border-primary/20 shrink-0">
-                    <Trophy className="w-3.5 h-3.5 text-primary" />
-                    <span className="text-[11px] font-medium text-primary">Top Traders</span>
-                  </div>
-                  <div className="flex-1 p-3 overflow-auto">
+                  {bottomTab === 'traders' && (
                     <div className="text-[10px]">
                       <div className="grid grid-cols-4 gap-4 pb-2 border-b border-primary/15 mb-2">
                         <div className="text-primary/70 uppercase tracking-wider font-medium">Rank</div>
@@ -407,7 +428,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                             }`}>
                               {i + 1}
                             </span>
-                            <a 
+                            <a
                               href={`https://solscan.io/account/${t.address}`}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -422,45 +443,43 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                         ))}
                       </div>
                     </div>
-                  </div>
-                </div>
+                  )}
 
-                {/* Column 3: Live Activity */}
-                <div className="w-96 flex flex-col">
-                  <div className="flex items-center gap-2 px-4 h-8 border-b border-primary/20 shrink-0">
-                    <Users className="w-3.5 h-3.5 text-primary" />
-                    <span className="text-[11px] font-medium text-primary">Live Activity</span>
-                  </div>
-                  <div className="flex-1 p-3 overflow-auto">
-                    <div className="divide-y divide-primary/10">
-                      {walletActivity.map((w) => (
-                        <div key={w.id} className="flex items-center justify-between text-[10px] py-2.5 first:pt-0">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <a 
+                  {bottomTab === 'activity' && (
+                    <div className="text-[10px]">
+                      <div className="grid grid-cols-3 gap-4 pb-2 border-b border-primary/15 mb-2">
+                        <div className="text-primary/70 uppercase tracking-wider font-medium">Wallet</div>
+                        <div className="text-primary/70 uppercase tracking-wider font-medium">Side</div>
+                        <div className="text-primary/70 uppercase tracking-wider font-medium text-right">Amount</div>
+                      </div>
+                      <div className="divide-y divide-primary/10">
+                        {walletActivity.map((w) => (
+                          <div key={w.id} className="grid grid-cols-3 gap-4 py-2.5 items-center">
+                            <a
                               href={`https://solscan.io/tx/${w.txHash}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-light font-mono hover:text-primary transition-colors flex items-center gap-1.5 bg-row/50 px-2 py-1 rounded shrink-0"
+                              className="text-light font-mono hover:text-primary transition-colors flex items-center gap-1.5 bg-row/50 px-2 py-1 rounded w-fit"
                             >
                               {w.address}
                               <ExternalLink className="w-2.5 h-2.5 text-primary/50" />
                             </a>
-                            <span className={`font-semibold px-2 py-0.5 rounded ${
-                              w.side === 'yes' 
-                                ? 'text-emerald-400 bg-emerald-500/10' 
+                            <span className={`font-semibold px-2 py-0.5 rounded w-fit ${
+                              w.side === 'yes'
+                                ? 'text-emerald-400 bg-emerald-500/10'
                                 : 'text-rose-400 bg-rose-500/10'
                             }`}>
                               {w.side.toUpperCase()}
                             </span>
+                            <div className="flex items-center justify-end gap-3">
+                              <span className="text-light font-medium tabular-nums">${w.amount}</span>
+                              <span className="text-light-muted text-[9px]">{w.time}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-light font-medium tabular-nums">${w.amount}</span>
-                            <span className="text-light-muted text-[9px]">{w.time}</span>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </ResizablePanel>
