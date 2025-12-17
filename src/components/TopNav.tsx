@@ -67,28 +67,35 @@ export function TopNav({
         
         {/* Left Cluster: Brand + Primary Nav */}
         <div className="justify-self-start">
-          <div className="flex items-center h-10 px-3 rounded-xl border border-primary/25 bg-row/10">
+          <div className="flex items-center h-10 rounded-full border border-stroke bg-row/20 pl-3 pr-1">
             <button
-              className="text-light font-display font-semibold text-sm tracking-tight"
+              className="text-light font-display font-semibold text-sm tracking-tight px-1"
               onClick={onDiscover}
             >
               PULSEMARKETS
             </button>
 
-            <nav className="flex items-center gap-1 ml-3">
-              {navItems.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => handleNavClick(item)}
-                  className={`px-2.5 md:px-3 py-1.5 text-sm font-medium transition-colors border-b border-transparent ${
-                    activeView === item 
-                      ? 'text-light border-primary/40' 
-                      : 'text-light-muted hover:text-light hover:border-primary/25'
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
+            <div className="mx-3 h-5 w-px rounded-full bg-stroke" aria-hidden="true" />
+
+            <nav className="flex items-center gap-1">
+              {navItems.map((item) => {
+                const isActive = activeView === item;
+                return (
+                  <button
+                    key={item}
+                    onClick={() => handleNavClick(item)}
+                    className={
+                      "h-8 px-3 rounded-full text-sm font-medium transition-colors " +
+                      (isActive
+                        ? "bg-row text-light"
+                        : "text-light-muted hover:text-light hover:bg-row/60")
+                    }
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {item}
+                  </button>
+                );
+              })}
             </nav>
           </div>
         </div>
@@ -107,7 +114,7 @@ export function TopNav({
 
         {/* Right Cluster */}
         <div className="justify-self-end">
-          <div className="flex items-center h-10 px-2 rounded-xl border border-primary/25 bg-row/10 gap-2">
+          <div className="flex items-center h-10 rounded-full border border-stroke bg-row/20 px-1 gap-2">
             <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
               <PopoverTrigger asChild>
                 <Button
