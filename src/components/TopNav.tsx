@@ -100,29 +100,30 @@ export function TopNav({
         {/* Center: Create Button */}
         <div className="flex-1 flex justify-center">
           <motion.button
+            layoutId="create-market-fab"
             onClick={onCreateMarket}
-            className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center relative overflow-hidden"
+            className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center relative overflow-hidden"
             whileHover={{ 
-              scale: 1.15,
-              boxShadow: "0 0 30px hsl(210 100% 60% / 0.5)"
+              scale: 1.12,
+              boxShadow: "0 0 34px hsl(210 100% 60% / 0.55)"
             }}
             whileTap={{ 
-              scale: 0.9,
+              scale: 0.92,
               rotate: 90,
             }}
             transition={{ 
               type: "spring", 
-              stiffness: 400, 
-              damping: 15 
+              stiffness: 420, 
+              damping: 18 
             }}
           >
             <motion.div
-              whileHover={{ rotate: 180, scale: 1.2 }}
-              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              whileHover={{ rotate: 180, scale: 1.15 }}
+              transition={{ type: "spring", stiffness: 320, damping: 16 }}
             >
-              <Plus className="w-6 h-6" />
+              <Plus className="w-7 h-7" />
             </motion.div>
-            
+
             {/* Pulse ring effect */}
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-primary"
