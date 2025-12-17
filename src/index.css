@@ -87,17 +87,14 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Subtle gradient background instead of grid */
+  /* Clean background */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    background: 
-      radial-gradient(ellipse 80% 50% at 50% -20%, hsl(210 60% 15% / 0.3), transparent),
-      radial-gradient(ellipse 60% 40% at 100% 100%, hsl(180 40% 10% / 0.2), transparent),
-      hsl(var(--bg));
+    background: hsl(var(--bg));
   }
 
   /* Minimal scrollbar */
