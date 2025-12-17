@@ -65,31 +65,26 @@ export function TopNav({
     <header className="sticky top-0 z-50 bg-panel shrink-0 border-b border-primary/20">
       <div className="h-14 px-4 md:px-6 2xl:px-8 grid grid-cols-[1fr_auto_1fr] items-center">
         
-        {/* Left Corner: Logo + Nav */}
+        {/* Left Cluster: Brand + Primary Nav */}
         <div className="justify-self-start">
-          <div className="flex items-center h-10 rounded-xl border border-primary/20 bg-row/10 px-2">
-            <div 
-              className="flex items-center gap-2.5 cursor-pointer pr-3"
+          <div className="flex items-center h-9 rounded-full border border-primary/20 px-1">
+            {/* Brand - text only in pill */}
+            <button 
+              className="px-4 py-1.5 rounded-full bg-primary/10 text-light font-display font-semibold text-sm tracking-tight"
               onClick={onDiscover}
             >
-              <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-xs">P</span>
-              </div>
-              <span className="font-display font-semibold text-light tracking-tight text-sm hidden sm:block">
-                PULSEMARKETS
-              </span>
-            </div>
+              PULSEMARKETS
+            </button>
 
-            <div className="w-px h-6 bg-primary/30 hidden lg:block" />
-
-            <nav className="hidden lg:flex items-center gap-1 pl-2">
+            {/* Primary Navigation */}
+            <nav className="hidden lg:flex items-center">
               {navItems.map((item) => (
                 <button
                   key={item}
                   onClick={() => handleNavClick(item)}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-md border-b border-transparent hover:border-primary/30 ${
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${
                     activeView === item 
-                      ? 'text-light border-primary/40' 
+                      ? 'text-light' 
                       : 'text-light-muted hover:text-light'
                   }`}
                 >
