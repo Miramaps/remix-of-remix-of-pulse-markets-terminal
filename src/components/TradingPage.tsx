@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, TrendingUp, TrendingDown, ChevronUp, ChevronDown, Star, Bell, Share2, Users, Wallet } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, ChevronUp, ChevronDown, Star, Bell, Share2, Users, Wallet, GripHorizontal } from 'lucide-react';
 import { Market, formatVolume, formatTimeLeft } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { TopNav } from './TopNav';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 interface TradingPageProps {
   market: Market;
@@ -183,7 +184,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
       <TopNav onCreateMarket={() => {}} onDiscover={onBack} />
 
       {/* Market Header Bar */}
-      <div className="h-11 border-b border-stroke flex items-center justify-between px-4 shrink-0 bg-row/50">
+      <div className="h-11 border-b border-primary/20 flex items-center justify-between px-4 shrink-0 bg-row/50">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -195,10 +196,10 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
             Back
           </Button>
           
-          <div className="h-5 w-px bg-stroke" />
+          <div className="h-5 w-px bg-primary/20" />
           
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md overflow-hidden bg-row ring-1 ring-stroke">
+            <div className="w-6 h-6 rounded-md overflow-hidden bg-row ring-1 ring-primary/20">
               <img src={`https://api.dicebear.com/7.x/shapes/svg?seed=${market.id}`} alt="" className="w-full h-full object-cover" />
             </div>
             <span className="font-medium text-sm truncate max-w-[300px]">{market.question}</span>
@@ -224,170 +225,183 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
       {/* Main Content */}
       <div className="flex-1 flex min-h-0">
 
-        {/* Center - Chart + Bottom Panels */}
+        {/* Center - Chart + Bottom Panels with Resizable */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Price Header */}
-          <div className="h-10 border-b border-stroke bg-row/50 px-4 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-4">
-              <span className="text-xl font-bold tabular-nums">{lastPrice.toFixed(4)}</span>
-              <span className={`flex items-center gap-1 text-xs font-medium ${isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                {priceChangePercent >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-1 bg-row rounded-lg p-1">
-              {['1m', '5m', '1H', '1D'].map((tf) => (
-                <button
-                  key={tf}
-                  onClick={() => setTimeframe(tf)}
-                  className={`px-2.5 py-1 text-[10px] font-medium rounded-md transition-all ${
-                    timeframe === tf ? 'bg-primary text-primary-foreground' : 'text-light-muted hover:text-light hover:bg-row/80'
-                  }`}
-                >
-                  {tf}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Chart Area */}
-          <div className="flex-1 flex min-h-0">
-            {/* Chart */}
-            <div className="flex-1 p-4">
-              {priceHistory.length > 0 && <PriceChart data={priceHistory} />}
-            </div>
-          </div>
-
-          {/* Bottom Section - Order Book + Recent Trades */}
-          <div className="h-36 border-t border-stroke flex shrink-0">
-            {/* Order Book */}
-            <div className="flex-1 p-3 border-r border-stroke">
-              <div className="text-[10px] text-light-muted uppercase tracking-wider mb-2 font-medium">Order Book</div>
-              <div className="flex gap-4 h-[calc(100%-20px)]">
-                {/* Bids (Green) */}
-                <div className="flex-1 space-y-0.5">
-                  {orderBook.bids.slice(0, 5).map((bid, i) => (
-                    <div key={i} className="relative flex items-center h-5">
-                      <div 
-                        className="absolute left-0 top-0 bottom-0 bg-emerald-500/20 rounded-sm" 
-                        style={{ width: `${(bid.size / maxBidSize) * 100}%` }} 
-                      />
-                      <span className="relative z-10 text-[10px] text-emerald-400 font-medium tabular-nums w-12">{bid.price.toFixed(2)}</span>
-                      <span className="relative z-10 text-[10px] text-light-muted tabular-nums ml-auto">{(bid.size / 1000).toFixed(1)}k</span>
-                    </div>
-                  ))}
-                </div>
-                {/* Asks (Red) */}
-                <div className="flex-1 space-y-0.5">
-                  {orderBook.asks.slice(0, 5).map((ask, i) => (
-                    <div key={i} className="relative flex items-center h-5">
-                      <div 
-                        className="absolute right-0 top-0 bottom-0 bg-rose-500/20 rounded-sm" 
-                        style={{ width: `${(ask.size / maxAskSize) * 100}%` }} 
-                      />
-                      <span className="relative z-10 text-[10px] text-rose-400 font-medium tabular-nums w-12">{ask.price.toFixed(2)}</span>
-                      <span className="relative z-10 text-[10px] text-light-muted tabular-nums ml-auto">{(ask.size / 1000).toFixed(1)}k</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-            {/* Recent Trades */}
-            <div className="w-56 p-3">
-              <div className="text-[10px] text-light-muted uppercase tracking-wider mb-2 font-medium">Recent Trades</div>
-              <div className="space-y-0.5 overflow-hidden">
-                {recentTrades.slice(0, 5).map((trade) => (
-                  <div key={trade.id} className="flex items-center justify-between h-5">
-                    <div className="flex items-center gap-1.5">
-                      {trade.side === 'yes' ? (
-                        <ChevronUp className="w-3 h-3 text-emerald-400" />
-                      ) : (
-                        <ChevronDown className="w-3 h-3 text-rose-400" />
-                      )}
-                      <span className={`text-[10px] font-medium ${trade.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {trade.price.toFixed(2)}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-light-muted tabular-nums">{trade.size}</span>
+          <ResizablePanelGroup direction="vertical" className="flex-1">
+            {/* Top Panel - Price Header + Chart + Order Book */}
+            <ResizablePanel defaultSize={65} minSize={40}>
+              <div className="h-full flex flex-col">
+                {/* Price Header */}
+                <div className="h-10 border-b border-primary/20 bg-row/50 px-4 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-4">
+                    <span className="text-xl font-bold tabular-nums">{lastPrice.toFixed(4)}</span>
+                    <span className={`flex items-center gap-1 text-xs font-medium ${isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
+                      {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                      {priceChangePercent >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
+                  
+                  <div className="flex items-center gap-1 bg-row rounded-lg p-1 border border-primary/20">
+                    {['1m', '5m', '1H', '1D'].map((tf) => (
+                      <button
+                        key={tf}
+                        onClick={() => setTimeframe(tf)}
+                        className={`px-2.5 py-1 text-[10px] font-medium rounded-md transition-all ${
+                          timeframe === tf ? 'bg-primary text-primary-foreground' : 'text-light-muted hover:text-light hover:bg-row/80'
+                        }`}
+                      >
+                        {tf}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-          {/* Positions / Activity Tabs */}
-          <div className="h-32 border-t border-stroke bg-row/30 shrink-0">
-            <div className="flex items-center gap-4 px-4 h-8 border-b border-stroke">
-              <button
-                onClick={() => setBottomTab('positions')}
-                className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
-                  bottomTab === 'positions' ? 'text-light' : 'text-light-muted hover:text-light'
-                }`}
-              >
-                <Wallet className="w-3.5 h-3.5" />
-                Your Positions
-              </button>
-              <button
-                onClick={() => setBottomTab('activity')}
-                className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
-                  bottomTab === 'activity' ? 'text-light' : 'text-light-muted hover:text-light'
-                }`}
-              >
-                <Users className="w-3.5 h-3.5" />
-                Live Activity
-              </button>
-            </div>
+                {/* Chart + Order Book side by side */}
+                <div className="flex-1 flex min-h-0">
+                  {/* Chart */}
+                  <div className="flex-1 p-3 border-r border-primary/20">
+                    {priceHistory.length > 0 && <PriceChart data={priceHistory} />}
+                  </div>
+                  
+                  {/* Order Book beside chart */}
+                  <div className="w-72 p-3 flex flex-col">
+                    <div className="text-[10px] text-primary uppercase tracking-wider mb-2 font-medium">Order Book</div>
+                    <div className="flex-1 flex gap-3">
+                      {/* Bids (Green) */}
+                      <div className="flex-1 space-y-0.5">
+                        {orderBook.bids.slice(0, 6).map((bid, i) => (
+                          <div key={i} className="relative flex items-center h-5">
+                            <div 
+                              className="absolute left-0 top-0 bottom-0 bg-emerald-500/20 rounded-sm" 
+                              style={{ width: `${(bid.size / maxBidSize) * 100}%` }} 
+                            />
+                            <span className="relative z-10 text-[10px] text-emerald-400 font-medium tabular-nums w-10">{bid.price.toFixed(2)}</span>
+                            <span className="relative z-10 text-[10px] text-light-muted tabular-nums ml-auto">{(bid.size / 1000).toFixed(1)}k</span>
+                          </div>
+                        ))}
+                      </div>
+                      {/* Asks (Red) */}
+                      <div className="flex-1 space-y-0.5">
+                        {orderBook.asks.slice(0, 6).map((ask, i) => (
+                          <div key={i} className="relative flex items-center h-5">
+                            <div 
+                              className="absolute right-0 top-0 bottom-0 bg-rose-500/20 rounded-sm" 
+                              style={{ width: `${(ask.size / maxAskSize) * 100}%` }} 
+                            />
+                            <span className="relative z-10 text-[10px] text-rose-400 font-medium tabular-nums w-10">{ask.price.toFixed(2)}</span>
+                            <span className="relative z-10 text-[10px] text-light-muted tabular-nums ml-auto">{(ask.size / 1000).toFixed(1)}k</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Recent Trades */}
+                    <div className="mt-3 pt-3 border-t border-primary/20">
+                      <div className="text-[10px] text-primary uppercase tracking-wider mb-2 font-medium">Recent Trades</div>
+                      <div className="space-y-0.5">
+                        {recentTrades.slice(0, 4).map((trade) => (
+                          <div key={trade.id} className="flex items-center justify-between h-4">
+                            <div className="flex items-center gap-1.5">
+                              {trade.side === 'yes' ? (
+                                <ChevronUp className="w-3 h-3 text-emerald-400" />
+                              ) : (
+                                <ChevronDown className="w-3 h-3 text-rose-400" />
+                              )}
+                              <span className={`text-[10px] font-medium ${trade.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                {trade.price.toFixed(2)}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-light-muted tabular-nums">{trade.size}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ResizablePanel>
             
-            <div className="p-3 overflow-hidden">
-              {bottomTab === 'positions' ? (
-                <div className="grid grid-cols-5 gap-4 text-[10px]">
-                  <div className="text-light-muted uppercase tracking-wider">Side</div>
-                  <div className="text-light-muted uppercase tracking-wider">Shares</div>
-                  <div className="text-light-muted uppercase tracking-wider">Avg Price</div>
-                  <div className="text-light-muted uppercase tracking-wider">Current</div>
-                  <div className="text-light-muted uppercase tracking-wider text-right">P&L</div>
-                  {positions.map((pos) => (
-                    <>
-                      <div key={`${pos.id}-side`} className={`font-medium ${pos.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {pos.side.toUpperCase()}
-                      </div>
-                      <div key={`${pos.id}-shares`} className="text-light tabular-nums">{pos.shares}</div>
-                      <div key={`${pos.id}-avg`} className="text-light tabular-nums">${pos.avgPrice.toFixed(2)}</div>
-                      <div key={`${pos.id}-curr`} className="text-light tabular-nums">${pos.currentPrice.toFixed(2)}</div>
-                      <div key={`${pos.id}-pnl`} className={`text-right font-medium tabular-nums ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {pos.pnl >= 0 ? '+' : ''}{pos.pnl}
-                      </div>
-                    </>
-                  ))}
+            {/* Resizable Handle */}
+            <ResizableHandle withHandle className="bg-primary/20 hover:bg-primary/40 transition-colors">
+              <div className="flex items-center justify-center h-full">
+                <GripHorizontal className="w-4 h-4 text-primary/50" />
+              </div>
+            </ResizableHandle>
+            
+            {/* Bottom Panel - Positions / Activity */}
+            <ResizablePanel defaultSize={35} minSize={20} maxSize={50}>
+              <div className="h-full border-t border-primary/20 bg-row/30 flex flex-col">
+                <div className="flex items-center gap-4 px-4 h-8 border-b border-primary/20 shrink-0">
+                  <button
+                    onClick={() => setBottomTab('positions')}
+                    className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
+                      bottomTab === 'positions' ? 'text-primary' : 'text-light-muted hover:text-light'
+                    }`}
+                  >
+                    <Wallet className="w-3.5 h-3.5" />
+                    Your Positions
+                  </button>
+                  <button
+                    onClick={() => setBottomTab('activity')}
+                    className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
+                      bottomTab === 'activity' ? 'text-primary' : 'text-light-muted hover:text-light'
+                    }`}
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    Live Activity
+                  </button>
                 </div>
-              ) : (
-                <div className="grid grid-cols-4 gap-4 text-[10px]">
-                  <div className="text-light-muted uppercase tracking-wider">Wallet</div>
-                  <div className="text-light-muted uppercase tracking-wider">Side</div>
-                  <div className="text-light-muted uppercase tracking-wider">Amount</div>
-                  <div className="text-light-muted uppercase tracking-wider text-right">Time</div>
-                  {walletActivity.slice(0, 3).map((w) => (
-                    <>
-                      <div key={`${w.id}-addr`} className="text-light font-mono">{w.address}</div>
-                      <div key={`${w.id}-side`} className={`font-medium ${w.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {w.side.toUpperCase()}
-                      </div>
-                      <div key={`${w.id}-amt`} className="text-light tabular-nums">${w.amount}</div>
-                      <div key={`${w.id}-time`} className="text-light-muted text-right">{w.time}</div>
-                    </>
-                  ))}
+                
+                <div className="flex-1 p-3 overflow-auto">
+                  {bottomTab === 'positions' ? (
+                    <div className="grid grid-cols-5 gap-4 text-[10px]">
+                      <div className="text-primary/70 uppercase tracking-wider font-medium">Side</div>
+                      <div className="text-primary/70 uppercase tracking-wider font-medium">Shares</div>
+                      <div className="text-primary/70 uppercase tracking-wider font-medium">Avg Price</div>
+                      <div className="text-primary/70 uppercase tracking-wider font-medium">Current</div>
+                      <div className="text-primary/70 uppercase tracking-wider font-medium text-right">P&L</div>
+                      {positions.map((pos) => (
+                        <>
+                          <div key={`${pos.id}-side`} className={`font-medium ${pos.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            {pos.side.toUpperCase()}
+                          </div>
+                          <div key={`${pos.id}-shares`} className="text-light tabular-nums">{pos.shares}</div>
+                          <div key={`${pos.id}-avg`} className="text-light tabular-nums">${pos.avgPrice.toFixed(2)}</div>
+                          <div key={`${pos.id}-curr`} className="text-light tabular-nums">${pos.currentPrice.toFixed(2)}</div>
+                          <div key={`${pos.id}-pnl`} className={`text-right font-medium tabular-nums ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            {pos.pnl >= 0 ? '+' : ''}{pos.pnl}
+                          </div>
+                        </>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-4 text-[10px]">
+                      <div className="text-primary/70 uppercase tracking-wider font-medium">Wallet</div>
+                      <div className="text-primary/70 uppercase tracking-wider font-medium">Side</div>
+                      <div className="text-primary/70 uppercase tracking-wider font-medium">Amount</div>
+                      <div className="text-primary/70 uppercase tracking-wider font-medium text-right">Time</div>
+                      {walletActivity.slice(0, 5).map((w) => (
+                        <>
+                          <div key={`${w.id}-addr`} className="text-light font-mono">{w.address}</div>
+                          <div key={`${w.id}-side`} className={`font-medium ${w.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            {w.side.toUpperCase()}
+                          </div>
+                          <div key={`${w.id}-amt`} className="text-light tabular-nums">${w.amount}</div>
+                          <div key={`${w.id}-time`} className="text-light-muted text-right">{w.time}</div>
+                        </>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </div>
 
         {/* Right Sidebar - Trading Panel */}
-        <div className="w-60 border-l border-stroke bg-row/30 flex flex-col shrink-0">
+        <div className="w-60 border-l border-primary/20 bg-row/30 flex flex-col shrink-0">
           {/* YES/NO Toggle */}
-          <div className="p-3 border-b border-stroke">
+          <div className="p-3 border-b border-primary/20">
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => setActiveTab('yes')}
