@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 
 const tiers = [
-  { name: 'Bronze', multiplier: '1x', icon: Trophy, active: false },
-  { name: 'Silver', multiplier: '1.25x', icon: Trophy, active: true },
-  { name: 'Gold', multiplier: '1.5x', icon: Crown, active: false },
-  { name: 'Platinum', multiplier: '2x', icon: Crown, active: false },
+  { name: 'Bronze', multiplier: '1x', icon: Trophy, active: false, color: 'text-amber-600', bgColor: 'bg-amber-600/20' },
+  { name: 'Silver', multiplier: '1.25x', icon: Trophy, active: true, color: 'text-slate-300', bgColor: 'bg-slate-300/20' },
+  { name: 'Gold', multiplier: '1.5x', icon: Crown, active: false, color: 'text-yellow-400', bgColor: 'bg-yellow-400/20' },
+  { name: 'Platinum', multiplier: '2x', icon: Crown, active: false, color: 'text-cyan-300', bgColor: 'bg-cyan-300/20' },
 ];
 
 const achievements = [
@@ -119,14 +119,14 @@ export function RewardsPage() {
               {tiers.map((tier) => (
                 <div key={tier.name} className="text-center">
                   <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center mb-1 ${
-                    tier.active ? 'bg-accent/20 text-accent' : 'bg-panel text-muted-foreground'
+                    tier.active ? `${tier.bgColor} ring-2 ring-offset-2 ring-offset-panel2 ring-current ${tier.color}` : `${tier.bgColor} ${tier.color}`
                   }`}>
                     <tier.icon className="w-5 h-5" />
                   </div>
-                  <div className={`text-xs ${tier.active ? 'text-foreground' : 'text-muted-foreground'}`}>
+                  <div className={`text-xs font-medium ${tier.active ? tier.color : 'text-muted-foreground'}`}>
                     {tier.name}
                   </div>
-                  <div className={`text-xs ${tier.active ? 'text-accent' : 'text-muted-foreground'}`}>
+                  <div className={`text-xs ${tier.active ? tier.color : 'text-muted-foreground'}`}>
                     {tier.multiplier}
                   </div>
                 </div>
