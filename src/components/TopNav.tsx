@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ChevronDown, Wallet, Plus, Star, TrendingUp, TrendingDown, Activity, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -103,17 +102,14 @@ export function TopNav({
 
         {/* Center: + */}
         <div className="justify-self-center">
-          <motion.button
+          <button
             id="create-market-btn"
             onClick={onCreateMarket}
-            className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center"
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.94 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
+            className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center"
             aria-label="Create market"
           >
-            <Plus className="w-6 h-6" strokeWidth={2.5} />
-          </motion.button>
+            <Plus className="w-5 h-5" strokeWidth={2.5} />
+          </button>
         </div>
 
         {/* Right Corner: Watchlist / Chain / Connect */}
