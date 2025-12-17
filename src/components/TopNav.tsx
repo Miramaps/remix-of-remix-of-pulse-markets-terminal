@@ -62,10 +62,10 @@ export function TopNav({
   const watchlistCount = watchlistMarkets.length;
 
   return (
-    <header className="sticky top-0 z-50 bg-panel shrink-0 border-b border-primary/20">
+    <header className="sticky top-0 z-50 bg-panel shrink-0">
       <div className="h-14 px-4 md:px-6 2xl:px-8 grid grid-cols-[1fr_auto_1fr] items-center">
         
-        {/* Left Cluster: Brand + Primary Nav (no capsule) */}
+        {/* Left Cluster: Brand + Primary Nav */}
         <div className="justify-self-start flex items-center gap-4">
           <button
             className="text-light font-display font-semibold text-sm tracking-tight"
@@ -79,10 +79,10 @@ export function TopNav({
               <button
                 key={item}
                 onClick={() => handleNavClick(item)}
-                className={`px-2.5 md:px-3 py-1.5 text-sm font-medium transition-colors border-b border-transparent ${
+                className={`px-2.5 md:px-3 py-1.5 text-sm font-medium transition-colors ${
                   activeView === item 
-                    ? 'text-light border-primary/40' 
-                    : 'text-light-muted hover:text-light hover:border-primary/25'
+                    ? 'text-light' 
+                    : 'text-light-muted hover:text-light'
                 }`}
               >
                 {item}
@@ -90,8 +90,8 @@ export function TopNav({
             ))}
           </nav>
 
-          {/* Full-height divider after Rewards */}
-          <div className="w-px h-14 bg-primary/20 hidden lg:block" />
+          {/* Rounded divider after left content */}
+          <div className="w-[2px] h-8 bg-primary/30 rounded-full" />
         </div>
 
         {/* Center: + */}
@@ -106,10 +106,10 @@ export function TopNav({
           </button>
         </div>
 
-        {/* Right Cluster (no capsule) */}
+        {/* Right Cluster */}
         <div className="justify-self-end flex items-center gap-2">
-          {/* Full-height divider before Watchlist */}
-          <div className="w-px h-14 bg-primary/20 hidden lg:block" />
+          {/* Rounded divider before right content */}
+          <div className="w-[2px] h-8 bg-primary/30 rounded-full" />
           <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
             <PopoverTrigger asChild>
               <Button 
