@@ -175,7 +175,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
 
               {/* Modal - bigger width */}
               <motion.div
-                className="bg-panel backdrop-blur-xl border border-stroke rounded-xl max-w-md w-full mx-4 overflow-hidden relative pointer-events-auto"
+                className="bg-panel-glass border border-stroke rounded-xl max-w-md w-full mx-4 overflow-hidden relative pointer-events-auto"
                 style={{
                   boxShadow: '0 0 40px hsl(var(--primary) / 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.4)',
                 }}
