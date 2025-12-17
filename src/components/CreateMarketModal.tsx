@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Settings, ImagePlus, Calendar } from 'lucide-react';
+import { X, Settings, ImagePlus, Calendar, Link2 } from 'lucide-react';
 import { Market } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,6 +32,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
   const [category, setCategory] = useState<Market['category']>('crypto');
   const [resolveDate, setResolveDate] = useState('');
   const [liquidity, setLiquidity] = useState(100);
+  const [communityUrl, setCommunityUrl] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +48,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
     setQuestion('');
     setResolveDate('');
     setLiquidity(100);
+    setCommunityUrl('');
     onClose();
   };
 
@@ -55,22 +57,14 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
   const startX = buttonPosition?.x ?? centerX;
   const startY = buttonPosition?.y ?? 56;
 
-  // Generate random particles for explosion effect
-  const particles = Array.from({ length: 24 }, (_, i) => ({
+  // Smaller particle explosion
+  const particles = Array.from({ length: 12 }, (_, i) => ({
     id: i,
-    angle: (i * 360) / 24 + Math.random() * 15,
-    distance: 150 + Math.random() * 200,
-    size: 3 + Math.random() * 5,
-    delay: Math.random() * 0.1,
-    duration: 0.4 + Math.random() * 0.2,
-  }));
-
-  // Spark particles
-  const sparks = Array.from({ length: 12 }, (_, i) => ({
-    id: i,
-    angle: (i * 360) / 12 + Math.random() * 30,
-    distance: 80 + Math.random() * 120,
-    delay: 0.05 + Math.random() * 0.1,
+    angle: (i * 360) / 12 + Math.random() * 15,
+    distance: 60 + Math.random() * 80,
+    size: 2 + Math.random() * 3,
+    delay: Math.random() * 0.08,
+    duration: 0.35,
   }));
 
   return (
@@ -78,20 +72,20 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
       <AnimatePresence>
         {open && (
           <>
-            {/* Dark overlay with subtle radial gradient */}
+            {/* Dark overlay */}
             <motion.div
-              className="fixed inset-0 bg-black/85 z-50"
+              className="fixed inset-0 bg-black/80 z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
             />
 
             <div
               className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
               style={{ perspective: 1200 }}
             >
-              {/* Initial flash at button position */}
+              {/* Small flash at button */}
               <motion.div
                 className="absolute rounded-full"
                 style={{ 
@@ -101,12 +95,12 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                   y: '-50%',
                   background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
                 }}
-                initial={{ width: 56, height: 56, opacity: 1 }}
-                animate={{ width: 400, height: 400, opacity: 0 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
+                initial={{ width: 44, height: 44, opacity: 0.8 }}
+                animate={{ width: 180, height: 180, opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
               />
 
-              {/* Energy particles explosion */}
+              {/* Small particles */}
               {particles.map((particle) => (
                 <motion.div
                   key={particle.id}
@@ -116,7 +110,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                     top: startY,
                     width: particle.size,
                     height: particle.size,
-                    boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))',
+                    boxShadow: '0 0 6px hsl(var(--primary))',
                   }}
                   initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
                   animate={{
@@ -133,223 +127,109 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                 />
               ))}
 
-              {/* Spark trails */}
-              {sparks.map((spark) => (
-                <motion.div
-                  key={`spark-${spark.id}`}
-                  className="absolute"
-                  style={{
-                    left: startX,
-                    top: startY,
-                    width: 2,
-                    height: 20,
-                    background: 'linear-gradient(to bottom, hsl(var(--primary)), transparent)',
-                    transformOrigin: 'center top',
-                    rotate: `${spark.angle}deg`,
-                  }}
-                  initial={{ scaleY: 0, opacity: 1 }}
-                  animate={{ 
-                    scaleY: [0, 1, 1],
-                    y: [0, spark.distance * 0.5, spark.distance],
-                    opacity: [1, 1, 0],
-                  }}
-                  transition={{
-                    duration: 0.5,
-                    delay: spark.delay,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-              ))}
-
-              {/* THE PLUS SIGN — dramatic 3D flip with glow trail */}
+              {/* Plus sign animation - smaller scale */}
               <motion.div
                 className="absolute z-[60]"
                 style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
-                initial={{ scale: 1, opacity: 1, rotateZ: 0, rotateX: 0, rotateY: 0, filter: 'blur(0px)' }}
+                initial={{ scale: 1, opacity: 1, rotateZ: 0 }}
                 animate={{
-                  left: [startX, startX + (centerX - startX) * 0.3, centerX],
-                  top: [startY, startY + (centerY - startY) * 0.2, centerY],
-                  scale: [1, 3, 20],
-                  rotateZ: [0, 180, 360],
-                  rotateX: [0, 45, 90],
-                  rotateY: [0, -30, -90],
+                  left: [startX, centerX],
+                  top: [startY, centerY],
+                  scale: [1, 2, 8],
+                  rotateZ: [0, 180],
                   opacity: [1, 1, 0],
-                  filter: ['blur(0px)', 'blur(0px)', 'blur(16px)'],
+                  filter: ['blur(0px)', 'blur(0px)', 'blur(8px)'],
                 }}
                 transition={{
-                  duration: 0.55,
+                  duration: 0.4,
                   ease: [0.22, 1, 0.36, 1],
-                  times: [0, 0.4, 1],
+                  times: [0, 0.5, 1],
                 }}
               >
-                <div className="relative">
-                  {/* Glow behind */}
-                  <motion.div
-                    className="absolute inset-0 rounded-full bg-primary"
-                    initial={{ scale: 1, opacity: 0.5 }}
-                    animate={{ scale: [1, 2, 3], opacity: [0.5, 0.3, 0] }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
-                    style={{ filter: 'blur(20px)' }}
+                <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+                  <circle cx="22" cy="22" r="22" fill="hsl(var(--primary))" />
+                  <path
+                    d="M22 12V32M12 22H32"
+                    stroke="hsl(var(--primary-foreground))"
+                    strokeWidth="3"
+                    strokeLinecap="round"
                   />
-                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none" className="relative z-10">
-                    <circle cx="28" cy="28" r="28" fill="hsl(var(--primary))" />
-                    <motion.circle
-                      cx="28"
-                      cy="28"
-                      r="28"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth="2"
-                      initial={{ opacity: 0.5 }}
-                      animate={{ opacity: [0.5, 0, 0.5] }}
-                      transition={{ duration: 0.3, repeat: 2 }}
-                    />
-                    <path
-                      d="M28 16V40M16 28H40"
-                      stroke="hsl(var(--primary-foreground))"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </div>
+                </svg>
               </motion.div>
 
-              {/* Multiple shockwave rings with different colors */}
-              {[0, 1, 2, 3, 4].map((i) => (
+              {/* Two subtle shockwave rings */}
+              {[0, 1].map((i) => (
                 <motion.div
                   key={i}
-                  className="absolute rounded-full"
-                  style={{ 
-                    left: startX, 
-                    top: startY, 
-                    x: '-50%', 
-                    y: '-50%',
-                    border: i < 2 ? '2px solid hsl(var(--primary))' : '1px solid hsl(var(--primary) / 0.5)',
-                  }}
-                  initial={{ width: 56, height: 56, opacity: i < 2 ? 0.8 : 0.4 }}
-                  animate={{ 
-                    width: 600 + i * 200, 
-                    height: 600 + i * 200, 
-                    opacity: 0,
-                  }}
+                  className="absolute rounded-full border border-primary/60"
+                  style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
+                  initial={{ width: 44, height: 44, opacity: 0.6 }}
+                  animate={{ width: 200 + i * 80, height: 200 + i * 80, opacity: 0 }}
                   transition={{
-                    duration: 0.6,
+                    duration: 0.4,
                     delay: i * 0.05,
                     ease: [0.22, 1, 0.36, 1],
                   }}
                 />
               ))}
 
-              {/* Converging energy lines to center */}
-              {[0, 1, 2, 3].map((i) => (
-                <motion.div
-                  key={`line-${i}`}
-                  className="absolute bg-gradient-to-r from-transparent via-primary to-transparent"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    height: 2,
-                    width: '100%',
-                    transformOrigin: 'center',
-                    rotate: `${i * 45}deg`,
-                  }}
-                  initial={{ scaleX: 0, opacity: 0 }}
-                  animate={{ 
-                    scaleX: [0, 1.5, 0],
-                    opacity: [0, 0.6, 0],
-                  }}
-                  transition={{
-                    duration: 0.4,
-                    delay: 0.15 + i * 0.03,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-              ))}
-
-              {/* Modal — dramatic entrance with glow */}
+              {/* Modal - bigger width */}
               <motion.div
-                className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.12)] rounded-xl max-w-sm w-full mx-4 overflow-hidden relative pointer-events-auto"
+                className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.12)] rounded-xl max-w-md w-full mx-4 overflow-hidden relative pointer-events-auto"
                 style={{
-                  boxShadow: '0 0 60px hsl(var(--primary) / 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                  boxShadow: '0 0 40px hsl(var(--primary) / 0.2), 0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                 }}
                 initial={{
                   opacity: 0,
-                  scale: 0.85,
-                  y: 40,
-                  rotateX: 80,
-                  rotateY: -20,
-                  filter: 'blur(20px)',
+                  scale: 0.9,
+                  y: 30,
+                  filter: 'blur(10px)',
                 }}
                 animate={{
                   opacity: 1,
                   scale: 1,
                   y: 0,
-                  rotateX: 0,
-                  rotateY: 0,
                   filter: 'blur(0px)',
                 }}
                 exit={{
                   opacity: 0,
-                  scale: 0.9,
-                  y: 20,
-                  rotateX: 25,
-                  filter: 'blur(12px)',
-                  transition: { duration: 0.18, ease: [0.4, 0, 1, 1] },
+                  scale: 0.95,
+                  y: 15,
+                  filter: 'blur(8px)',
+                  transition: { duration: 0.15, ease: [0.4, 0, 1, 1] },
                 }}
                 transition={{
-                  delay: 0.2,
-                  duration: 0.4,
+                  delay: 0.15,
+                  duration: 0.3,
                   ease: [0.22, 1, 0.36, 1],
                 }}
               >
-                {/* Animated border glow */}
-                <motion.div
-                  className="absolute inset-0 rounded-xl pointer-events-none"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), transparent, hsl(var(--primary) / 0.2))',
-                  }}
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5, ease: 'easeOut' }}
-                />
-
                 {/* Blue flash overlay */}
                 <motion.div
-                  className="absolute inset-0 bg-primary/40 z-10 pointer-events-none"
+                  className="absolute inset-0 bg-primary/30 z-10 pointer-events-none"
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 0 }}
-                  transition={{ delay: 0.25, duration: 0.35, ease: 'easeOut' }}
-                />
-
-                {/* Shimmer effect */}
-                <motion.div
-                  className="absolute inset-0 pointer-events-none z-10"
-                  style={{
-                    background: 'linear-gradient(105deg, transparent 40%, hsl(var(--primary) / 0.15) 50%, transparent 60%)',
-                  }}
-                  initial={{ x: '-100%' }}
-                  animate={{ x: '200%' }}
-                  transition={{ delay: 0.35, duration: 0.6, ease: 'easeOut' }}
+                  transition={{ delay: 0.2, duration: 0.25, ease: 'easeOut' }}
                 />
 
                 {/* Content */}
                 <div className="relative">
-                  <DialogHeader className="px-4 py-3 border-b border-[hsl(0_0%_100%/0.1)]">
+                  <DialogHeader className="px-5 py-4 border-b border-[hsl(0_0%_100%/0.1)]">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <motion.div
                           initial={{ scale: 0, rotate: -90 }}
                           animate={{ scale: 1, rotate: 0 }}
-                          transition={{ delay: 0.35, duration: 0.2, ease: 'easeOut' }}
+                          transition={{ delay: 0.25, duration: 0.2, ease: 'easeOut' }}
                         >
                           <Settings className="w-4 h-4 text-[hsl(0_0%_100%/0.5)]" />
                         </motion.div>
                         <motion.div
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.38, duration: 0.2 }}
+                          transition={{ delay: 0.28, duration: 0.2 }}
                         >
-                          <DialogTitle className="font-semibold text-sm text-[hsl(0_0%_96%)]">
+                          <DialogTitle className="font-semibold text-base text-[hsl(0_0%_96%)]">
                             Create Market
                           </DialogTitle>
                         </motion.div>
@@ -357,12 +237,12 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ delay: 0.4, duration: 0.15, ease: 'easeOut' }}
+                        transition={{ delay: 0.3, duration: 0.15, ease: 'easeOut' }}
                       >
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 text-[hsl(0_0%_100%/0.5)] hover:text-[hsl(0_0%_96%)] hover:bg-[hsl(0_0%_100%/0.1)]"
+                          className="h-7 w-7 text-[hsl(0_0%_100%/0.5)] hover:text-[hsl(0_0%_96%)] hover:bg-[hsl(0_0%_100%/0.1)]"
                           onClick={onClose}
                         >
                           <X className="w-4 h-4" />
@@ -371,20 +251,20 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                     </div>
                   </DialogHeader>
 
-                  <form onSubmit={handleSubmit} className="p-4 space-y-4">
+                  <form onSubmit={handleSubmit} className="p-5 space-y-4">
                     <motion.div
-                      className="flex gap-3"
+                      className="flex gap-4"
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.32, duration: 0.2, ease: 'easeOut' }}
+                      transition={{ delay: 0.22, duration: 0.2, ease: 'easeOut' }}
                     >
                       <motion.button
                         type="button"
-                        className="shrink-0 w-16 h-16 rounded-lg border border-dashed border-[hsl(0_0%_100%/0.2)] bg-[hsl(0_0%_100%/0.03)] flex flex-col items-center justify-center gap-1 text-[hsl(0_0%_100%/0.4)] hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all duration-200"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        className="shrink-0 w-20 h-20 rounded-lg border border-dashed border-[hsl(0_0%_100%/0.2)] bg-[hsl(0_0%_100%/0.03)] flex flex-col items-center justify-center gap-1 text-[hsl(0_0%_100%/0.4)] hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all duration-200"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
                       >
-                        <ImagePlus className="w-5 h-5" />
+                        <ImagePlus className="w-6 h-6" />
                         <span className="text-[10px]">Add Image</span>
                       </motion.button>
 
@@ -396,24 +276,45 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                           value={question}
                           onChange={(e) => setQuestion(e.target.value)}
                           placeholder="Will X happen by Y date?"
-                          className="h-10 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] placeholder:text-[hsl(0_0%_100%/0.3)] focus:border-primary focus:ring-1 focus:ring-primary/30"
+                          className="h-11 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] placeholder:text-[hsl(0_0%_100%/0.3)] focus:border-primary focus:ring-1 focus:ring-primary/30"
                           required
                         />
                       </div>
                     </motion.div>
 
+                    {/* Community URL field */}
                     <motion.div
-                      className="grid grid-cols-2 gap-3"
+                      className="space-y-1.5"
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.36, duration: 0.2, ease: 'easeOut' }}
+                      transition={{ delay: 0.26, duration: 0.2, ease: 'easeOut' }}
+                    >
+                      <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
+                        Community URL <span className="text-[hsl(0_0%_100%/0.25)]">(optional)</span>
+                      </Label>
+                      <div className="relative">
+                        <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(0_0%_100%/0.4)]" />
+                        <Input
+                          value={communityUrl}
+                          onChange={(e) => setCommunityUrl(e.target.value)}
+                          placeholder="https://x.com/community or Discord, Telegram..."
+                          className="h-11 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] placeholder:text-[hsl(0_0%_100%/0.3)] focus:border-primary focus:ring-1 focus:ring-primary/30 pl-10"
+                        />
+                      </div>
+                    </motion.div>
+
+                    <motion.div
+                      className="grid grid-cols-2 gap-4"
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.30, duration: 0.2, ease: 'easeOut' }}
                     >
                       <div className="space-y-1.5">
                         <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
                           Category
                         </Label>
                         <Select value={category} onValueChange={(v) => setCategory(v as Market['category'])}>
-                          <SelectTrigger className="h-10 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)]">
+                          <SelectTrigger className="h-11 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-[hsl(220_15%_12%)] border-[hsl(0_0%_100%/0.15)]">
@@ -439,7 +340,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                             type="date"
                             value={resolveDate}
                             onChange={(e) => setResolveDate(e.target.value)}
-                            className="h-10 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] pr-10"
+                            className="h-11 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] pr-10"
                             required
                           />
                           <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(0_0%_100%/0.4)] pointer-events-none" />
@@ -451,29 +352,29 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                       className="space-y-2"
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4, duration: 0.2, ease: 'easeOut' }}
+                      transition={{ delay: 0.34, duration: 0.2, ease: 'easeOut' }}
                     >
                       <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
                         Initial Liquidity (USD)
                       </Label>
                       <div className="flex gap-2">
-                        <div className="relative w-24">
+                        <div className="relative w-28">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(0_0%_100%/0.4)] text-sm">$</span>
                           <Input
                             type="number"
                             value={liquidity}
                             onChange={(e) => setLiquidity(Number(e.target.value))}
-                            className="h-9 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] pl-7"
+                            className="h-10 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] pl-7"
                             min={10}
                           />
                         </div>
-                        <div className="flex gap-1 flex-1">
+                        <div className="flex gap-1.5 flex-1">
                           {liquidityPresets.map((preset) => (
                             <button
                               key={preset}
                               type="button"
                               onClick={() => setLiquidity(preset)}
-                              className={`flex-1 h-9 rounded-md text-xs font-medium transition-all duration-150 ${
+                              className={`flex-1 h-10 rounded-md text-xs font-medium transition-all duration-150 ${
                                 liquidity === preset
                                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
                                   : 'bg-[hsl(0_0%_100%/0.05)] text-[hsl(0_0%_100%/0.6)] border border-[hsl(0_0%_100%/0.1)] hover:bg-[hsl(0_0%_100%/0.1)]'
@@ -487,22 +388,22 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                     </motion.div>
 
                     <motion.div
-                      className="flex gap-2 pt-2"
+                      className="flex gap-3 pt-3"
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.44, duration: 0.2, ease: 'easeOut' }}
+                      transition={{ delay: 0.38, duration: 0.2, ease: 'easeOut' }}
                     >
                       <Button
                         type="button"
                         variant="ghost"
                         onClick={onClose}
-                        className="w-full h-10 bg-[hsl(0_0%_100%/0.05)] border border-[hsl(0_0%_100%/0.1)] text-[hsl(0_0%_100%/0.6)] hover:bg-[hsl(0_0%_100%/0.1)] hover:text-[hsl(0_0%_96%)] text-sm"
+                        className="w-full h-11 bg-[hsl(0_0%_100%/0.05)] border border-[hsl(0_0%_100%/0.1)] text-[hsl(0_0%_100%/0.6)] hover:bg-[hsl(0_0%_100%/0.1)] hover:text-[hsl(0_0%_96%)] text-sm"
                       >
                         Cancel
                       </Button>
                       <Button
                         type="submit"
-                        className="w-full h-10 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30"
+                        className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30"
                       >
                         Create Market
                       </Button>
