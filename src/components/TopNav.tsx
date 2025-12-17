@@ -64,15 +64,16 @@ export function TopNav({
 
   return (
     <header className="sticky top-0 z-50 bg-panel border-b border-stroke shrink-0">
-      <div className="h-14 px-4 md:px-6 2xl:px-8 flex items-center">
-        {/* Left: Logo + Nav Links */}
-        <div className="flex items-center gap-6 shrink-0">
+      <div className="h-14 px-4 md:px-6 2xl:px-8 flex items-center justify-between gap-3">
+        
+        {/* Left Section: Logo + Nav Links - with blue border */}
+        <div className="flex items-center gap-4 px-4 py-1.5 rounded-l-full rounded-r-2xl border border-primary/30 bg-primary/5">
           <div 
             className="flex items-center gap-2.5 cursor-pointer"
             onClick={onDiscover}
           >
-            <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center">
-              <span className="text-panel font-display font-bold text-xs">P</span>
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-display font-bold text-xs">P</span>
             </div>
             <span className="font-display font-semibold text-light tracking-tight text-sm hidden sm:block">
               PULSEMARKETS
@@ -80,15 +81,15 @@ export function TopNav({
           </div>
 
           {/* Nav Links */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1 border-l border-primary/20 pl-4">
             {navItems.map((item) => (
               <button
                 key={item}
                 onClick={() => handleNavClick(item)}
                 className={`px-3 py-1.5 text-sm font-medium transition-colors rounded-md ${
                   activeView === item 
-                    ? 'text-light' 
-                    : 'text-light-muted hover:text-light'
+                    ? 'text-light bg-primary/10' 
+                    : 'text-light-muted hover:text-light hover:bg-primary/5'
                 }`}
               >
                 {item}
@@ -97,8 +98,8 @@ export function TopNav({
           </nav>
         </div>
 
-        {/* Center: Create Button */}
-        <div className="flex-1 flex justify-center">
+        {/* Center: Create Button - isolated */}
+        <div className="flex items-center justify-center">
           <motion.button
             id="create-market-btn"
             onClick={onCreateMarket}
@@ -121,8 +122,8 @@ export function TopNav({
           </motion.button>
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Right Section: Actions - with blue border */}
+        <div className="flex items-center gap-2 px-4 py-1.5 rounded-r-full rounded-l-2xl border border-primary/30 bg-primary/5">
           {/* Watchlist Button with Popover */}
           <Popover open={watchlistOpen} onOpenChange={setWatchlistOpen}>
             <PopoverTrigger asChild>
