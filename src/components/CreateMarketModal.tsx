@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Settings, ImagePlus, Calendar, Plus } from 'lucide-react';
+import { X, Settings, ImagePlus, Calendar } from 'lucide-react';
 import { Market } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,14 +21,13 @@ interface CreateMarketModalProps {
     Market,
     'id' | 'yesPrice' | 'noPrice' | 'volume' | 'traders' | 'createdAt' | 'status'
   >) => void;
-  // kept for compatibility with existing callers (not required for layoutId morph)
   buttonPosition?: { x: number; y: number };
 }
 
 const categories: Market['category'][] = ['crypto', 'politics', 'sports', 'pop', 'memes'];
 const liquidityPresets = [50, 100, 250, 500];
 
-export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModalProps) {
+export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: CreateMarketModalProps) {
   const [question, setQuestion] = useState('');
   const [category, setCategory] = useState<Market['category']>('crypto');
   const [resolveDate, setResolveDate] = useState('');
@@ -51,81 +50,130 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
     onClose();
   };
 
+  const centerX = typeof window !== 'undefined' ? window.innerWidth / 2 : 500;
+  const centerY = typeof window !== 'undefined' ? window.innerHeight / 2 : 400;
+  const startX = buttonPosition?.x ?? centerX;
+  const startY = buttonPosition?.y ?? 56;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <AnimatePresence>
         {open && (
           <>
-            {/* Overlay */}
+            {/* Dark overlay */}
             <motion.div
-              className="fixed inset-0 bg-black/70 backdrop-blur-md z-50"
+              className="fixed inset-0 bg-black/80 z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.18 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
             />
 
-            {/* Modal container morphs FROM the + button via layoutId */}
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+              {/* THE PLUS SIGN - scales up massively and fades as modal appears */}
               <motion.div
-                layoutId="create-market-fab"
-                className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.15)] rounded-xl max-w-sm w-full mx-4 overflow-hidden shadow-2xl shadow-primary/30 relative"
-                transition={{ type: 'spring', stiffness: 520, damping: 26, mass: 0.9 }}
+                className="absolute text-primary-foreground z-[60]"
+                style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
+                initial={{ scale: 1, opacity: 1 }}
+                animate={{ 
+                  scale: [1, 8, 25],
+                  opacity: [1, 1, 0],
+                  left: [startX, centerX, centerX],
+                  top: [startY, centerY, centerY],
+                }}
+                transition={{ 
+                  duration: 0.4, 
+                  ease: [0.32, 0, 0.24, 1],
+                  times: [0, 0.5, 1]
+                }}
               >
-                {/* The + icon visibly morphs into the container then vanishes */}
-                <motion.div
-                  layoutId="create-market-plus"
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-                  initial={false}
-                  animate={{ scale: 10, rotate: 135, opacity: 0 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <Plus className="w-10 h-10 text-primary-foreground" strokeWidth={2.5} />
-                </motion.div>
+                <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                  <circle cx="28" cy="28" r="28" fill="hsl(210 100% 50%)" />
+                  <path 
+                    d="M28 16V40M16 28H40" 
+                    stroke="white" 
+                    strokeWidth="3.5" 
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </motion.div>
 
-                {/* Shockwave / flash */}
+              {/* Shockwave rings from button */}
+              {[0, 1, 2].map((i) => (
                 <motion.div
-                  className="absolute inset-0 bg-primary/25"
-                  initial={{ opacity: 0.9 }}
+                  key={i}
+                  className="absolute rounded-full border-2 border-primary"
+                  style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
+                  initial={{ width: 56, height: 56, opacity: 0.7 }}
+                  animate={{ 
+                    width: 800 + i * 150, 
+                    height: 800 + i * 150, 
+                    opacity: 0 
+                  }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: i * 0.06,
+                    ease: [0.32, 0, 0.24, 1]
+                  }}
+                />
+              ))}
+
+              {/* Modal - expands from center as the + reaches it */}
+              <motion.div
+                className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.12)] rounded-xl max-w-sm w-full mx-4 overflow-hidden shadow-2xl shadow-primary/20 relative pointer-events-auto"
+                initial={{ 
+                  scale: 0,
+                  opacity: 0,
+                }}
+                animate={{ 
+                  scale: 1,
+                  opacity: 1,
+                }}
+                exit={{ 
+                  scale: 0.9,
+                  opacity: 0,
+                  transition: { duration: 0.15, ease: 'easeIn' }
+                }}
+                transition={{ 
+                  delay: 0.18,
+                  duration: 0.25,
+                  ease: [0.32, 0, 0.24, 1]
+                }}
+              >
+                {/* Blue flash overlay */}
+                <motion.div
+                  className="absolute inset-0 bg-primary/30 z-10 pointer-events-none"
+                  initial={{ opacity: 1 }}
                   animate={{ opacity: 0 }}
-                  transition={{ duration: 0.45, ease: 'easeOut' }}
+                  transition={{ delay: 0.2, duration: 0.3, ease: 'easeOut' }}
                 />
 
-                <motion.div
-                  className="absolute -inset-10 rounded-full border-2 border-primary/50"
-                  initial={{ scale: 0.2, opacity: 0.7 }}
-                  animate={{ scale: 1.1, opacity: 0 }}
-                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                />
-
-                {/* Content wrapper */}
+                {/* Content */}
                 <div className="relative">
-                  {/* Header */}
-                  <DialogHeader className="px-4 py-3 border-b border-[hsl(0_0%_100%/0.1)] relative">
+                  <DialogHeader className="px-4 py-3 border-b border-[hsl(0_0%_100%/0.1)]">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <motion.div
-                          initial={{ rotate: -180, scale: 0, opacity: 0 }}
-                          animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.12, type: 'spring', stiffness: 260 }}
+                          initial={{ scale: 0, rotate: -90 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ delay: 0.35, duration: 0.2, ease: 'easeOut' }}
                         >
                           <Settings className="w-4 h-4 text-[hsl(0_0%_100%/0.5)]" />
                         </motion.div>
                         <motion.div
-                          initial={{ x: -16, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{ delay: 0.14, duration: 0.25 }}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.38, duration: 0.2 }}
                         >
                           <DialogTitle className="font-semibold text-sm text-[hsl(0_0%_96%)]">
                             Create Market
                           </DialogTitle>
                         </motion.div>
                       </div>
-
                       <motion.div
-                        initial={{ rotate: 90, scale: 0 }}
-                        animate={{ rotate: 0, scale: 1 }}
-                        transition={{ delay: 0.16, type: 'spring' }}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.4, duration: 0.15, ease: 'easeOut' }}
                       >
                         <Button
                           variant="ghost"
@@ -140,12 +188,11 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
                   </DialogHeader>
 
                   <form onSubmit={handleSubmit} className="p-4 space-y-4">
-                    {/* Add Image + Question Row */}
                     <motion.div
                       className="flex gap-3"
-                      initial={{ opacity: 0, y: 18 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.12, duration: 0.22 }}
+                      transition={{ delay: 0.32, duration: 0.2, ease: 'easeOut' }}
                     >
                       <motion.button
                         type="button"
@@ -165,18 +212,17 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
                           value={question}
                           onChange={(e) => setQuestion(e.target.value)}
                           placeholder="Will X happen by Y date?"
-                          className="h-10 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] placeholder:text-[hsl(0_0%_100%/0.3)] focus:border-primary focus:ring-1 focus:ring-primary/30 transition-all"
+                          className="h-10 bg-[hsl(0_0%_100%/0.05)] border-[hsl(0_0%_100%/0.1)] text-sm text-[hsl(0_0%_96%)] placeholder:text-[hsl(0_0%_100%/0.3)] focus:border-primary focus:ring-1 focus:ring-primary/30"
                           required
                         />
                       </div>
                     </motion.div>
 
-                    {/* Category + Resolve Date */}
                     <motion.div
                       className="grid grid-cols-2 gap-3"
-                      initial={{ opacity: 0, y: 18 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.16, duration: 0.22 }}
+                      transition={{ delay: 0.36, duration: 0.2, ease: 'easeOut' }}
                     >
                       <div className="space-y-1.5">
                         <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
@@ -217,21 +263,18 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
                       </div>
                     </motion.div>
 
-                    {/* Liquidity */}
                     <motion.div
                       className="space-y-2"
-                      initial={{ opacity: 0, y: 18 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2, duration: 0.22 }}
+                      transition={{ delay: 0.4, duration: 0.2, ease: 'easeOut' }}
                     >
                       <Label className="text-[10px] uppercase tracking-wider text-[hsl(0_0%_100%/0.4)]">
                         Initial Liquidity (USD)
                       </Label>
                       <div className="flex gap-2">
                         <div className="relative w-24">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(0_0%_100%/0.4)] text-sm">
-                            $
-                          </span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(0_0%_100%/0.4)] text-sm">$</span>
                           <Input
                             type="number"
                             value={liquidity}
@@ -240,34 +283,30 @@ export function CreateMarketModal({ open, onClose, onCreate }: CreateMarketModal
                             min={10}
                           />
                         </div>
-
                         <div className="flex gap-1 flex-1">
                           {liquidityPresets.map((preset) => (
-                            <motion.button
+                            <button
                               key={preset}
                               type="button"
                               onClick={() => setLiquidity(preset)}
-                              className={`flex-1 h-9 rounded-md text-xs font-medium transition-all duration-200 ${
+                              className={`flex-1 h-9 rounded-md text-xs font-medium transition-all duration-150 ${
                                 liquidity === preset
                                   ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
-                                  : 'bg-[hsl(0_0%_100%/0.05)] text-[hsl(0_0%_100%/0.6)] border border-[hsl(0_0%_100%/0.1)] hover:bg-[hsl(0_0%_100%/0.1)] hover:text-[hsl(0_0%_96%)]'
+                                  : 'bg-[hsl(0_0%_100%/0.05)] text-[hsl(0_0%_100%/0.6)] border border-[hsl(0_0%_100%/0.1)] hover:bg-[hsl(0_0%_100%/0.1)]'
                               }`}
-                              whileHover={{ scale: 1.06 }}
-                              whileTap={{ scale: 0.95 }}
                             >
                               ${preset}
-                            </motion.button>
+                            </button>
                           ))}
                         </div>
                       </div>
                     </motion.div>
 
-                    {/* Actions */}
                     <motion.div
                       className="flex gap-2 pt-2"
-                      initial={{ opacity: 0, y: 16 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.24, duration: 0.22 }}
+                      transition={{ delay: 0.44, duration: 0.2, ease: 'easeOut' }}
                     >
                       <Button
                         type="button"
