@@ -143,7 +143,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
   const [orderBook, setOrderBook] = useState<{ bids: { price: number; size: number }[]; asks: { price: number; size: number }[] }>({ bids: [], asks: [] });
   const [recentTrades, setRecentTrades] = useState<any[]>([]);
   const [timeframe, setTimeframe] = useState('1H');
-  const [bottomTab, setBottomTab] = useState<'positions' | 'activity'>('positions');
+  const [bottomTab, setBottomTab] = useState<'positions' | 'traders'>('positions');
   const [positions] = useState(generatePositions());
   const [walletActivity] = useState(generateWalletActivity());
   const [topTraders] = useState(generateTopTraders());
@@ -341,137 +341,136 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
               </div>
             </ResizableHandle>
             
-            {/* Bottom Panel - Positions / Activity */}
+            {/* Bottom Panel - Positions/Traders + Live Activity */}
             <ResizablePanel defaultSize={35} minSize={20} maxSize={50}>
-              <div className="h-full border-t border-primary/20 bg-row/30 flex flex-col">
-                <div className="flex items-center gap-4 px-4 h-8 border-b border-primary/20 shrink-0">
-                  <button
-                    onClick={() => setBottomTab('positions')}
-                    className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
-                      bottomTab === 'positions' ? 'text-primary' : 'text-light-muted hover:text-light'
-                    }`}
-                  >
-                    <Wallet className="w-3.5 h-3.5" />
-                    Your Positions
-                  </button>
-                  <button
-                    onClick={() => setBottomTab('activity')}
-                    className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
-                      bottomTab === 'activity' ? 'text-primary' : 'text-light-muted hover:text-light'
-                    }`}
-                  >
-                    <Users className="w-3.5 h-3.5" />
-                    Live Activity
-                  </button>
+              <div className="h-full border-t border-primary/20 bg-row/30 flex">
+                {/* Left: Positions/Traders Tabs */}
+                <div className="flex-1 flex flex-col border-r border-primary/20">
+                  <div className="flex items-center gap-4 px-4 h-8 border-b border-primary/20 shrink-0">
+                    <button
+                      onClick={() => setBottomTab('positions')}
+                      className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
+                        bottomTab === 'positions' ? 'text-primary' : 'text-light-muted hover:text-light'
+                      }`}
+                    >
+                      <Wallet className="w-3.5 h-3.5" />
+                      Your Positions
+                    </button>
+                    <button
+                      onClick={() => setBottomTab('traders')}
+                      className={`text-[11px] font-medium flex items-center gap-1.5 transition-colors ${
+                        bottomTab === 'traders' ? 'text-primary' : 'text-light-muted hover:text-light'
+                      }`}
+                    >
+                      <Trophy className="w-3.5 h-3.5" />
+                      Top Traders
+                    </button>
+                  </div>
+                  
+                  <div className="flex-1 p-3 overflow-auto">
+                    {bottomTab === 'positions' ? (
+                      <div className="text-[10px]">
+                        <div className="grid grid-cols-5 gap-4 pb-2 border-b border-primary/15 mb-2">
+                          <div className="text-primary/70 uppercase tracking-wider font-medium">Side</div>
+                          <div className="text-primary/70 uppercase tracking-wider font-medium">Shares</div>
+                          <div className="text-primary/70 uppercase tracking-wider font-medium">Avg Price</div>
+                          <div className="text-primary/70 uppercase tracking-wider font-medium">Current</div>
+                          <div className="text-primary/70 uppercase tracking-wider font-medium text-right">P&L</div>
+                        </div>
+                        <div className="divide-y divide-primary/10">
+                          {positions.map((pos) => (
+                            <div key={pos.id} className="grid grid-cols-5 gap-4 py-2">
+                              <div className={`font-semibold px-2 py-0.5 rounded w-fit ${
+                                pos.side === 'yes' 
+                                  ? 'text-emerald-400 bg-emerald-500/10' 
+                                  : 'text-rose-400 bg-rose-500/10'
+                              }`}>
+                                {pos.side.toUpperCase()}
+                              </div>
+                              <div className="text-light tabular-nums font-medium">{pos.shares}</div>
+                              <div className="text-light tabular-nums">${pos.avgPrice.toFixed(2)}</div>
+                              <div className="text-light tabular-nums">${pos.currentPrice.toFixed(2)}</div>
+                              <div className={`text-right font-semibold tabular-nums ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                {pos.pnl >= 0 ? '+' : ''}${Math.abs(pos.pnl)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-[10px]">
+                        <div className="grid grid-cols-4 gap-4 pb-2 border-b border-primary/15 mb-2">
+                          <div className="text-primary/70 uppercase tracking-wider font-medium">Rank</div>
+                          <div className="text-primary/70 uppercase tracking-wider font-medium">Trader</div>
+                          <div className="text-primary/70 uppercase tracking-wider font-medium">Win Rate</div>
+                          <div className="text-primary/70 uppercase tracking-wider font-medium text-right">P&L</div>
+                        </div>
+                        <div className="divide-y divide-primary/10">
+                          {topTraders.map((t, i) => (
+                            <div key={t.id} className="grid grid-cols-4 gap-4 py-2 items-center">
+                              <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                                i === 0 ? 'bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/30' :
+                                i === 1 ? 'bg-gray-400/20 text-gray-300 ring-1 ring-gray-400/30' :
+                                i === 2 ? 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500/30' :
+                                'bg-row text-light-muted'
+                              }`}>
+                                {i + 1}
+                              </span>
+                              <a 
+                                href={`https://solscan.io/account/${t.address}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-light font-mono hover:text-primary transition-colors flex items-center gap-1"
+                              >
+                                {t.address}
+                                <ExternalLink className="w-2.5 h-2.5 text-primary/50" />
+                              </a>
+                              <span className="text-light-muted bg-row/50 px-2 py-0.5 rounded w-fit">{t.winRate}%</span>
+                              <span className="text-emerald-400 font-semibold tabular-nums text-right">+${t.pnl.toLocaleString()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
-                <div className="flex-1 p-3 overflow-auto">
-                  {bottomTab === 'positions' ? (
-                    <div className="text-[10px]">
-                      {/* Header */}
-                      <div className="grid grid-cols-5 gap-4 pb-2 border-b border-primary/15 mb-2">
-                        <div className="text-primary/70 uppercase tracking-wider font-medium">Side</div>
-                        <div className="text-primary/70 uppercase tracking-wider font-medium">Shares</div>
-                        <div className="text-primary/70 uppercase tracking-wider font-medium">Avg Price</div>
-                        <div className="text-primary/70 uppercase tracking-wider font-medium">Current</div>
-                        <div className="text-primary/70 uppercase tracking-wider font-medium text-right">P&L</div>
-                      </div>
-                      {/* Rows */}
-                      <div className="divide-y divide-primary/10">
-                        {positions.map((pos) => (
-                          <div key={pos.id} className="grid grid-cols-5 gap-4 py-2">
-                            <div className={`font-semibold px-2 py-0.5 rounded w-fit ${
-                              pos.side === 'yes' 
+                {/* Right: Live Activity (always visible) */}
+                <div className="w-80 flex flex-col">
+                  <div className="flex items-center gap-2 px-4 h-8 border-b border-primary/20 shrink-0">
+                    <Users className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-[11px] font-medium text-primary">Live Activity</span>
+                  </div>
+                  <div className="flex-1 p-3 overflow-auto">
+                    <div className="divide-y divide-primary/10">
+                      {walletActivity.map((w) => (
+                        <div key={w.id} className="flex items-center justify-between text-[10px] py-2.5 first:pt-0">
+                          <div className="flex items-center gap-3">
+                            <a 
+                              href={`https://solscan.io/tx/${w.txHash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-light font-mono hover:text-primary transition-colors flex items-center gap-1.5 bg-row/50 px-2 py-1 rounded"
+                            >
+                              {w.address}
+                              <ExternalLink className="w-2.5 h-2.5 text-primary/50" />
+                            </a>
+                            <span className={`font-semibold px-2 py-0.5 rounded ${
+                              w.side === 'yes' 
                                 ? 'text-emerald-400 bg-emerald-500/10' 
                                 : 'text-rose-400 bg-rose-500/10'
                             }`}>
-                              {pos.side.toUpperCase()}
-                            </div>
-                            <div className="text-light tabular-nums font-medium">{pos.shares}</div>
-                            <div className="text-light tabular-nums">${pos.avgPrice.toFixed(2)}</div>
-                            <div className="text-light tabular-nums">${pos.currentPrice.toFixed(2)}</div>
-                            <div className={`text-right font-semibold tabular-nums ${pos.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                              {pos.pnl >= 0 ? '+' : ''}${Math.abs(pos.pnl)}
-                            </div>
+                              {w.side.toUpperCase()}
+                            </span>
                           </div>
-                        ))}
-                      </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-light font-medium tabular-nums">${w.amount}</span>
+                            <span className="text-light-muted text-[9px]">{w.time}</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ) : (
-                    <div className="flex gap-6 h-full">
-                      {/* Live Activity */}
-                      <div className="flex-1">
-                        <div className="text-[10px] text-primary/70 uppercase tracking-wider font-medium mb-3 flex items-center gap-1.5">
-                          <Users className="w-3 h-3" />
-                          Live Activity
-                        </div>
-                        <div className="divide-y divide-primary/10">
-                          {walletActivity.slice(0, 4).map((w) => (
-                            <div key={w.id} className="flex items-center justify-between text-[10px] py-2 first:pt-0">
-                              <div className="flex items-center gap-3">
-                                <a 
-                                  href={`https://solscan.io/tx/${w.txHash}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-light font-mono hover:text-primary transition-colors flex items-center gap-1.5 bg-row/50 px-2 py-1 rounded"
-                                >
-                                  {w.address}
-                                  <ExternalLink className="w-2.5 h-2.5 text-primary/50" />
-                                </a>
-                                <span className={`font-semibold px-2 py-0.5 rounded ${
-                                  w.side === 'yes' 
-                                    ? 'text-emerald-400 bg-emerald-500/10' 
-                                    : 'text-rose-400 bg-rose-500/10'
-                                }`}>
-                                  {w.side.toUpperCase()}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <span className="text-light font-medium tabular-nums">${w.amount}</span>
-                                <span className="text-light-muted text-[9px]">{w.time}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      {/* Top Traders */}
-                      <div className="w-72 border-l border-primary/20 pl-5">
-                        <div className="text-[10px] text-primary/70 uppercase tracking-wider font-medium mb-3 flex items-center gap-1.5">
-                          <Trophy className="w-3 h-3" />
-                          Top Traders
-                        </div>
-                        <div className="divide-y divide-primary/10">
-                          {topTraders.slice(0, 4).map((t, i) => (
-                            <div key={t.id} className="flex items-center justify-between text-[10px] py-2 first:pt-0">
-                              <div className="flex items-center gap-2">
-                                <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                                  i === 0 ? 'bg-yellow-500/20 text-yellow-400 ring-1 ring-yellow-500/30' :
-                                  i === 1 ? 'bg-gray-400/20 text-gray-300 ring-1 ring-gray-400/30' :
-                                  i === 2 ? 'bg-orange-500/20 text-orange-400 ring-1 ring-orange-500/30' :
-                                  'bg-row text-light-muted'
-                                }`}>
-                                  {i + 1}
-                                </span>
-                                <a 
-                                  href={`https://solscan.io/account/${t.address}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-light font-mono hover:text-primary transition-colors"
-                                >
-                                  {t.address}
-                                </a>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <span className="text-emerald-400 font-semibold tabular-nums">+${t.pnl.toLocaleString()}</span>
-                                <span className="text-light-muted bg-row/50 px-1.5 py-0.5 rounded text-[9px]">{t.winRate}%</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </ResizablePanel>
