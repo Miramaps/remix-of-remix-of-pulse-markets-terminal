@@ -77,15 +77,15 @@ export function TopNav({
             </button>
 
             {/* Primary Navigation */}
-            <nav className="hidden lg:flex items-center">
+            <nav className="flex items-center">
               {navItems.map((item) => (
                 <button
                   key={item}
                   onClick={() => handleNavClick(item)}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                  className={`px-2.5 md:px-3 py-1.5 text-sm font-medium transition-colors border-b border-transparent ${
                     activeView === item 
-                      ? 'text-light' 
-                      : 'text-light-muted hover:text-light'
+                      ? 'text-light border-primary/40' 
+                      : 'text-light-muted hover:text-light hover:border-primary/25'
                   }`}
                 >
                   {item}
