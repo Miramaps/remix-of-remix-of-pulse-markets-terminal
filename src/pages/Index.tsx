@@ -5,6 +5,7 @@ import { MarketColumn } from '@/components/MarketColumn';
 import { CreateMarketModal } from '@/components/CreateMarketModal';
 import { TradingPage } from '@/components/TradingPage';
 import { MobileTabs } from '@/components/MobileTabs';
+import { MarketsPage } from '@/components/MarketsPage';
 import { initialMarkets, Market } from '@/lib/mockData';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MarketRow } from '@/components/MarketRow';
@@ -18,6 +19,7 @@ const Index = () => {
   const [tradingMarket, setTradingMarket] = useState<Market | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [priceFlashes, setPriceFlashes] = useState<Record<string, boolean>>({});
+  const [activeView, setActiveView] = useState<string>('Discover');
   const { toast } = useToast();
 
   // Simulate live price updates
@@ -103,8 +105,13 @@ const Index = () => {
       )
     );
   }, []);
+
   const handleCloseTradingPage = () => {
     setTradingMarket(null);
+  };
+
+  const handleNavigate = (view: string) => {
+    setActiveView(view);
   };
 
   const newMarkets = markets.filter((m) => m.status === 'new');
@@ -124,10 +131,41 @@ const Index = () => {
     );
   }
 
+  // Markets Page View
+  if (activeView === 'Markets') {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <TopNav 
+          onCreateMarket={() => setIsCreateModalOpen(true)}
+          onDiscover={() => setActiveView('Discover')}
+          onNavigate={handleNavigate}
+          activeView={activeView}
+          watchlistMarkets={markets.filter(m => m.isWatchlisted)}
+          onRemoveFromWatchlist={handleToggleWatchlist}
+          onSelectMarket={handleSelectMarket}
+        />
+        <MarketsPage 
+          markets={markets}
+          onBack={() => setActiveView('Discover')}
+          onSelectMarket={handleSelectMarket}
+        />
+        <CreateMarketModal
+          open={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreate={handleCreateMarket}
+        />
+      </div>
+    );
+  }
+
+  // Discover View (default)
   return (
     <div className="min-h-screen flex flex-col">
       <TopNav 
         onCreateMarket={() => setIsCreateModalOpen(true)}
+        onDiscover={() => setActiveView('Discover')}
+        onNavigate={handleNavigate}
+        activeView={activeView}
         watchlistMarkets={markets.filter(m => m.isWatchlisted)}
         onRemoveFromWatchlist={handleToggleWatchlist}
         onSelectMarket={handleSelectMarket}
@@ -154,7 +192,6 @@ const Index = () => {
             priceFlashes={priceFlashes}
             selectedCategory={selectedCategory}
             onToggleWatchlist={handleToggleWatchlist}
-            
           />
           <MarketColumn
             title="RESOLVED"
@@ -212,7 +249,6 @@ const Index = () => {
                           onSelect={() => handleSelectMarket(market)}
                           priceFlash={priceFlashes[market.id]}
                           onToggleWatchlist={handleToggleWatchlist}
-                          
                         />
                       </motion.div>
                     ))}
