@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, TrendingUp, TrendingDown, ChevronUp, ChevronDown, Star, Bell, Share2, Users, Wallet, GripHorizontal } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, ChevronUp, ChevronDown, Star, Bell, Share2, Users, Wallet, GripHorizontal, ExternalLink, Trophy } from 'lucide-react';
 import { Market, formatVolume, formatTimeLeft } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -68,19 +68,31 @@ const generatePositions = () => {
   ];
 };
 
-// Generate mock wallet activity
+// Generate mock wallet activity with tx hashes
 const generateWalletActivity = () => {
   const wallets = [];
   for (let i = 0; i < 6; i++) {
     wallets.push({
       id: i,
-      address: `0x${Math.random().toString(16).slice(2, 8)}...${Math.random().toString(16).slice(2, 6)}`,
+      address: `${Math.random().toString(36).slice(2, 6)}...${Math.random().toString(36).slice(2, 6)}`,
+      txHash: `${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}`,
       side: Math.random() > 0.5 ? 'yes' : 'no',
       amount: Math.floor(Math.random() * 5000) + 100,
       time: `${Math.floor(Math.random() * 60)}s ago`,
     });
   }
   return wallets;
+};
+
+// Generate mock top traders
+const generateTopTraders = () => {
+  return [
+    { id: 1, address: 'whale.sol', pnl: 12500, winRate: 78, trades: 156 },
+    { id: 2, address: 'degen.sol', pnl: 8200, winRate: 65, trades: 342 },
+    { id: 3, address: 'alpha.sol', pnl: 5100, winRate: 71, trades: 89 },
+    { id: 4, address: 'trader.sol', pnl: 3800, winRate: 62, trades: 201 },
+    { id: 5, address: 'moon.sol', pnl: 2400, winRate: 58, trades: 124 },
+  ];
 };
 
 // Chart component
@@ -134,6 +146,7 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
   const [bottomTab, setBottomTab] = useState<'positions' | 'activity'>('positions');
   const [positions] = useState(generatePositions());
   const [walletActivity] = useState(generateWalletActivity());
+  const [topTraders] = useState(generateTopTraders());
   const { toast } = useToast();
 
   useEffect(() => {
@@ -375,21 +388,74 @@ export function TradingPage({ market, onBack }: TradingPageProps) {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-4 gap-4 text-[10px]">
-                      <div className="text-primary/70 uppercase tracking-wider font-medium">Wallet</div>
-                      <div className="text-primary/70 uppercase tracking-wider font-medium">Side</div>
-                      <div className="text-primary/70 uppercase tracking-wider font-medium">Amount</div>
-                      <div className="text-primary/70 uppercase tracking-wider font-medium text-right">Time</div>
-                      {walletActivity.slice(0, 5).map((w) => (
-                        <>
-                          <div key={`${w.id}-addr`} className="text-light font-mono">{w.address}</div>
-                          <div key={`${w.id}-side`} className={`font-medium ${w.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                            {w.side.toUpperCase()}
-                          </div>
-                          <div key={`${w.id}-amt`} className="text-light tabular-nums">${w.amount}</div>
-                          <div key={`${w.id}-time`} className="text-light-muted text-right">{w.time}</div>
-                        </>
-                      ))}
+                    <div className="flex gap-6 h-full">
+                      {/* Live Activity */}
+                      <div className="flex-1">
+                        <div className="text-[10px] text-primary/70 uppercase tracking-wider font-medium mb-2 flex items-center gap-1.5">
+                          <Users className="w-3 h-3" />
+                          Live Activity
+                        </div>
+                        <div className="space-y-1">
+                          {walletActivity.slice(0, 4).map((w) => (
+                            <div key={w.id} className="flex items-center justify-between text-[10px] py-0.5">
+                              <div className="flex items-center gap-2">
+                                <a 
+                                  href={`https://solscan.io/tx/${w.txHash}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-light font-mono hover:text-primary transition-colors flex items-center gap-1"
+                                >
+                                  {w.address}
+                                  <ExternalLink className="w-2.5 h-2.5 text-primary/50" />
+                                </a>
+                                <span className={`font-medium ${w.side === 'yes' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                  {w.side.toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-light tabular-nums">${w.amount}</span>
+                                <span className="text-light-muted">{w.time}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Top Traders */}
+                      <div className="w-64 border-l border-primary/20 pl-4">
+                        <div className="text-[10px] text-primary/70 uppercase tracking-wider font-medium mb-2 flex items-center gap-1.5">
+                          <Trophy className="w-3 h-3" />
+                          Top Traders
+                        </div>
+                        <div className="space-y-1">
+                          {topTraders.slice(0, 4).map((t, i) => (
+                            <div key={t.id} className="flex items-center justify-between text-[10px] py-0.5">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold ${
+                                  i === 0 ? 'bg-yellow-500/20 text-yellow-400' :
+                                  i === 1 ? 'bg-gray-400/20 text-gray-300' :
+                                  i === 2 ? 'bg-orange-500/20 text-orange-400' :
+                                  'bg-row text-light-muted'
+                                }`}>
+                                  {i + 1}
+                                </span>
+                                <a 
+                                  href={`https://solscan.io/account/${t.address}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-light font-mono hover:text-primary transition-colors"
+                                >
+                                  {t.address}
+                                </a>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-emerald-400 font-medium tabular-nums">+${t.pnl.toLocaleString()}</span>
+                                <span className="text-light-muted">{t.winRate}%</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
