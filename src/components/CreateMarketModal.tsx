@@ -69,30 +69,37 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
               transition={{ duration: 0.2, ease: 'easeOut' }}
             />
 
-            <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-              {/* THE PLUS SIGN - scales up massively and fades as modal appears */}
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+              style={{ perspective: 1200 }}
+            >
+              {/* THE PLUS SIGN — cinematic flip + dissolve into the modal */}
               <motion.div
-                className="absolute text-primary-foreground z-[60]"
+                className="absolute z-[60]"
                 style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
-                initial={{ scale: 1, opacity: 1 }}
-                animate={{ 
-                  scale: [1, 8, 25],
-                  opacity: [1, 1, 0],
+                initial={{ scale: 1, opacity: 1, rotateZ: 0, rotateX: 0, rotateY: 0, filter: 'blur(0px)' }}
+                animate={{
                   left: [startX, centerX, centerX],
                   top: [startY, centerY, centerY],
+                  scale: [1, 7, 18],
+                  rotateZ: [0, 110, 180],
+                  rotateX: [0, 55, 90],
+                  rotateY: [0, -25, -60],
+                  opacity: [1, 1, 0],
+                  filter: ['blur(0px)', 'blur(0px)', 'blur(12px)'],
                 }}
-                transition={{ 
-                  duration: 0.4, 
-                  ease: [0.32, 0, 0.24, 1],
-                  times: [0, 0.5, 1]
+                transition={{
+                  duration: 0.48,
+                  ease: [0.22, 1, 0.36, 1],
+                  times: [0, 0.55, 1],
                 }}
               >
                 <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                  <circle cx="28" cy="28" r="28" fill="hsl(210 100% 50%)" />
-                  <path 
-                    d="M28 16V40M16 28H40" 
-                    stroke="white" 
-                    strokeWidth="3.5" 
+                  <circle cx="28" cy="28" r="28" fill="hsl(var(--primary))" />
+                  <path
+                    d="M28 16V40M16 28H40"
+                    stroke="hsl(var(--primary-foreground))"
+                    strokeWidth="3.5"
                     strokeLinecap="round"
                   />
                 </svg>
@@ -105,39 +112,46 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                   className="absolute rounded-full border-2 border-primary"
                   style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
                   initial={{ width: 56, height: 56, opacity: 0.7 }}
-                  animate={{ 
-                    width: 800 + i * 150, 
-                    height: 800 + i * 150, 
-                    opacity: 0 
-                  }}
-                  transition={{ 
-                    duration: 0.5, 
+                  animate={{ width: 900 + i * 180, height: 900 + i * 180, opacity: 0 }}
+                  transition={{
+                    duration: 0.55,
                     delay: i * 0.06,
-                    ease: [0.32, 0, 0.24, 1]
+                    ease: [0.22, 1, 0.36, 1],
                   }}
                 />
               ))}
 
-              {/* Modal - expands from center as the + reaches it */}
+              {/* Modal — crisp flip-in (no spring wobble) */}
               <motion.div
                 className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.12)] rounded-xl max-w-sm w-full mx-4 overflow-hidden shadow-2xl shadow-primary/20 relative pointer-events-auto"
-                initial={{ 
-                  scale: 0,
+                initial={{
                   opacity: 0,
+                  scale: 0.92,
+                  y: 26,
+                  rotateX: 70,
+                  rotateY: -18,
+                  filter: 'blur(12px)',
                 }}
-                animate={{ 
-                  scale: 1,
+                animate={{
                   opacity: 1,
+                  scale: 1,
+                  y: 0,
+                  rotateX: 0,
+                  rotateY: 0,
+                  filter: 'blur(0px)',
                 }}
-                exit={{ 
-                  scale: 0.9,
+                exit={{
                   opacity: 0,
-                  transition: { duration: 0.15, ease: 'easeIn' }
+                  scale: 0.96,
+                  y: 16,
+                  rotateX: 20,
+                  filter: 'blur(10px)',
+                  transition: { duration: 0.16, ease: [0.4, 0, 1, 1] },
                 }}
-                transition={{ 
-                  delay: 0.18,
-                  duration: 0.25,
-                  ease: [0.32, 0, 0.24, 1]
+                transition={{
+                  delay: 0.16,
+                  duration: 0.32,
+                  ease: [0.22, 1, 0.36, 1],
                 }}
               >
                 {/* Blue flash overlay */}
