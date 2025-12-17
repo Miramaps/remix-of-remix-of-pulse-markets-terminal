@@ -267,9 +267,9 @@ export function TopNav({
             <Wallet className="w-4 h-4" />
             <span className="hidden sm:inline">Connect</span>
           </Button>
+          </div>
         </div>
       </div>
-    </div>
     </header>
   );
 }
