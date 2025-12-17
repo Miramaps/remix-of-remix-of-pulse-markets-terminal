@@ -55,82 +55,230 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
   const startX = buttonPosition?.x ?? centerX;
   const startY = buttonPosition?.y ?? 56;
 
+  // Generate random particles for explosion effect
+  const particles = Array.from({ length: 24 }, (_, i) => ({
+    id: i,
+    angle: (i * 360) / 24 + Math.random() * 15,
+    distance: 150 + Math.random() * 200,
+    size: 3 + Math.random() * 5,
+    delay: Math.random() * 0.1,
+    duration: 0.4 + Math.random() * 0.2,
+  }));
+
+  // Spark particles
+  const sparks = Array.from({ length: 12 }, (_, i) => ({
+    id: i,
+    angle: (i * 360) / 12 + Math.random() * 30,
+    distance: 80 + Math.random() * 120,
+    delay: 0.05 + Math.random() * 0.1,
+  }));
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <AnimatePresence>
         {open && (
           <>
-            {/* Dark overlay */}
+            {/* Dark overlay with subtle radial gradient */}
             <motion.div
-              className="fixed inset-0 bg-black/80 z-50"
+              className="fixed inset-0 bg-black/85 z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
             />
 
             <div
               className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
               style={{ perspective: 1200 }}
             >
-              {/* THE PLUS SIGN — cinematic flip + dissolve into the modal */}
+              {/* Initial flash at button position */}
               <motion.div
-                className="absolute z-[60]"
-                style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
-                initial={{ scale: 1, opacity: 1, rotateZ: 0, rotateX: 0, rotateY: 0, filter: 'blur(0px)' }}
-                animate={{
-                  left: [startX, centerX, centerX],
-                  top: [startY, centerY, centerY],
-                  scale: [1, 7, 18],
-                  rotateZ: [0, 110, 180],
-                  rotateX: [0, 55, 90],
-                  rotateY: [0, -25, -60],
-                  opacity: [1, 1, 0],
-                  filter: ['blur(0px)', 'blur(0px)', 'blur(12px)'],
+                className="absolute rounded-full"
+                style={{ 
+                  left: startX, 
+                  top: startY, 
+                  x: '-50%', 
+                  y: '-50%',
+                  background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
                 }}
-                transition={{
-                  duration: 0.48,
-                  ease: [0.22, 1, 0.36, 1],
-                  times: [0, 0.55, 1],
-                }}
-              >
-                <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                  <circle cx="28" cy="28" r="28" fill="hsl(var(--primary))" />
-                  <path
-                    d="M28 16V40M16 28H40"
-                    stroke="hsl(var(--primary-foreground))"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </motion.div>
+                initial={{ width: 56, height: 56, opacity: 1 }}
+                animate={{ width: 400, height: 400, opacity: 0 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+              />
 
-              {/* Shockwave rings from button */}
-              {[0, 1, 2].map((i) => (
+              {/* Energy particles explosion */}
+              {particles.map((particle) => (
                 <motion.div
-                  key={i}
-                  className="absolute rounded-full border-2 border-primary"
-                  style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
-                  initial={{ width: 56, height: 56, opacity: 0.7 }}
-                  animate={{ width: 900 + i * 180, height: 900 + i * 180, opacity: 0 }}
+                  key={particle.id}
+                  className="absolute rounded-full bg-primary"
+                  style={{
+                    left: startX,
+                    top: startY,
+                    width: particle.size,
+                    height: particle.size,
+                    boxShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))',
+                  }}
+                  initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                  animate={{
+                    x: Math.cos((particle.angle * Math.PI) / 180) * particle.distance,
+                    y: Math.sin((particle.angle * Math.PI) / 180) * particle.distance,
+                    opacity: 0,
+                    scale: 0,
+                  }}
                   transition={{
-                    duration: 0.55,
-                    delay: i * 0.06,
+                    duration: particle.duration,
+                    delay: particle.delay,
                     ease: [0.22, 1, 0.36, 1],
                   }}
                 />
               ))}
 
-              {/* Modal — crisp flip-in (no spring wobble) */}
+              {/* Spark trails */}
+              {sparks.map((spark) => (
+                <motion.div
+                  key={`spark-${spark.id}`}
+                  className="absolute"
+                  style={{
+                    left: startX,
+                    top: startY,
+                    width: 2,
+                    height: 20,
+                    background: 'linear-gradient(to bottom, hsl(var(--primary)), transparent)',
+                    transformOrigin: 'center top',
+                    rotate: `${spark.angle}deg`,
+                  }}
+                  initial={{ scaleY: 0, opacity: 1 }}
+                  animate={{ 
+                    scaleY: [0, 1, 1],
+                    y: [0, spark.distance * 0.5, spark.distance],
+                    opacity: [1, 1, 0],
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    delay: spark.delay,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                />
+              ))}
+
+              {/* THE PLUS SIGN — dramatic 3D flip with glow trail */}
               <motion.div
-                className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.12)] rounded-xl max-w-sm w-full mx-4 overflow-hidden shadow-2xl shadow-primary/20 relative pointer-events-auto"
+                className="absolute z-[60]"
+                style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
+                initial={{ scale: 1, opacity: 1, rotateZ: 0, rotateX: 0, rotateY: 0, filter: 'blur(0px)' }}
+                animate={{
+                  left: [startX, startX + (centerX - startX) * 0.3, centerX],
+                  top: [startY, startY + (centerY - startY) * 0.2, centerY],
+                  scale: [1, 3, 20],
+                  rotateZ: [0, 180, 360],
+                  rotateX: [0, 45, 90],
+                  rotateY: [0, -30, -90],
+                  opacity: [1, 1, 0],
+                  filter: ['blur(0px)', 'blur(0px)', 'blur(16px)'],
+                }}
+                transition={{
+                  duration: 0.55,
+                  ease: [0.22, 1, 0.36, 1],
+                  times: [0, 0.4, 1],
+                }}
+              >
+                <div className="relative">
+                  {/* Glow behind */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-primary"
+                    initial={{ scale: 1, opacity: 0.5 }}
+                    animate={{ scale: [1, 2, 3], opacity: [0.5, 0.3, 0] }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    style={{ filter: 'blur(20px)' }}
+                  />
+                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none" className="relative z-10">
+                    <circle cx="28" cy="28" r="28" fill="hsl(var(--primary))" />
+                    <motion.circle
+                      cx="28"
+                      cy="28"
+                      r="28"
+                      fill="none"
+                      stroke="white"
+                      strokeWidth="2"
+                      initial={{ opacity: 0.5 }}
+                      animate={{ opacity: [0.5, 0, 0.5] }}
+                      transition={{ duration: 0.3, repeat: 2 }}
+                    />
+                    <path
+                      d="M28 16V40M16 28H40"
+                      stroke="hsl(var(--primary-foreground))"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+              </motion.div>
+
+              {/* Multiple shockwave rings with different colors */}
+              {[0, 1, 2, 3, 4].map((i) => (
+                <motion.div
+                  key={i}
+                  className="absolute rounded-full"
+                  style={{ 
+                    left: startX, 
+                    top: startY, 
+                    x: '-50%', 
+                    y: '-50%',
+                    border: i < 2 ? '2px solid hsl(var(--primary))' : '1px solid hsl(var(--primary) / 0.5)',
+                  }}
+                  initial={{ width: 56, height: 56, opacity: i < 2 ? 0.8 : 0.4 }}
+                  animate={{ 
+                    width: 600 + i * 200, 
+                    height: 600 + i * 200, 
+                    opacity: 0,
+                  }}
+                  transition={{
+                    duration: 0.6,
+                    delay: i * 0.05,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                />
+              ))}
+
+              {/* Converging energy lines to center */}
+              {[0, 1, 2, 3].map((i) => (
+                <motion.div
+                  key={`line-${i}`}
+                  className="absolute bg-gradient-to-r from-transparent via-primary to-transparent"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    height: 2,
+                    width: '100%',
+                    transformOrigin: 'center',
+                    rotate: `${i * 45}deg`,
+                  }}
+                  initial={{ scaleX: 0, opacity: 0 }}
+                  animate={{ 
+                    scaleX: [0, 1.5, 0],
+                    opacity: [0, 0.6, 0],
+                  }}
+                  transition={{
+                    duration: 0.4,
+                    delay: 0.15 + i * 0.03,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                />
+              ))}
+
+              {/* Modal — dramatic entrance with glow */}
+              <motion.div
+                className="bg-[hsl(220_15%_10%)] border border-[hsl(0_0%_100%/0.12)] rounded-xl max-w-sm w-full mx-4 overflow-hidden relative pointer-events-auto"
+                style={{
+                  boxShadow: '0 0 60px hsl(var(--primary) / 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                }}
                 initial={{
                   opacity: 0,
-                  scale: 0.92,
-                  y: 26,
-                  rotateX: 70,
-                  rotateY: -18,
-                  filter: 'blur(12px)',
+                  scale: 0.85,
+                  y: 40,
+                  rotateX: 80,
+                  rotateY: -20,
+                  filter: 'blur(20px)',
                 }}
                 animate={{
                   opacity: 1,
@@ -142,24 +290,46 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                 }}
                 exit={{
                   opacity: 0,
-                  scale: 0.96,
-                  y: 16,
-                  rotateX: 20,
-                  filter: 'blur(10px)',
-                  transition: { duration: 0.16, ease: [0.4, 0, 1, 1] },
+                  scale: 0.9,
+                  y: 20,
+                  rotateX: 25,
+                  filter: 'blur(12px)',
+                  transition: { duration: 0.18, ease: [0.4, 0, 1, 1] },
                 }}
                 transition={{
-                  delay: 0.16,
-                  duration: 0.32,
+                  delay: 0.2,
+                  duration: 0.4,
                   ease: [0.22, 1, 0.36, 1],
                 }}
               >
-                {/* Blue flash overlay */}
+                {/* Animated border glow */}
                 <motion.div
-                  className="absolute inset-0 bg-primary/30 z-10 pointer-events-none"
+                  className="absolute inset-0 rounded-xl pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), transparent, hsl(var(--primary) / 0.2))',
+                  }}
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 0 }}
-                  transition={{ delay: 0.2, duration: 0.3, ease: 'easeOut' }}
+                  transition={{ delay: 0.3, duration: 0.5, ease: 'easeOut' }}
+                />
+
+                {/* Blue flash overlay */}
+                <motion.div
+                  className="absolute inset-0 bg-primary/40 z-10 pointer-events-none"
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 0 }}
+                  transition={{ delay: 0.25, duration: 0.35, ease: 'easeOut' }}
+                />
+
+                {/* Shimmer effect */}
+                <motion.div
+                  className="absolute inset-0 pointer-events-none z-10"
+                  style={{
+                    background: 'linear-gradient(105deg, transparent 40%, hsl(var(--primary) / 0.15) 50%, transparent 60%)',
+                  }}
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '200%' }}
+                  transition={{ delay: 0.35, duration: 0.6, ease: 'easeOut' }}
                 />
 
                 {/* Content */}
