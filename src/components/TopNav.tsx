@@ -100,42 +100,56 @@ export function TopNav({
         {/* Center: Create Button */}
         <div className="flex-1 flex justify-center">
           <motion.button
-            layoutId="create-market-fab"
+            id="create-market-btn"
             onClick={onCreateMarket}
-            className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center relative overflow-hidden"
+            className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/40 flex items-center justify-center relative overflow-visible"
             whileHover={{ 
-              scale: 1.12,
-              boxShadow: "0 0 34px hsl(210 100% 60% / 0.55)"
+              scale: 1.15,
+              boxShadow: "0 0 50px hsl(210 100% 60% / 0.6)"
             }}
             whileTap={{ 
-              scale: 0.92,
-              rotate: 90,
+              scale: 0.85,
             }}
             transition={{ 
               type: "spring", 
-              stiffness: 420, 
-              damping: 18 
+              stiffness: 500, 
+              damping: 15 
             }}
           >
             <motion.div
-              whileHover={{ rotate: 180, scale: 1.15 }}
-              transition={{ type: "spring", stiffness: 320, damping: 16 }}
+              whileHover={{ rotate: 90, scale: 1.2 }}
+              whileTap={{ rotate: 180, scale: 1.5 }}
+              transition={{ type: "spring", stiffness: 400, damping: 12 }}
             >
-              <Plus className="w-7 h-7" />
+              <Plus className="w-8 h-8" strokeWidth={2.5} />
             </motion.div>
 
-            {/* Pulse ring effect */}
+            {/* Double pulse rings */}
             <motion.div
-              className="absolute inset-0 rounded-full border-2 border-primary"
-              initial={{ scale: 1, opacity: 0.5 }}
+              className="absolute inset-0 rounded-full border-2 border-primary/60"
+              initial={{ scale: 1, opacity: 0.6 }}
               animate={{ 
-                scale: [1, 1.5, 1],
-                opacity: [0.5, 0, 0.5]
+                scale: [1, 1.8],
+                opacity: [0.6, 0]
               }}
               transition={{ 
-                duration: 2,
+                duration: 1.5,
                 repeat: Infinity,
-                ease: "easeInOut"
+                ease: "easeOut"
+              }}
+            />
+            <motion.div
+              className="absolute inset-0 rounded-full border border-primary/40"
+              initial={{ scale: 1, opacity: 0.4 }}
+              animate={{ 
+                scale: [1, 2.2],
+                opacity: [0.4, 0]
+              }}
+              transition={{ 
+                duration: 1.5,
+                delay: 0.3,
+                repeat: Infinity,
+                ease: "easeOut"
               }}
             />
           </motion.button>
