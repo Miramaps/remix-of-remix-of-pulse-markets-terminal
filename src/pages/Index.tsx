@@ -6,6 +6,7 @@ import { CreateMarketModal } from '@/components/CreateMarketModal';
 import { TradingPage } from '@/components/TradingPage';
 import { MobileTabs } from '@/components/MobileTabs';
 import { MarketsPage } from '@/components/MarketsPage';
+import { PortfolioPage } from '@/components/PortfolioPage';
 import { initialMarkets, Market } from '@/lib/mockData';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MarketRow } from '@/components/MarketRow';
@@ -149,6 +150,29 @@ const Index = () => {
           onBack={() => setActiveView('Discover')}
           onSelectMarket={handleSelectMarket}
         />
+        <CreateMarketModal
+          open={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onCreate={handleCreateMarket}
+        />
+      </div>
+    );
+  }
+
+  // Portfolio Page View
+  if (activeView === 'Portfolio') {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <TopNav 
+          onCreateMarket={() => setIsCreateModalOpen(true)}
+          onDiscover={() => setActiveView('Discover')}
+          onNavigate={handleNavigate}
+          activeView={activeView}
+          watchlistMarkets={markets.filter(m => m.isWatchlisted)}
+          onRemoveFromWatchlist={handleToggleWatchlist}
+          onSelectMarket={handleSelectMarket}
+        />
+        <PortfolioPage />
         <CreateMarketModal
           open={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
