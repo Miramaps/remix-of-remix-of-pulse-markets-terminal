@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Settings, ImagePlus, Calendar, Link2 } from 'lucide-react';
+import { X, ImagePlus, Calendar, Link2 } from 'lucide-react';
 import { Market } from '@/lib/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,20 +52,6 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
     onClose();
   };
 
-  const centerX = typeof window !== 'undefined' ? window.innerWidth / 2 : 500;
-  const centerY = typeof window !== 'undefined' ? window.innerHeight / 2 : 400;
-  const startX = buttonPosition?.x ?? centerX;
-  const startY = buttonPosition?.y ?? 56;
-
-  // Smaller particle explosion
-  const particles = Array.from({ length: 12 }, (_, i) => ({
-    id: i,
-    angle: (i * 360) / 12 + Math.random() * 15,
-    distance: 60 + Math.random() * 80,
-    size: 2 + Math.random() * 3,
-    delay: Math.random() * 0.08,
-    duration: 0.35,
-  }));
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -74,180 +60,74 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
           <>
             {/* Dark overlay */}
             <motion.div
-              className="fixed inset-0 bg-black/55 z-50"
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
             />
 
             <div
               className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
-              style={{ perspective: 1200 }}
             >
-              {/* Small flash at button */}
+              {/* Modal container */}
               <motion.div
-                className="absolute rounded-full"
-                style={{ 
-                  left: startX, 
-                  top: startY, 
-                  x: '-50%', 
-                  y: '-50%',
-                  background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)',
-                }}
-                initial={{ width: 44, height: 44, opacity: 0.8 }}
-                animate={{ width: 180, height: 180, opacity: 0 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              />
-
-              {/* Small particles */}
-              {particles.map((particle) => (
-                <motion.div
-                  key={particle.id}
-                  className="absolute rounded-full bg-primary"
-                  style={{
-                    left: startX,
-                    top: startY,
-                    width: particle.size,
-                    height: particle.size,
-                    boxShadow: '0 0 6px hsl(var(--primary))',
-                  }}
-                  initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-                  animate={{
-                    x: Math.cos((particle.angle * Math.PI) / 180) * particle.distance,
-                    y: Math.sin((particle.angle * Math.PI) / 180) * particle.distance,
-                    opacity: 0,
-                    scale: 0,
-                  }}
-                  transition={{
-                    duration: particle.duration,
-                    delay: particle.delay,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-              ))}
-
-              {/* Plus sign animation - smaller scale */}
-              <motion.div
-                className="absolute z-[60]"
-                style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
-                initial={{ scale: 1, opacity: 1, rotateZ: 0 }}
-                animate={{
-                  left: [startX, centerX],
-                  top: [startY, centerY],
-                  scale: [1, 2, 8],
-                  rotateZ: [0, 180],
-                  opacity: [1, 1, 0],
-                  filter: ['blur(0px)', 'blur(0px)', 'blur(8px)'],
-                }}
-                transition={{
-                  duration: 0.4,
-                  ease: [0.22, 1, 0.36, 1],
-                  times: [0, 0.5, 1],
-                }}
-              >
-                <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-                  <circle cx="22" cy="22" r="22" fill="hsl(var(--primary))" />
-                  <path
-                    d="M22 12V32M12 22H32"
-                    stroke="hsl(var(--primary-foreground))"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </motion.div>
-
-              {/* Two subtle shockwave rings */}
-              {[0, 1].map((i) => (
-                <motion.div
-                  key={i}
-                  className="absolute rounded-full border border-primary/60"
-                  style={{ left: startX, top: startY, x: '-50%', y: '-50%' }}
-                  initial={{ width: 44, height: 44, opacity: 0.6 }}
-                  animate={{ width: 200 + i * 80, height: 200 + i * 80, opacity: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: i * 0.05,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-              ))}
-
-              {/* Modal - bigger width */}
-              <motion.div
-                className="bg-panel-glass border border-stroke rounded-xl max-w-md w-full mx-4 overflow-hidden relative pointer-events-auto"
-                style={{
-                  boxShadow: '0 0 40px hsl(var(--primary) / 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.4)',
-                }}
+                className="relative max-w-md w-full mx-4 pointer-events-auto"
                 initial={{
                   opacity: 0,
                   scale: 0.9,
                   y: 30,
-                  filter: 'blur(10px)',
                 }}
                 animate={{
                   opacity: 1,
                   scale: 1,
                   y: 0,
-                  filter: 'blur(0px)',
                 }}
                 exit={{
                   opacity: 0,
                   scale: 0.95,
                   y: 15,
-                  filter: 'blur(8px)',
-                  transition: { duration: 0.15, ease: [0.4, 0, 1, 1] },
+                  transition: { duration: 0.15, ease: 'easeIn' },
                 }}
                 transition={{
-                  delay: 0.15,
                   duration: 0.3,
-                  ease: [0.22, 1, 0.36, 1],
+                  ease: [0.16, 1, 0.3, 1],
                 }}
               >
-                {/* Blue flash overlay */}
-                <motion.div
-                  className="absolute inset-0 bg-primary/30 z-10 pointer-events-none"
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: 0 }}
-                  transition={{ delay: 0.2, duration: 0.25, ease: 'easeOut' }}
-                />
+                {/* Main modal card */}
+                <div
+                  className="relative bg-panel-glass border border-stroke rounded-xl overflow-hidden"
+                  style={{
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
+                  }}
+                >
+                  {/* Shimmer/mirror effect across the modal */}
+                  <motion.div
+                    className="absolute inset-0 pointer-events-none z-10"
+                    style={{
+                      background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%)',
+                      backgroundSize: '200% 100%',
+                    }}
+                    initial={{ backgroundPosition: '-100% 0' }}
+                    animate={{ backgroundPosition: '200% 0' }}
+                    transition={{ duration: 0.6, delay: 0.1, ease: 'easeInOut' }}
+                  />
 
-                {/* Content */}
-                <div className="relative">
+                  {/* Content */}
+                  <div className="relative">
                   <DialogHeader className="px-5 py-4 border-b border-stroke">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <motion.div
-                          initial={{ scale: 0, rotate: -90 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          transition={{ delay: 0.25, duration: 0.2, ease: 'easeOut' }}
-                        >
-                          <Settings className="w-4 h-4 text-light-muted" />
-                        </motion.div>
-                        <motion.div
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.28, duration: 0.2 }}
-                        >
-                          <DialogTitle className="font-semibold text-base text-light">
-                            Create Market
-                          </DialogTitle>
-                        </motion.div>
-                      </div>
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.3, duration: 0.15, ease: 'easeOut' }}
+                      <DialogTitle className="font-semibold text-base text-light">
+                        Create Market
+                      </DialogTitle>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-light-muted hover:text-light hover:bg-row-hover"
+                        onClick={onClose}
                       >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-light-muted hover:text-light hover:bg-row-hover"
-                          onClick={onClose}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </motion.div>
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
                   </DialogHeader>
 
@@ -409,6 +289,7 @@ export function CreateMarketModal({ open, onClose, onCreate, buttonPosition }: C
                       </Button>
                     </motion.div>
                   </form>
+                  </div>
                 </div>
               </motion.div>
             </div>

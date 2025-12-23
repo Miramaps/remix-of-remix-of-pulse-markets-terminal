@@ -56,6 +56,7 @@ export function MarketRow({
   const [flashYes, setFlashYes] = useState(false);
   const [flashNo, setFlashNo] = useState(false);
   const [isImageHovered, setIsImageHovered] = useState(false);
+  const [cardFlash, setCardFlash] = useState<'yes' | 'no' | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -73,6 +74,11 @@ export function MarketRow({
   const handleYes = (e: React.MouseEvent) => {
     e.stopPropagation();
     const amount = fastBuyAmount ? ` $${fastBuyAmount}` : '';
+    
+    // Trigger card flash effect
+    setCardFlash('yes');
+    setTimeout(() => setCardFlash(null), 600);
+    
     toast({ variant: 'yes',
       title: 'Order Placed',
       description: `Bought${amount} YES at ${market.yesPrice.toFixed(2)}`,
@@ -82,6 +88,11 @@ export function MarketRow({
   const handleNo = (e: React.MouseEvent) => {
     e.stopPropagation();
     const amount = fastBuyAmount ? ` $${fastBuyAmount}` : '';
+    
+    // Trigger card flash effect
+    setCardFlash('no');
+    setTimeout(() => setCardFlash(null), 600);
+    
     toast({ variant: 'no',
       title: 'Order Placed',
       description: `Bought${amount} NO at ${market.noPrice.toFixed(2)}`,
@@ -208,12 +219,34 @@ export function MarketRow({
     <TooltipProvider delayDuration={200}>
       <div
         onClick={onSelect}
-        className={`relative group mx-2 my-1 px-3 py-2.5 cursor-pointer transition-all duration-200 rounded-xl ${
+        className={`relative group mx-2 my-1 px-3 py-2.5 cursor-pointer transition-all duration-200 rounded-xl overflow-hidden ${
           isSelected 
             ? 'bg-row-hover' 
             : 'hover:bg-row-hover'
-        }`}
+        } ${cardFlash === 'yes' ? 'card-flash-yes' : ''} ${cardFlash === 'no' ? 'card-flash-no' : ''}`}
       >
+        {/* Full card flash overlay for YES */}
+        {cardFlash === 'yes' && (
+          <div className="absolute inset-0 pointer-events-none rounded-xl card-flash-overlay-yes" />
+        )}
+        
+        {/* Full card flash overlay for NO */}
+        {cardFlash === 'no' && (
+          <div className="absolute inset-0 pointer-events-none rounded-xl card-flash-overlay-no" />
+        )}
+
+        {/* Animated border glow */}
+        {cardFlash && (
+          <div 
+            className={`absolute inset-0 pointer-events-none rounded-xl ${
+              cardFlash === 'yes' 
+                ? 'border-2 border-emerald-500/70 shadow-[0_0_15px_rgba(16,185,129,0.5)]'
+                : 'border-2 border-red-500/70 shadow-[0_0_15px_rgba(239,68,68,0.5)]'
+            }`}
+            style={{ animation: 'card-flash-yes 0.6s ease-out forwards' }}
+          />
+        )}
+
         {/* Accent bar */}
         <div className={`row-accent-bar rounded-l-xl ${isSelected ? 'active' : 'group-hover:hover'}`} />
 

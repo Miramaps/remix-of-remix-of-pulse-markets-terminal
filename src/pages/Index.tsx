@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { TopNav } from '@/components/TopNav';
+import { TopNav, User } from '@/components/TopNav';
 import { BottomBar } from '@/components/BottomBar';
 import { MarketColumn } from '@/components/MarketColumn';
 import { CreateMarketModal } from '@/components/CreateMarketModal';
+import { LoginPage } from '@/components/LoginPage';
 import { TradingPage } from '@/components/TradingPage';
 import { MobileTabs } from '@/components/MobileTabs';
 import { MarketsPage } from '@/components/MarketsPage';
@@ -20,6 +21,8 @@ const Index = () => {
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null);
   const [tradingMarket, setTradingMarket] = useState<Market | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [showLoginPage, setShowLoginPage] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const [buttonPosition, setButtonPosition] = useState<{ x: number; y: number } | undefined>();
 
   const handleOpenCreateModal = () => {
@@ -30,6 +33,24 @@ const Index = () => {
     }
     setIsCreateModalOpen(true);
   };
+
+  const handleLogin = (userData: User) => {
+    setUser(userData);
+    setShowLoginPage(false);
+    toast({
+      title: 'Welcome!',
+      description: `Signed in as ${userData.email}`,
+    });
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    toast({
+      title: 'Signed out',
+      description: 'You have been signed out successfully.',
+    });
+  };
+
   const [priceFlashes, setPriceFlashes] = useState<Record<string, boolean>>({});
   const [activeView, setActiveView] = useState<string>('Discover');
   const { toast } = useToast();
@@ -130,6 +151,18 @@ const Index = () => {
   const endingMarkets = markets.filter((m) => m.status === 'ending');
   const resolvedMarkets = markets.filter((m) => m.status === 'resolved');
 
+  // Show full-page login
+  if (showLoginPage) {
+    return (
+      <AnimatePresence mode="wait">
+        <LoginPage 
+          onLogin={handleLogin}
+          onBack={() => setShowLoginPage(false)}
+        />
+      </AnimatePresence>
+    );
+  }
+
   // If a trading market is selected, show the full-page trading terminal
   if (tradingMarket) {
     return (
@@ -147,6 +180,9 @@ const Index = () => {
           onRemoveFromWatchlist={handleToggleWatchlist}
           onSelectMarket={handleSelectMarket}
           onCreateMarket={handleOpenCreateModal}
+          user={user}
+          onLoginClick={() => setShowLoginPage(true)}
+          onLogout={handleLogout}
         />
         <CreateMarketModal
           open={isCreateModalOpen}
@@ -171,6 +207,9 @@ const Index = () => {
           watchlistMarkets={markets.filter(m => m.isWatchlisted)}
           onRemoveFromWatchlist={handleToggleWatchlist}
           onSelectMarket={handleSelectMarket}
+          user={user}
+          onLoginClick={() => setShowLoginPage(true)}
+          onLogout={handleLogout}
         />
         <MarketsPage 
           markets={markets}
@@ -201,6 +240,9 @@ const Index = () => {
           watchlistMarkets={markets.filter(m => m.isWatchlisted)}
           onRemoveFromWatchlist={handleToggleWatchlist}
           onSelectMarket={handleSelectMarket}
+          user={user}
+          onLoginClick={() => setShowLoginPage(true)}
+          onLogout={handleLogout}
         />
         <PortfolioPage onSelectMarket={handleSelectMarket} />
         <CreateMarketModal
@@ -227,6 +269,9 @@ const Index = () => {
           watchlistMarkets={markets.filter(m => m.isWatchlisted)}
           onRemoveFromWatchlist={handleToggleWatchlist}
           onSelectMarket={handleSelectMarket}
+          user={user}
+          onLoginClick={() => setShowLoginPage(true)}
+          onLogout={handleLogout}
         />
         <RewardsPage />
         <CreateMarketModal
@@ -252,6 +297,9 @@ const Index = () => {
         watchlistMarkets={markets.filter(m => m.isWatchlisted)}
         onRemoveFromWatchlist={handleToggleWatchlist}
         onSelectMarket={handleSelectMarket}
+        user={user}
+        onLoginClick={() => setShowLoginPage(true)}
+        onLogout={handleLogout}
       />
 
       {/* Main Content - Full Width */}

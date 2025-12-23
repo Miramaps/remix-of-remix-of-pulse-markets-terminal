@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { TopNav } from './TopNav';
+import { TopNav, User } from './TopNav';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 
 interface TradingPageProps {
@@ -17,6 +17,9 @@ interface TradingPageProps {
   onRemoveFromWatchlist?: (marketId: string) => void;
   onSelectMarket?: (market: Market) => void;
   onCreateMarket?: () => void;
+  user?: User | null;
+  onLoginClick?: () => void;
+  onLogout?: () => void;
 }
 
 // Generate mock price history
@@ -149,7 +152,10 @@ export function TradingPage({
   watchlistMarkets = [],
   onRemoveFromWatchlist,
   onSelectMarket,
-  onCreateMarket = () => {}
+  onCreateMarket = () => {},
+  user,
+  onLoginClick,
+  onLogout,
 }: TradingPageProps) {
   const [activeTab, setActiveTab] = useState<'yes' | 'no'>('yes');
   const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
@@ -218,6 +224,9 @@ export function TradingPage({
         watchlistMarkets={watchlistMarkets}
         onRemoveFromWatchlist={onRemoveFromWatchlist}
         onSelectMarket={onSelectMarket}
+        user={user}
+        onLoginClick={onLoginClick}
+        onLogout={onLogout}
       />
 
       {/* Market Header Bar */}
