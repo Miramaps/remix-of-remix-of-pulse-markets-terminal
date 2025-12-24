@@ -11,6 +11,8 @@ import {
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Market, formatVolume } from '@/lib/mockData';
+import { useWallet } from '@/hooks/useWallet';
+import { formatWalletAddress } from '@/lib/solana';
 
 // Google icon SVG component
 const GoogleIcon = ({ className }: { className?: string }) => (
@@ -81,15 +83,29 @@ export function TopNav({
   const [chain, setChain] = useState<'SOL' | 'ETH'>('SOL');
   const [watchlistOpen, setWatchlistOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { connected, publicKey } = useWallet();
 
-  // Mock custodial wallet data
-  const walletAddress = user ? '0x7a2d...8f3e' : '';
+  // Get wallet address - use connected wallet if available, otherwise use mock data
+  const walletAddress = connected && publicKey 
+    ? formatWalletAddress(publicKey.toBase58(), 4)
+    : user 
+      ? '0x7a2d...8f3e' 
+      : '';
+  
+  const fullWalletAddress = connected && publicKey
+    ? publicKey.toBase58()
+    : user
+      ? '0x7a2d4c6e9b1f3a8d2c5e7b0f4a9d8c6e3f2a1b8f3e'
+      : '';
+  
   const walletBalance = user ? '$1,247.32' : '$0.00';
 
   const handleCopyAddress = () => {
-    navigator.clipboard.writeText('0x7a2d4c6e9b1f3a8d2c5e7b0f4a9d8c6e3f2a1b8f3e');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (fullWalletAddress) {
+      navigator.clipboard.writeText(fullWalletAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const handleNavClick = (item: string) => {

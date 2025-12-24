@@ -14,6 +14,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { MarketRow } from '@/components/MarketRow';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatePresence, motion, LayoutGroup } from 'framer-motion';
+import { useWallet } from '@/hooks/useWallet';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 const Index = () => {
   const [markets, setMarkets] = useState<Market[]>(initialMarkets);
@@ -37,14 +40,117 @@ const Index = () => {
   const handleLogin = (userData: User) => {
     setUser(userData);
     setShowLoginPage(false);
+    setShouldAutoLogin(true); // Re-enable auto-login after manual login
     toast({
       title: 'Welcome!',
       description: `Signed in as ${userData.email}`,
     });
   };
 
-  const handleLogout = () => {
+  const { disconnect, connected, publicKey, walletUser, updateLastActive } = useWallet();
+  const [shouldAutoLogin, setShouldAutoLogin] = useState(true);
+  const { toast } = useToast();
+
+  // Handle wallet connection auto-login (separate from Firebase Auth)
+  useEffect(() => {
+    if (shouldAutoLogin && connected && publicKey && walletUser && !user) {
+      // Wallet is connected and user data is available
+      const walletUserData: User = {
+        email: walletUser.email || '',
+        name: walletUser.name || `Wallet ${publicKey.toBase58().slice(0, 4)}`,
+        avatar: walletUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${publicKey.toBase58()}&backgroundColor=b6e3f4`,
+      };
+      setUser(walletUserData);
+      setShowLoginPage(false);
+      toast({
+        title: 'Wallet Connected',
+        description: `Signed in with wallet ${publicKey.toBase58().slice(0, 4)}...`,
+      });
+    }
+  }, [shouldAutoLogin, connected, publicKey, walletUser?.walletAddress, user, toast]);
+
+  // Listen for Firebase Auth state changes (auto-login for authenticated users)
+  // Only handle Firebase Auth users (email/Google), not wallet users
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      // Only handle Firebase Auth users, not wallet-only users
+      if (firebaseUser && shouldAutoLogin && !user && !publicKey) {
+        // User is authenticated with Firebase, auto-login
+        const userData: User = {
+          email: firebaseUser.email || '',
+          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+          avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}&backgroundColor=b6e3f4`,
+        };
+        
+        // Determine sign-up method and save to Firestore
+        if (firebaseUser.email) {
+          try {
+            const { userService } = await import('@/lib/firestore');
+            // Check provider to determine sign-up method
+            const providerId = firebaseUser.providerData[0]?.providerId;
+            const signUpMethod = providerId === 'google.com' ? 'google' : 'email';
+            
+            await userService.upsert(firebaseUser.email, signUpMethod, {
+              email: userData.email,
+              name: userData.name,
+              avatar: userData.avatar,
+              updateLastActive: false,
+            });
+          } catch (error) {
+            console.error('Error updating Firestore user on auth state change:', error);
+          }
+        }
+        
+        setUser(userData);
+        setShowLoginPage(false);
+      } else if (!firebaseUser && user && !publicKey) {
+        // User logged out from Firebase, clear local state (only if not wallet user)
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [shouldAutoLogin, user, publicKey]);
+
+  const handleLogout = async () => {
+      // Update lastActive timestamp before disconnecting
+    // Check if user is logged in via wallet, email, or Google
+    if (publicKey && walletUser) {
+      // Wallet user
+      try {
+        await updateLastActive();
+      } catch (error) {
+        console.error('Error updating last active:', error);
+      }
+    } else if (user?.email) {
+      // Email or Google user
+      try {
+        const { userService } = await import('@/lib/firestore');
+        await userService.updateLastActive(user.email);
+      } catch (error) {
+        console.error('Error updating last active:', error);
+      }
+    }
+
+    // Sign out from Firebase Auth
+    try {
+      const { signOut } = await import('firebase/auth');
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out from Firebase:', error);
+    }
+
+    // Disconnect wallet
+    try {
+      await disconnect();
+    } catch (error) {
+      console.error('Error disconnecting wallet:', error);
+    }
+    
+    // Clear user state and prevent auto-login
     setUser(null);
+    setShouldAutoLogin(false);
+    
     toast({
       title: 'Signed out',
       description: 'You have been signed out successfully.',
@@ -53,7 +159,6 @@ const Index = () => {
 
   const [priceFlashes, setPriceFlashes] = useState<Record<string, boolean>>({});
   const [activeView, setActiveView] = useState<string>('Discover');
-  const { toast } = useToast();
 
   // Simulate live price updates
   useEffect(() => {
@@ -157,7 +262,11 @@ const Index = () => {
       <AnimatePresence mode="wait">
         <LoginPage 
           onLogin={handleLogin}
-          onBack={() => setShowLoginPage(false)}
+          onBack={() => {
+            setShowLoginPage(false);
+            setShouldAutoLogin(true); // Re-enable auto-login when closing login page
+          }}
+          shouldAutoLogin={shouldAutoLogin}
         />
       </AnimatePresence>
     );
@@ -181,7 +290,10 @@ const Index = () => {
           onSelectMarket={handleSelectMarket}
           onCreateMarket={handleOpenCreateModal}
           user={user}
-          onLoginClick={() => setShowLoginPage(true)}
+          onLoginClick={() => {
+            setShowLoginPage(true);
+            setShouldAutoLogin(true);
+          }}
           onLogout={handleLogout}
         />
         <CreateMarketModal
@@ -208,7 +320,10 @@ const Index = () => {
           onRemoveFromWatchlist={handleToggleWatchlist}
           onSelectMarket={handleSelectMarket}
           user={user}
-          onLoginClick={() => setShowLoginPage(true)}
+          onLoginClick={() => {
+            setShowLoginPage(true);
+            setShouldAutoLogin(true);
+          }}
           onLogout={handleLogout}
         />
         <MarketsPage 
@@ -241,7 +356,10 @@ const Index = () => {
           onRemoveFromWatchlist={handleToggleWatchlist}
           onSelectMarket={handleSelectMarket}
           user={user}
-          onLoginClick={() => setShowLoginPage(true)}
+          onLoginClick={() => {
+            setShowLoginPage(true);
+            setShouldAutoLogin(true);
+          }}
           onLogout={handleLogout}
         />
         <PortfolioPage onSelectMarket={handleSelectMarket} />
@@ -270,7 +388,10 @@ const Index = () => {
           onRemoveFromWatchlist={handleToggleWatchlist}
           onSelectMarket={handleSelectMarket}
           user={user}
-          onLoginClick={() => setShowLoginPage(true)}
+          onLoginClick={() => {
+            setShowLoginPage(true);
+            setShouldAutoLogin(true);
+          }}
           onLogout={handleLogout}
         />
         <RewardsPage />

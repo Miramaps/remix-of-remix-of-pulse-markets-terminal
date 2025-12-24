@@ -1,0 +1,155 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidWalletAddress(address) {
+      // Solana addresses are base58 encoded, 32-44 characters
+      return address.matches('^[1-9A-HJ-NP-Za-km-z]{32,44}$');
+    }
+    
+    function isValidMarketData() {
+      let data = request.resource.data;
+      return data.keys().hasAll(['question', 'category', 'yesPrice', 'noPrice', 'volume', 'traders', 'createdAt', 'resolvesAt', 'status']) &&
+             data.question is string && data.question.size() > 0 && data.question.size() <= 200 &&
+             data.category in ['crypto', 'politics', 'sports', 'pop', 'memes'] &&
+             data.yesPrice is number && data.yesPrice >= 0 && data.yesPrice <= 1 &&
+             data.noPrice is number && data.noPrice >= 0 && data.noPrice <= 1 &&
+             data.volume is number && data.volume >= 0 &&
+             data.traders is int && data.traders >= 0 &&
+             data.createdAt is timestamp &&
+             data.resolvesAt is timestamp &&
+             data.status in ['new', 'ending', 'resolved'];
+    }
+    
+    function isValidEmail(email) {
+      return email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+    }
+    
+    // Users Collection - Support wallet addresses, emails, or gmail as document IDs
+    match /users/{userId} {
+      // Anyone can read user profiles (for leaderboards, etc.)
+      allow read: if true;
+      
+      // Allow create if:
+      // 1. Wallet sign-up: userId is wallet address and matches walletAddress field
+      // 2. Email/Google sign-up: userId is email and matches email field
+      allow create: if (
+        // Wallet sign-up
+        (isValidWalletAddress(userId) && 
+         request.resource.data.walletAddress == userId &&
+         request.resource.data.signUpMethod == 'wallet') ||
+        // Email/Google sign-up
+        (isValidEmail(userId) && 
+         request.resource.data.email == userId &&
+         request.resource.data.signUpMethod in ['email', 'google'])
+      ) &&
+      request.resource.data.keys().hasAll(['signUpMethod', 'createdAt', 'lastActive']) &&
+      request.resource.data.signUpMethod in ['wallet', 'email', 'google'] &&
+      request.resource.data.createdAt is timestamp &&
+      request.resource.data.lastActive is timestamp;
+      
+      // Allow update if:
+      // 1. Wallet: userId matches walletAddress field
+      // 2. Email/Google: userId matches email field
+      allow update: if (
+        // Wallet user
+        (isValidWalletAddress(userId) && 
+         resource.data.walletAddress == userId &&
+         request.resource.data.walletAddress == userId) ||
+        // Email/Google user
+        (isValidEmail(userId) && 
+         resource.data.email == userId &&
+         request.resource.data.email == userId)
+      ) &&
+      // Preserve signUpMethod and createdAt
+      request.resource.data.signUpMethod == resource.data.signUpMethod &&
+      request.resource.data.createdAt == resource.data.createdAt &&
+      request.resource.data.lastActive is timestamp;
+      
+      // Only authenticated users can delete, or admin
+      allow delete: if isAuthenticated() && 
+                       (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+    
+    // Markets Collection - Public read, authenticated write
+    match /markets/{marketId} {
+      // Anyone can read markets (needed for public trading interface)
+      allow read: if true;
+      
+      // Only authenticated users can create markets
+      allow create: if isAuthenticated() && 
+                       isValidMarketData() &&
+                       request.resource.data.createdBy == request.auth.uid;
+      
+      // Only market creator or admin can update
+      allow update: if isAuthenticated() && 
+                      (resource.data.createdBy == request.auth.uid ||
+                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') &&
+                      isValidMarketData();
+      
+      // Only market creator or admin can delete
+      allow delete: if isAuthenticated() && 
+                       (resource.data.createdBy == request.auth.uid ||
+                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+    
+    // Trades Collection - User-specific data
+    match /trades/{tradeId} {
+      // Users can only read their own trades
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      // Users can create their own trades
+      allow create: if isAuthenticated() && 
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['marketId', 'side', 'amount', 'price', 'shares', 'timestamp']) &&
+                      request.resource.data.side in ['YES', 'NO'] &&
+                      request.resource.data.amount is number && request.resource.data.amount > 0 &&
+                      request.resource.data.price is number && request.resource.data.price >= 0 && request.resource.data.price <= 1;
+      
+      // Trades are immutable (no updates/deletes)
+      allow update, delete: if false;
+    }
+    
+    // User Portfolios - Private to each user
+    match /portfolios/{userId} {
+      // Users can only read their own portfolio
+      allow read: if isOwner(userId);
+      
+      // Users can only write to their own portfolio
+      allow write: if isOwner(userId) &&
+                      request.resource.data.keys().hasAll(['positions', 'totalValue', 'totalPnL', 'lastUpdated']);
+    }
+    
+    // Watchlists - Private to each user
+    match /watchlists/{userId} {
+      // Users can only read their own watchlist
+      allow read: if isOwner(userId);
+      
+      // Users can only modify their own watchlist
+      allow write: if isOwner(userId) &&
+                      request.resource.data.keys().hasAll(['marketIds']) &&
+                      request.resource.data.marketIds is list;
+    }
+    
+    // Market Statistics (aggregated data) - Public read only
+    match /statistics/{docId} {
+      allow read: if true;
+      allow write: if false; // Only updated by backend/cloud functions
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

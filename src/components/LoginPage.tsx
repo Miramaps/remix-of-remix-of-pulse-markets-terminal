@@ -1,10 +1,17 @@
-import { useState } from 'react';
-import { Sparkles, TrendingUp, Shield, Zap, ArrowRight, ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sparkles, TrendingUp, Shield, Zap, ArrowRight, ArrowLeft, Mail, Lock, Eye, EyeOff, User, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ConnectWalletButton } from './ConnectWalletButton';
+import { useWallet } from '@/hooks/useWallet';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '@/lib/firebase';
 
 interface LoginPageProps {
   onLogin: (user: { email: string; name: string; avatar: string }) => void;
   onBack: () => void;
+  shouldAutoLogin?: boolean;
 }
 
 // Google icon SVG component
@@ -47,24 +54,216 @@ const features = [
   },
 ];
 
-export function LoginPage({ onLogin, onBack }: LoginPageProps) {
+export function LoginPage({ onLogin, onBack, shouldAutoLogin = true }: LoginPageProps) {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isEmailMode, setIsEmailMode] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [isEmailLoading, setIsEmailLoading] = useState(false);
+  const { connected, publicKey, walletUser, updateWalletProfile } = useWallet();
+
+  // Handle wallet connection - when wallet connects on login page, auto-login
+  // Only auto-login if shouldAutoLogin is true (prevents auto-login after logout)
+  useEffect(() => {
+    if (shouldAutoLogin && connected && publicKey && walletUser) {
+      // Wallet is connected and tracked in Firestore
+      const user = {
+        email: walletUser.email || '',
+        name: walletUser.name || `Wallet ${publicKey.toBase58().slice(0, 4)}`,
+        avatar: walletUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${publicKey.toBase58()}&backgroundColor=b6e3f4`,
+      };
+      onLogin(user);
+    }
+  }, [shouldAutoLogin, connected, publicKey, walletUser?.walletAddress, onLogin]);
 
   const handleGoogleLogin = async () => {
     setIsLoggingIn(true);
+    setEmailError('');
     
-    // Simulate Google OAuth flow
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      // Sign in with Google using Firebase Auth
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      // Extract user data from Google account
+      const googleUser = {
+        email: user.email || '',
+        name: user.displayName || user.email?.split('@')[0] || 'User',
+        avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}&backgroundColor=b6e3f4`,
+      };
+      
+      // If wallet is connected, update wallet profile with Google data
+      if (connected && publicKey) {
+        try {
+          await updateWalletProfile({
+            email: googleUser.email,
+            name: googleUser.name,
+            avatar: googleUser.avatar,
+          });
+        } catch (error) {
+          console.error('Error updating wallet profile:', error);
+        }
+      }
+      
+      // Also update/create user in Firestore users collection
+      // Use email (gmail) as document ID for Google sign-ups
+      if (user.email) {
+        try {
+          const { userService } = await import('@/lib/firestore');
+          await userService.upsert(user.email, 'google', {
+            email: googleUser.email,
+            name: googleUser.name,
+            avatar: googleUser.avatar,
+            updateLastActive: false,
+          });
+        } catch (error) {
+          console.error('Error updating Firestore user:', error);
+        }
+      }
+      
+      onLogin(googleUser);
+    } catch (error: any) {
+      console.error('Google sign-in error:', error);
+      
+      // Handle specific error cases
+      if (error.code === 'auth/popup-closed-by-user') {
+        setEmailError('Sign-in popup was closed');
+      } else if (error.code === 'auth/popup-blocked') {
+        setEmailError('Popup was blocked by browser. Please allow popups for this site.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        setEmailError('Another sign-in request is already in progress');
+      } else {
+        setEmailError(error.message || 'Failed to sign in with Google. Please try again.');
+      }
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEmailError('');
     
-    // Mock user data (in production, this would come from Google OAuth)
-    const mockUser = {
-      email: 'user@gmail.com',
-      name: 'Alex Chen',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alex&backgroundColor=b6e3f4',
-    };
-    
-    onLogin(mockUser);
-    setIsLoggingIn(false);
+    // Validation for sign-up
+    if (isSignUp) {
+      if (!email || !password || !name || !confirmPassword) {
+        setEmailError('Please fill in all fields');
+        return;
+      }
+      
+      if (password.length < 6) {
+        setEmailError('Password must be at least 6 characters');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        setEmailError('Passwords do not match');
+        return;
+      }
+    } else {
+      // Validation for sign-in
+      if (!email || !password) {
+        setEmailError('Please fill in all fields');
+        return;
+      }
+    }
+
+    setIsEmailLoading(true);
+
+    try {
+      let userCredential;
+      
+      if (isSignUp) {
+        // Sign up
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        // Sign in
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
+      }
+
+      const user = userCredential.user;
+      // Use provided name for sign-up, or fallback to email username
+      const displayName = isSignUp ? name : (user.displayName || email.split('@')[0]);
+      const avatar = user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}&backgroundColor=b6e3f4`;
+
+      const userData = {
+        email: user.email || email,
+        name: displayName,
+        avatar: avatar,
+      };
+      
+      // Update Firebase profile with name if signing up
+      if (isSignUp && name) {
+        try {
+          const { updateProfile } = await import('firebase/auth');
+          await updateProfile(user, { displayName: name });
+        } catch (error) {
+          console.error('Error updating profile:', error);
+        }
+      }
+
+      // Update/create user in Firestore users collection
+      // Use email as document ID for email sign-ups
+      if (user.email) {
+        try {
+          const { userService } = await import('@/lib/firestore');
+          await userService.upsert(user.email, 'email', {
+            email: userData.email,
+            name: userData.name, // This will include the provided name for sign-ups
+            avatar: userData.avatar,
+            updateLastActive: false,
+          });
+        } catch (error) {
+          console.error('Error updating Firestore user:', error);
+        }
+      }
+
+      // If wallet is connected, update wallet profile with email data
+      if (connected && publicKey) {
+        try {
+          await updateWalletProfile({
+            email: userData.email,
+            name: userData.name,
+            avatar: userData.avatar,
+          });
+        } catch (error) {
+          console.error('Error updating wallet profile:', error);
+        }
+      }
+
+      onLogin(userData);
+
+      // Reset form
+      setEmail('');
+      setName('');
+      setPassword('');
+      setConfirmPassword('');
+      setIsEmailMode(false);
+      setIsSignUp(false);
+    } catch (error: any) {
+      console.error('Email auth error:', error);
+      if (error.code === 'auth/user-not-found') {
+        setEmailError('No account found with this email');
+      } else if (error.code === 'auth/wrong-password') {
+        setEmailError('Incorrect password');
+      } else if (error.code === 'auth/email-already-in-use') {
+        setEmailError('This email is already registered');
+      } else if (error.code === 'auth/invalid-email') {
+        setEmailError('Invalid email address');
+      } else if (error.code === 'auth/weak-password') {
+        setEmailError('Password is too weak');
+      } else {
+        setEmailError(error.message || 'An error occurred. Please try again.');
+      }
+    } finally {
+      setIsEmailLoading(false);
+    }
   };
 
   return (
@@ -239,12 +438,31 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
 
             {/* Header */}
             <div className="text-center">
-              <h2 className="font-display font-bold text-3xl text-white mb-3">
-                Welcome back
-              </h2>
-              <p className="text-base text-light-muted">
-                Sign in to access your portfolio and start trading
-              </p>
+              <motion.div
+                key={isSignUp ? 'signup' : 'signin'}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center justify-center gap-2 mb-3"
+              >
+                {isSignUp ? (
+                  <UserPlus className="w-8 h-8 text-primary" />
+                ) : (
+                  <User className="w-8 h-8 text-primary" />
+                )}
+                <h2 className={`font-display font-bold text-3xl ${isSignUp ? 'text-primary' : 'text-white'}`}>
+                  {isSignUp ? 'Create Account' : 'Welcome back'}
+                </h2>
+              </motion.div>
+              <motion.p
+                key={isSignUp ? 'signup-desc' : 'signin-desc'}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-base text-light-muted"
+              >
+                {isSignUp 
+                  ? 'Join Pulse Markets and start trading predictions' 
+                  : 'Sign in to access your portfolio and start trading'}
+              </motion.p>
             </div>
 
             {/* Google Sign In Button */}
@@ -269,20 +487,217 @@ export function LoginPage({ onLogin, onBack }: LoginPageProps) {
               )}
             </motion.button>
 
-            {/* Divider */}
-            <div className="flex items-center gap-4">
-              <div className="flex-1 h-px bg-white/10" />
-              <span className="text-sm text-light-muted">or</span>
-              <div className="flex-1 h-px bg-white/10" />
-            </div>
+            {/* Email Login Form */}
+            {isEmailMode ? (
+              <motion.form
+                onSubmit={handleEmailLogin}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className={`space-y-4 ${isSignUp ? 'bg-gradient-to-br from-primary/10 to-primary/5 p-6 rounded-2xl border border-primary/20' : ''}`}
+              >
+                <div className="space-y-3">
+                  {/* Name field - only for sign-up */}
+                  {isSignUp && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="relative"
+                    >
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-muted" />
+                      <Input
+                        type="text"
+                        placeholder="Full name"
+                        value={name}
+                        onChange={(e) => {
+                          setName(e.target.value);
+                          setEmailError('');
+                        }}
+                        className="h-12 pl-10 bg-panel/70 border-primary/30 text-light placeholder:text-light-muted/50 focus:border-primary focus:ring-2 focus:ring-primary/30 rounded-xl"
+                        required={isSignUp}
+                      />
+                    </motion.div>
+                  )}
+                  
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-muted" />
+                    <Input
+                      type="email"
+                      placeholder="Email address"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setEmailError('');
+                      }}
+                      className={`h-12 pl-10 ${isSignUp ? 'bg-panel/70 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/30' : 'bg-panel/50 border-stroke focus:border-primary focus:ring-1 focus:ring-primary/30'} text-light placeholder:text-light-muted/50 rounded-xl`}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-muted" />
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setEmailError('');
+                      }}
+                      className={`h-12 pl-10 pr-10 ${isSignUp ? 'bg-panel/70 border-primary/30 focus:border-primary focus:ring-2 focus:ring-primary/30' : 'bg-panel/50 border-stroke focus:border-primary focus:ring-1 focus:ring-primary/30'} text-light placeholder:text-light-muted/50 rounded-xl`}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-light-muted hover:text-light transition-colors"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                  
+                  {/* Confirm Password - only for sign-up */}
+                  {isSignUp && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="relative"
+                    >
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-muted" />
+                      <Input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        placeholder="Confirm password"
+                        value={confirmPassword}
+                        onChange={(e) => {
+                          setConfirmPassword(e.target.value);
+                          setEmailError('');
+                        }}
+                        className="h-12 pl-10 pr-10 bg-panel/70 border-primary/30 text-light placeholder:text-light-muted/50 focus:border-primary focus:ring-2 focus:ring-primary/30 rounded-xl"
+                        required={isSignUp}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-light-muted hover:text-light transition-colors"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
 
-            {/* Email option hint */}
-            <div className="text-center">
-              <button className="text-base text-primary hover:text-primary/80 transition-colors flex items-center gap-2 mx-auto font-medium">
-                <span>Use email instead</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
+                {emailError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2"
+                  >
+                    {emailError}
+                  </motion.div>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={isEmailLoading}
+                  className={`w-full h-12 font-semibold rounded-xl disabled:opacity-70 disabled:cursor-not-allowed transition-all ${
+                    isSignUp 
+                      ? 'bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/25' 
+                      : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                  }`}
+                >
+                  {isEmailLoading ? (
+                    <motion.div
+                      className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    />
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      {isSignUp && <UserPlus className="w-4 h-4" />}
+                      {isSignUp ? 'Create Account' : 'Sign In'}
+                    </span>
+                  )}
+                </Button>
+
+                <div className="flex items-center justify-center gap-2 text-sm">
+                  <span className="text-light-muted">
+                    {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSignUp(!isSignUp);
+                      setEmailError('');
+                      setPassword('');
+                      setConfirmPassword('');
+                      if (!isSignUp) {
+                        setName(''); // Clear name when switching to sign-in
+                      }
+                    }}
+                    className="text-primary hover:text-primary/80 font-medium transition-colors"
+                  >
+                    {isSignUp ? 'Sign in' : 'Sign up'}
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEmailMode(false);
+                    setEmail('');
+                    setName('');
+                    setPassword('');
+                    setConfirmPassword('');
+                    setEmailError('');
+                    setIsSignUp(false);
+                  }}
+                  className="w-full text-sm text-light-muted hover:text-light transition-colors"
+                >
+                  Back to other options
+                </button>
+              </motion.form>
+            ) : (
+              <motion.button
+                onClick={() => setIsEmailMode(true)}
+                className="w-full h-12 bg-panel/50 border border-stroke hover:bg-panel/70 text-light rounded-xl font-medium text-base flex items-center justify-center gap-2 transition-all duration-200"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                <Mail className="w-4 h-4" />
+                <span>Continue with Email</span>
+              </motion.button>
+            )}
+
+            {/* Divider */}
+            {!isEmailMode && (
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-sm text-light-muted">or</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+            )}
+
+            {/* Connect Wallet Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <ConnectWalletButton
+                variant="outline"
+                size="lg"
+                className="w-full h-14 bg-panel/50 border-2 border-primary/30 hover:border-primary/50 hover:bg-panel/70 text-white font-semibold text-base"
+                showIcon={true}
+              />
+            </motion.div>
 
             {/* Terms */}
             <p className="text-xs text-center text-light-muted/60 leading-relaxed pt-4">
